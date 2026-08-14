@@ -16,6 +16,9 @@ permissions:
 
 jobs:
   update-index:
+    # 防止 GitHub Actions 自动提交 index.html 后再次执行自己
+    if: github.actor != 'github-actions[bot]'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -30,21 +33,14 @@ jobs:
         with:
           node-version: 24
 
-      - name: 检查环境和文件
+      - name: 检查必要文件
         run: |
           echo "当前目录："
           pwd
 
-          echo ""
           echo "Node.js 版本："
           node --version
 
-          echo ""
-          echo "仓库文件："
-          find . -maxdepth 3 -type f | sort
-
-      - name: 检查必要文件
-        run: |
           test -f index.html || {
             echo "错误：找不到 index.html"
             exit 1
@@ -65,7 +61,7 @@ jobs:
             exit 1
           }
 
-          echo "必要文件和标记检查通过"
+          echo "必要文件检查通过"
 
       - name: 更新 index.html
         run: |
