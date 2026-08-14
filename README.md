@@ -6,9 +6,14 @@
 
 应用工程师 · 集团信息化中心
 
-[![Website](https://img.shields.io/badge/Website-KevinLI--0406.github.io-58a6ff?style=flat-square&logo=github)]([https://KevinLI-0406.github.io](https://kevinli-0406.github.io/kevinli.github.io/))
-[![GitHub](https://img.shields.io/badge/GitHub-KevinLI--0406-181717?style=flat-square&logo=github)](https://github.com/KevinLI-0406)
-[![GitHub Pages](https://img.shields.io/badge/Hosted%20by-GitHub%20Pages-222222?style=flat-square&logo=githubpages)](https://pages.github.com/)
+[![Website](https://img.shields.io/badge/Website-Personal%20Portal-58a6ff?style=flat-square&logo=github)]
+(https://kevinli-0406.github.io/kevinli.github.io/)
+
+[![GitHub](https://img.shields.io/badge/GitHub-KevinLI--0406-181717?style=flat-square&logo=github)]
+(https://github.com/KevinLI-0406)
+
+[![GitHub Pages](https://img.shields.io/badge/Hosted%20by-GitHub%20Pages-222222?style=flat-square&logo=githubpages)]
+(https://pages.github.com/)
 
 </div>
 
@@ -154,11 +159,11 @@
 
 ## 🌐 个人门户
 
-这是我的个人门户网站，主要用于展示个人信息、职业经历、技术能力和项目作品。
+这是我的个人门户网站，用于展示个人信息、职业经历、技术能力和项目作品。
 
 访问地址：
 
-👉 [[https://KevinLI-0406.github.io](https://kevinli-0406.github.io/kevinli.github.io/)]([https://KevinLI-0406.github.io](https://kevinli-0406.github.io/kevinli.github.io/))
+👉 [https://kevinli-0406.github.io/kevinli.github.io/](https://kevinli-0406.github.io/kevinli.github.io/)
 
 网站主要包含以下内容：
 
