@@ -260,138 +260,116 @@
   </main>
   <footer><div class="container">© 2026 KevinLI-0406 · Hosted by <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></div></footer>
 
-  <script>
-    // ===== 双语切换 =====
-        // ===== 语言切换（全局函数） =====
-    }
-
-    // ===== GitHub Projects =====
+    <script>
     var GITHUB_USERNAME = "KevinLI-0406";
     var GITHUB_REPO = "kevinli.github.io";
     var PROJECTS_DIR = "Projects";
     var PAGES_BASE = "https://" + GITHUB_USERNAME + ".github.io/" + GITHUB_REPO;
 
     var CATEGORY_MAP = {
-      "宝可梦": "cat.fun", "pokemon": "cat.fun", "图鉴": "cat.fun",
-      "杰尼龟": "cat.fun", "squirtle": "cat.fun", "宠物": "cat.fun",
-      "游戏": "cat.fun", "game": "cat.fun", "音乐": "cat.fun", "music": "cat.fun",
-      "画": "cat.fun", "draw": "cat.fun", "paint": "cat.fun",
-      "工具": "cat.tool", "tool": "cat.tool", "utility": "cat.tool",
-      "计算器": "cat.tool", "calc": "cat.tool",
-      "天气": "cat.tool", "weather": "cat.tool",
-      "关于": "cat.profile", "个人": "cat.profile", "about": "cat.profile", "profile": "cat.profile",
-      "博客": "cat.content", "blog": "cat.content",
-      "项目展示": "cat.content", "portfolio": "cat.content", "作品": "cat.content",
-      "链接": "cat.nav", "link": "cat.nav", "导航": "cat.nav", "portal": "cat.nav",
-      "数据": "cat.data", "data": "cat.data", "分析": "cat.data"
+      "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
+      "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
+      "游戏":"cat.fun","game":"cat.fun","音乐":"cat.fun",
+      "画":"cat.fun","draw":"cat.fun",
+      "工具":"cat.tool","tool":"cat.tool","utility":"cat.tool",
+      "计算器":"cat.tool","calc":"cat.tool","天气":"cat.tool",
+      "关于":"cat.profile","个人":"cat.profile","about":"cat.profile",
+      "博客":"cat.content","blog":"cat.content",
+      "项目展示":"cat.content","portfolio":"cat.content",
+      "链接":"cat.nav","link":"cat.nav","导航":"cat.nav",
+      "数据":"cat.data","data":"cat.data","分析":"cat.data"
     };
 
-    function getCategoryKey(name) {
+    var CAT_ZH = {"cat.fun":"趣味互动","cat.tool":"工具应用","cat.profile":"个人信息","cat.content":"内容展示","cat.nav":"导航工具","cat.data":"数据分析","cat.other":"其他"};
+    var ICONS = {"cat.fun":"⚡","cat.tool":"🛠️","cat.profile":"👤","cat.content":"🚀","cat.nav":"🔗","cat.data":"📊"};
+
+    function getCatKey(name) {
       var low = name.toLowerCase();
-      for (var key in CATEGORY_MAP) { if (low.includes(key)) return CATEGORY_MAP[key]; }
+      for (var k in CATEGORY_MAP) { if (low.includes(k)) return CATEGORY_MAP[k]; }
       return "cat.other";
     }
-    function getCategory(name) { return t(getCategoryKey(name)); }
-
-    function getProjectIcon(name) {
-      var cat = getCategoryKey(name);
-      var icons = { "cat.fun": "⚡", "cat.tool": "\u{1F6E0}️", "cat.profile": "\u{1F464}", "cat.content": "\u{1F680}", "cat.nav": "\u{1F517}", "cat.data": "\u{1F4CA}" };
-      return icons[cat] || "\u{1F4C4}";
-    }
-
-    function escapeHtml(v) { return String(v || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+    function getCatName(name) { return CAT_ZH[getCatKey(name)] || "其他"; }
+    function getIcon(name) { return ICONS[getCatKey(name)] || "📄"; }
+    function esc(v) { return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
     async function fetchProjectFiles() {
-      var cacheKey = 'projects_cache_v1';
+      var cacheKey = "kp_cache_v1";
       var cached = localStorage.getItem(cacheKey);
       if (cached) {
-        try { var data = JSON.parse(cached); if (Date.now() - data.ts < 300000) return data.files; } catch(e) {}
+        try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.files; } catch(e) {}
       }
-      var url = 'https://api.github.com/repos/' + GITHUB_USERNAME + '/' + GITHUB_REPO + '/contents/' + PROJECTS_DIR;
-      var r = await fetch(url);
-      if (!r.ok) { if (r.status===404) throw new Error('"'+PROJECTS_DIR+'" directory not found'); throw new Error('GitHub API error ('+r.status+')'); }
-      var files = (await r.json()).filter(function(f){ return f.type==='file' && /\.html?$/i.test(f.name) && f.name.toLowerCase()!=='index.html'; });
-      try { localStorage.setItem(cacheKey, JSON.stringify({ts:Date.now(),files:files})); } catch(e) {}
+      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR;
+      var resp = await fetch(url);
+      if (!resp.ok) {
+        if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" 目录未找到');
+        throw new Error("GitHub API 错误 (" + resp.status + ")");
+      }
+      var files = (await resp.json()).filter(function(f) {
+        return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
+      });
+      try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), files: files})); } catch(e) {}
       return files;
     }
 
-      var files = await resp.json();
-      return files.filter(function(f) { return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html"; });
-    }
-    var allProjectData = [];
-    var filterCategory = "all";
-    
+    var allItems = [];
+    var filterCat = "all";
 
     function applyFilters() {
-      var filtered = allProjectData.filter(function(item) {
-        return (filterCategory === "all" || item.catKey === filterCategory) &&
-               true;
-      });
-      renderCards(filtered);
+      var list = filterCat === "all" ? allItems : allItems.filter(function(i) { return i.catKey === filterCat; });
+      renderCards(list);
     }
 
     function renderCards(items) {
       var grid = document.getElementById("project-grid");
-      var countEl = document.getElementById("projectCount");
-      if (countEl) countEl.textContent = 我的项目 + " — " + items.length + (currentLang === "zh" ? " 个项目" : " projects");
+      var cnt = document.getElementById("projectCount");
+      if (cnt) cnt.textContent = "我的项目 — " + items.length + " 个项目";
 
       if (items.length === 0) {
-        grid.innerHTML = '<div class="empty-project"><h3>' + 没有匹配的项目 + '</h3><p>' + 尝试调整筛选条件。 + '</p></div>';
+        grid.innerHTML = '<div class="empty-project"><h3>没有匹配的项目</h3><p>尝试调整筛选条件。</p></div>';
         return;
       }
 
       var html = "";
       for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        var icon = getProjectIcon(item.name);
-        var encodedName = encodeURIComponent(item.file.name);
-        var projectUrl = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodedName;
-        var dateStr = item.createdDate ? item.createdDate.toLocaleDateString(currentLang === "zh" ? "zh-CN" : "en-US", {year:"numeric",month:"2-digit",day:"2-digit"}) : "";
-
-        html += '<a class="project-card" href="' + projectUrl + '" target="_blank" rel="noopener">';
-        html += '<div class="project-icon">' + icon + '</div>';
-        html += '<h3>' + escapeHtml(item.name) + '</h3>';
-        html += '<p>' + 点击打开此项目页面 + '</p>';
+        var it = items[i];
+        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
+        html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
+        html += '<div class="project-icon">' + getIcon(it.name) + '</div>';
+        html += '<h3>' + esc(it.name) + '</h3>';
+        html += '<p>点击打开此项目页面</p>';
         html += '<div class="project-meta">';
-        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + getCategory(item.name) + '</span>';
-        if (dateStr) html += '<span class="meta-item">\u{1F4C5} ' + dateStr + '</span>';
-        html += '<span class="meta-item">\u{1F4BE} ' + (item.file.size / 1024).toFixed(1) + ' KB</span>';
+        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + getCatName(it.name) + '</span>';
+        html += '<span class="meta-item">💾 ' + (it.file.size / 1024).toFixed(1) + ' KB</span>';
         html += '</div>';
-        html += '<span class="card-link">' + 打开项目 → + '</span>';
+        html += '<span class="card-link">打开项目 →</span>';
         html += '</a>';
       }
       grid.innerHTML = html;
     }
 
-    function rebuildFilters() {
-      var cats = [];
-      var catSet = {};
-      allProjectData.forEach(function(item) { if (!catSet[item.catKey]) { catSet[item.catKey] = true; cats.push(item.catKey); } });
+    function buildFilter() {
+      var cats = [], cs = {};
+      allItems.forEach(function(i) { if (!cs[i.catKey]) { cs[i.catKey] = true; cats.push(i.catKey); } });
       cats.sort();
-
-      var filterBar = document.getElementById("filterBar");
-      filterBar.style.display = "flex";
-      filterBar.innerHTML =
-        '<label>' + 用途： + '</label>' +
-        '<select id="filterCategory"><option value="all">' + 全部用途 + '</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + t(c) + '</option>'; }).join('') + '</select>;
-
-      document.getElementById("filterCategory").addEventListener("change", function(e) { filterCategory = e.target.value; applyFilters(); });
+      var fb = document.getElementById("filterBar");
+      fb.style.display = "flex";
+      fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
+        cats.map(function(c) { return '<option value="' + c + '">' + (CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
+      document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
     }
 
     (async function() {
       try {
         var files = await fetchProjectFiles();
-        allProjectData = files.map(function(f, i) {
+        allItems = files.map(function(f) {
           var name = f.name.replace(/\.html?$/i, "");
-          return {file:f,name:n,catKey:getCategoryKey(n)};
+          return { file: f, name: name, catKey: getCatKey(name) };
         });
-
-        rebuildFilters();
+        buildFilter();
         applyFilters();
-      } catch (err) {
+      } catch(err) {
         document.getElementById("project-grid").innerHTML =
-          '<div class="empty-project"><h3>⚠️ ' + (currentLang === "zh" ? "加载失败" : "Load Failed") + '</h3><p>' + escapeHtml(err.message) + '</p></div>';
+          '<div class="empty-project"><h3>⚠️ 加载失败</h3><p>' + esc(err.message) + '</p><p style="margin-top:10px;font-size:13px">请检查网络连接或稍后刷新。</p></div>';
       }
     })();
   </script>
