@@ -241,7 +241,7 @@
 
     <section id="projects" class="section">
       <div class="container">
-        <div class="section-heading"><div><h2>我的项目</h2><p id="projectCount">从 kevinli.github.io/Projects 目录实时加载</p></div></div>
+        <div class="section-heading"><div><h2>我的项目</h2><p id="projectCount">从 Projects/README.md 实时加载分类</p></div></div>
         <div class="filter-bar" id="filterBar" style="display:none"></div>
         <div id="project-grid" class="project-grid">
           <div class="loading-state"><div class="loading-spinner"></div><div>正在从 GitHub 拉取项目…</div></div>
@@ -252,58 +252,46 @@
     <section class="section">
       <div class="container">
         <div class="info-grid">
-          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。</p></div>
-          <div class="info-card"><h3>使用技术</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
+          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取，分类数据来源于 Projects/README.md。</p></div>
+          <div class="info-card"><h3>使用技术</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表和分类信息。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
         </div>
       </div>
     </section>
   </main>
   <footer><div class="container">© 2026 KevinLI-0406 · Hosted by <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></div></footer>
 
-    <script>
+  <script>
+    /* ====== 配置 ====== */
     var GITHUB_USERNAME = "KevinLI-0406";
     var GITHUB_REPO = "kevinli.github.io";
     var PROJECTS_DIR = "Projects";
     var PAGES_BASE = "https://" + GITHUB_USERNAME + ".github.io/" + GITHUB_REPO;
 
-    var CATEGORY_MAP = {
-      "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
-      "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
-      "游戏":"cat.fun","game":"cat.fun","音乐":"cat.fun",
-      "画":"cat.fun","draw":"cat.fun",
-      "工具":"cat.tool","tool":"cat.tool","utility":"cat.tool",
-      "计算器":"cat.tool","calc":"cat.tool","天气":"cat.tool",
-      "关于":"cat.profile","个人":"cat.profile","about":"cat.profile",
-      "博客":"cat.content","blog":"cat.content",
-      "项目展示":"cat.content","portfolio":"cat.content",
-      "链接":"cat.nav","link":"cat.nav","导航":"cat.nav",
-      "数据":"cat.data","data":"cat.data","分析":"cat.data"
+    /* ====== README 加载失败时的硬编码兜底（与 README.md 保持一致） ====== */
+    var FALLBACK_CATS = {
+      "CherryStudio CSS 编辑器.html": "工具",
+      "golden-puppy-pet.html": "宠物养成",
+      "squirtle-pet.html": "宠物养成",
+      "宝可梦图鉴.html": "游戏/图鉴"
     };
 
-    var CAT_ZH = {"cat.fun":"趣味互动","cat.tool":"工具应用","cat.profile":"个人信息","cat.content":"内容展示","cat.nav":"导航工具","cat.data":"数据分析","cat.other":"其他"};
-    var ICONS = {"cat.fun":"⚡","cat.tool":"🛠️","cat.profile":"👤","cat.content":"🚀","cat.nav":"🔗","cat.data":"📊"};
+    /* ====== 动态状态（运行时填充） ====== */
+    var CAT_NAMES = [];
+    var CAT_ICONS = {};
 
-    function getCatKey(name) {
-      var low = name.toLowerCase();
-      for (var k in CATEGORY_MAP) { if (low.includes(k)) return CATEGORY_MAP[k]; }
-      return "cat.other";
-    }
-    function getCatName(name) { return CAT_ZH[getCatKey(name)] || "其他"; }
-    function getIcon(name) { return ICONS[getCatKey(name)] || "📄"; }
+    function catIcon(name) { return CAT_ICONS[name] || "📄"; }
     function esc(v) { return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
+    /* ====== 从 GitHub API 获取项目文件列表（带缓存） ====== */
     async function fetchProjectFiles() {
-      var cacheKey = "kp_cache_v1";
+      var cacheKey = "kp_files_v2";
       var cached = localStorage.getItem(cacheKey);
       if (cached) {
         try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.files; } catch(e) {}
       }
       var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR;
       var resp = await fetch(url);
-      if (!resp.ok) {
-        if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" 目录未找到');
-        throw new Error("GitHub API 错误 (" + resp.status + ")");
-      }
+      if (!resp.ok) throw new Error("GitHub API 错误 (" + resp.status + ")");
       var files = (await resp.json()).filter(function(f) {
         return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
       });
@@ -311,11 +299,53 @@
       return files;
     }
 
+    /* ====== 从 GitHub API 获取并解析 README.md 中的分类表（带缓存） ====== */
+    async function fetchReadmeCategories() {
+      var cacheKey = "kp_readme_v2";
+      var cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.cats; } catch(e) {}
+      }
+      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR + "/README.md";
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error("README API error");
+      var data = await resp.json();
+      var content = atob(data.content.replace(/\n/g, ""));
+      var cats = {};
+      var catSet = {};
+      var lines = content.split("\n");
+      var headerFound = false;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line.indexOf("文件名") !== -1 && line.indexOf("分类") !== -1) { headerFound = true; continue; }
+        if (headerFound && /^\|[\s-:|]+\|$/.test(line.trim())) continue;
+        if (!headerFound) continue;
+        if (line.trim().charAt(0) !== "|") break;
+        var cells = line.split("|");
+        if (cells.length < 7) continue;
+        var fnMatch = cells[3].match(/`([^`]+)`/);
+        var category = cells[6].trim();
+        if (fnMatch && category) {
+          cats[fnMatch[1]] = category;
+          catSet[category] = true;
+        }
+      }
+      CAT_NAMES = Object.keys(catSet);
+      CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "\uD83D\uDCC4"; });
+      if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "\uD83D\uDEE0\uFE0F";
+      if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "\uD83D\uDC3E";
+      if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "\uD83C\uDFAE";
+      if (CAT_NAMES.indexOf("数据分析") !== -1) CAT_ICONS["数据分析"] = "\uD83D\uDCCA";
+      if (CAT_NAMES.indexOf("个人信息") !== -1) CAT_ICONS["个人信息"] = "\uD83D\uDC64";
+      try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), cats: cats})); } catch(e) {}
+      return cats;
+    }
+
     var allItems = [];
     var filterCat = "all";
 
     function applyFilters() {
-      var list = filterCat === "all" ? allItems : allItems.filter(function(i) { return i.catKey === filterCat; });
+      var list = filterCat === "all" ? allItems : allItems.filter(function(i) { return i.cat === filterCat; });
       renderCards(list);
     }
 
@@ -323,22 +353,20 @@
       var grid = document.getElementById("project-grid");
       var cnt = document.getElementById("projectCount");
       if (cnt) cnt.textContent = "我的项目 — " + items.length + " 个项目";
-
       if (items.length === 0) {
         grid.innerHTML = '<div class="empty-project"><h3>没有匹配的项目</h3><p>尝试调整筛选条件。</p></div>';
         return;
       }
-
       var html = "";
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
         var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
         html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
-        html += '<div class="project-icon">' + getIcon(it.name) + '</div>';
+        html += '<div class="project-icon">' + catIcon(it.cat) + '</div>';
         html += '<h3>' + esc(it.name) + '</h3>';
         html += '<p>点击打开此项目页面</p>';
         html += '<div class="project-meta">';
-        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + getCatName(it.name) + '</span>';
+        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + esc(it.cat) + '</span>';
         html += '<span class="meta-item">💾 ' + (it.file.size / 1024).toFixed(1) + ' KB</span>';
         html += '</div>';
         html += '<span class="card-link">打开项目 →</span>';
@@ -348,22 +376,26 @@
     }
 
     function buildFilter() {
-      var cats = [], cs = {};
-      allItems.forEach(function(i) { if (!cs[i.catKey]) { cs[i.catKey] = true; cats.push(i.catKey); } });
-      cats.sort();
       var fb = document.getElementById("filterBar");
       fb.style.display = "flex";
-      fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + (CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
+      var options = '<option value="all">全部用途</option>';
+      for (var i = 0; i < CAT_NAMES.length; i++) {
+        options += '<option value="' + esc(CAT_NAMES[i]) + '">' + esc(CAT_NAMES[i]) + '</option>';
+      }
+      fb.innerHTML = '<label>用途：</label><select id="filterCat">' + options + '</select>';
       document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
     }
 
+    /* ====== 主逻辑：先读 README 分类，再加载项目文件 ====== */
     (async function() {
       try {
+        var readmeCats;
+        try { readmeCats = await fetchReadmeCategories(); }
+        catch(e) { console.warn("README 加载失败，使用兜底分类:", e.message); readmeCats = FALLBACK_CATS; CAT_NAMES = []; var s = {}; for (var k in readmeCats) { s[readmeCats[k]] = true; } CAT_NAMES = Object.keys(s); CAT_ICONS = {}; CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "📄"; }); if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "\uD83D\uDEE0\uFE0F"; if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "\uD83D\uDC3E"; if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "\uD83C\uDFAE"; }
         var files = await fetchProjectFiles();
         allItems = files.map(function(f) {
           var name = f.name.replace(/\.html?$/i, "");
-          return { file: f, name: name, catKey: getCatKey(name) };
+          return { file: f, name: name, cat: readmeCats[f.name] || "未分类" };
         });
         buildFilter();
         applyFilters();
