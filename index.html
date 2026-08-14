@@ -66,7 +66,6 @@
       margin: 0 auto;
     }
 
-    /* 顶部导航 */
     .topbar {
       position: sticky;
       top: 0;
@@ -107,8 +106,8 @@
 
     .brand-text span {
       display: block;
-      color: var(--muted);
       margin-top: 2px;
+      color: var(--muted);
       font-size: 12px;
       font-weight: 400;
     }
@@ -132,7 +131,6 @@
       background: var(--card);
     }
 
-    /* 主视觉 */
     .hero {
       position: relative;
       overflow: hidden;
@@ -240,7 +238,6 @@
       border-color: #6e7681;
     }
 
-    /* 项目区域 */
     .section {
       padding: 34px 0 80px;
     }
@@ -273,7 +270,7 @@
     .project-card {
       display: flex;
       flex-direction: column;
-      min-height: 260px;
+      min-height: 270px;
       padding: 24px;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -304,21 +301,18 @@
       background: rgba(88, 166, 255, .13);
     }
 
-    .project-card:nth-child(2) .project-icon {
+    .project-card:nth-child(2n) .project-icon {
       background: rgba(188, 140, 255, .14);
     }
 
-    .project-card:nth-child(3) .project-icon {
+    .project-card:nth-child(3n) .project-icon {
       background: rgba(63, 185, 80, .14);
-    }
-
-    .project-card:nth-child(4) .project-icon {
-      background: rgba(240, 136, 62, .14);
     }
 
     .project-card h3 {
       margin: 0 0 10px;
       font-size: 20px;
+      word-break: break-word;
     }
 
     .project-card p {
@@ -344,7 +338,33 @@
       text-decoration: underline;
     }
 
-    /* 信息区域 */
+    .project-date {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty-project {
+      grid-column: 1 / -1;
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(22, 27, 34, .78);
+    }
+
+    .empty-project h3 {
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+
+    .empty-project p {
+      margin: 0;
+      line-height: 1.8;
+    }
+
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -387,7 +407,6 @@
       background: var(--bg-light);
     }
 
-    /* 页脚 */
     footer {
       padding: 28px 0;
       color: var(--muted);
@@ -400,7 +419,6 @@
       color: var(--blue);
     }
 
-    /* 手机端 */
     @media (max-width: 800px) {
       .topbar-inner {
         min-height: 60px;
@@ -461,7 +479,6 @@
 
 <body>
 
-  <!-- 顶部导航 -->
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
@@ -476,6 +493,7 @@
       <nav class="top-links">
         <a href="#projects">项目</a>
         <a href="#about">关于</a>
+
         <a
           href="https://github.com/KevinLI-0406/kevinlii.github.io"
           target="_blank"
@@ -487,7 +505,6 @@
     </div>
   </header>
 
-  <!-- 主视觉 -->
   <main>
     <section class="hero">
       <div class="container hero-content">
@@ -517,135 +534,25 @@
       </div>
     </section>
 
-    <!-- 项目导航 -->
     <section id="projects" class="section">
       <div class="container">
         <div class="section-heading">
           <div>
             <h2>项目导航</h2>
-            <p>点击卡片即可打开仓库中的其他 HTML 页面</p>
+            <p>上传新的 HTML 文件后，项目会自动显示在这里</p>
           </div>
         </div>
 
-        <div class="project-grid">
-
-          <!-- 已存在的页面 -->
-          <a
-            class="project-card"
-            href="宝可梦全国图鉴.html"
-          >
-            <div class="project-icon">⚡</div>
-
-            <h3>宝可梦全国图鉴</h3>
-
-            <p>
-              一个支持中英文切换、属性筛选、特性筛选和详细资料查看的宝可梦图鉴。
-            </p>
-
-            <span class="card-link">
-              进入图鉴 →
-            </span>
-          </a>
-
-          <!-- 对应：项目展示.html -->
-          <a
-            class="project-card"
-            href="项目展示.html"
-          >
-            <div class="project-icon">🚀</div>
-
-            <h3>项目展示</h3>
-
-            <p>
-              展示你制作的其他网页、程序、设计作品或个人项目。
-            </p>
-
-            <span class="card-link">
-              查看项目 →
-            </span>
-          </a>
-
-          <!-- 对应：工具集合.html -->
-          <a
-            class="project-card"
-            href="工具集合.html"
-          >
-            <div class="project-icon">🛠️</div>
-
-            <h3>工具集合</h3>
-
-            <p>
-              可以放置计算器、文本处理工具、颜色工具等实用网页。
-            </p>
-
-            <span class="card-link">
-              打开工具 →
-            </span>
-          </a>
-
-          <!-- 对应：关于我.html -->
-          <a
-            class="project-card"
-            href="关于我.html"
-          >
-            <div class="project-icon">👤</div>
-
-            <h3>关于我</h3>
-
-            <p>
-              介绍你的个人信息、学习经历、兴趣爱好和联系方式。
-            </p>
-
-            <span class="card-link">
-              了解更多 →
-            </span>
-          </a>
-
-          <!-- 对应：博客.html -->
-          <a
-            class="project-card"
-            href="博客.html"
-          >
-            <div class="project-icon">📝</div>
-
-            <h3>个人博客</h3>
-
-            <p>
-              用来记录学习笔记、开发过程、项目心得和日常想法。
-            </p>
-
-            <span class="card-link">
-              阅读文章 →
-            </span>
-          </a>
-
-          <!-- 对应：链接.html -->
-          <a
-            class="project-card"
-            href="链接.html"
-          >
-            <div class="project-icon">🔗</div>
-
-            <h3>常用链接</h3>
-
-            <p>
-              整理常用网站、学习资源、开发文档和其他外部链接。
-            </p>
-
-            <span class="card-link">
-              查看链接 →
-            </span>
-          </a>
-
-        </div>
+        <div
+          id="project-grid"
+          class="project-grid"
+        ></div>
       </div>
     </section>
 
-    <!-- 关于本站 -->
     <section id="about" class="section">
       <div class="container">
         <div class="info-grid">
-
           <div class="info-card">
             <h3>关于这个网站</h3>
 
@@ -669,18 +576,18 @@
               <span>CSS</span>
               <span>JavaScript</span>
               <span>GitHub Pages</span>
+              <span>GitHub Actions</span>
             </div>
           </div>
-
         </div>
       </div>
     </section>
   </main>
 
-  <!-- 页脚 -->
   <footer>
     <div class="container">
       © 2026 KevinLI-0406 · Hosted by
+
       <a
         href="https://pages.github.com/"
         target="_blank"
@@ -690,6 +597,105 @@
       </a>
     </div>
   </footer>
+
+  <script>
+    // PROJECTS_START
+    const PROJECTS = [];
+    // PROJECTS_END
+
+    const projectGrid = document.getElementById("project-grid");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) {
+        return "日期未知";
+      }
+
+      const date = new Date(dateString);
+
+      if (Number.isNaN(date.getTime())) {
+        return "日期未知";
+      }
+
+      return date.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function createProjectCard(project) {
+      const filename = String(project.filename || "");
+      const title = String(project.title || filename);
+      const icon = String(project.icon || "📄");
+      const description = String(
+        project.description || "这是一个网页项目。"
+      );
+
+      const href = escapeHtml(encodeURI(filename));
+
+      return `
+        <a
+          class="project-card"
+          href="${href}"
+        >
+          <div class="project-icon">
+            ${escapeHtml(icon)}
+          </div>
+
+          <h3>
+            ${escapeHtml(title)}
+          </h3>
+
+          <p>
+            ${escapeHtml(description)}
+          </p>
+
+          <span class="card-link">
+            打开项目 →
+          </span>
+
+          <small class="project-date">
+            创建于：${escapeHtml(formatDate(project.createdAt))}
+          </small>
+        </a>
+      `;
+    }
+
+    function renderProjects() {
+      if (!projectGrid) {
+        return;
+      }
+
+      if (!Array.isArray(PROJECTS) || PROJECTS.length === 0) {
+        projectGrid.innerHTML = `
+          <div class="empty-project">
+            <h3>暂无项目</h3>
+            <p>
+              将其他 HTML 文件上传到仓库后，
+              GitHub Actions 会自动把项目添加到这里。
+            </p>
+          </div>
+        `;
+
+        return;
+      }
+
+      projectGrid.innerHTML = PROJECTS
+        .map(createProjectCard)
+        .join("");
+    }
+
+    renderProjects();
+  </script>
 
 </body>
 </html>
