@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CherryStudio Cyberpunk 2077 CSS 编辑器</title>
+<style>
+/* ========== 编辑器本体样式 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body.editor-body {
+  display: flex;
+  height: 100vh;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: #0a0a12;
+  color: #e8e8e8;
+  overflow: hidden;
+}
+
+/* ---- 左侧属性面板 ---- */
+.editor-panel {
+  width: 420px;
+  min-width: 320px;
+  background: #0f0f1a;
+  border-right: 2px solid rgba(255, 77, 143, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-panel-header {
+  padding: 12px 16px;
+  background: rgba(255, 77, 143, 0.08);
+  border-bottom: 2px solid var(--cyber-yellow, #ffdd00);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffdd00;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.editor-panel-header::before { content: '⚡'; }
+
+.editor-panel-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 77, 143, 0.15);
+  flex-shrink: 0;
+}
+
+.editor-panel-search input {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 77, 143, 0.25);
+  border-radius: 2px;
+  color: #e8e8e8;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.editor-panel-search input:focus {
+  border-color: #00b4ff;
+  box-shadow: 0 0 0 2px rgba(0, 180, 255, 0.15);
+}
+
+.editor-panel-search input::placeholder { color: #5a5a72; }
+
+.editor-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+
+.editor-panel-content::-webkit-scrollbar { width: 6px; }
+.editor-panel-content::-webkit-scrollbar-track { background: #0a0a12; }
+.editor-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 77, 143, 0.3);
+  border-radius: 2px;
+}
+
+/* ---- 属性分组 ---- */
+.prop-group { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+
+.prop-group-title {
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff4d8f;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.prop-group-title::before {
+  content: '▸';
+  transition: transform 0.2s;
+  font-size: 10px;
+}
+
+.prop-group.open .prop-group-title::before { transform: rotate(90deg); }
+
+.prop-group-body { padding: 0 12px 12px 24px; display: none; }
+.prop-group.open .prop-group-body { display: block; }
+
+/* ---- 属性行 ---- */
+.prop-row {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 2px;
+  gap: 8px;
+  transition: background 0.2s;
+  margin-bottom: 2px;
+}
+
+.prop-row:hover { background: rgba(255, 255, 255, 0.03); }
+
+.prop-label {
+  font-size: 12px;
+  color: #8a8aa0;
+  min-width: 110px;
+  flex-shrink: 0;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+}
+
+.prop-input {
+  flex: 1;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 77, 143, 0.2);
+  border-radius: 2px;
+  color: #e8e8e8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.3s;
+  min-width: 0;
+}
+
+.prop-input:focus {
+  border-color: #00b4ff;
+  box-shadow: 0 0 8px rgba(0, 180, 255, 0.15);
+}
+
+.prop-color-input {
+  width: 32px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid rgba(255, 77, 143, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.prop-select {
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 77, 143, 0.2);
+  border-radius: 2px;
+  color: #e8e8e8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  outline: none;
+  cursor: pointer;
+  flex: 0.6;
+  min-width: 0;
+}
+
+.prop-select:focus { border-color: #00b4ff; }
+
+/* ---- 主内容区 ---- */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0a0a12;
+}
+
+.main-tabs {
+  display: flex;
+  background: rgba(10, 10, 18, 0.95);
+  border-bottom: 2px solid rgba(255, 77, 143, 0.25);
+  flex-shrink: 0;
+}
+
+.main-tab {
+  padding: 10px 20px;
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a5a72;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
+}
+
+.main-tab:hover { color: #8a8aa0; background: rgba(255, 255, 255, 0.02); }
+
+.main-tab.active {
+  color: #ff4d8f;
+  border-bottom-color: #ff4d8f;
+  background: rgba(255, 77, 143, 0.05);
+}
+
+.main-content { flex: 1; overflow: auto; position: relative; }
+
+.main-content::-webkit-scrollbar { width: 8px; }
+.main-content::-webkit-scrollbar-track { background: #0a0a12; }
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 77, 143, 0.2);
+  border-radius: 2px;
+}
+
+/* ---- 预览面板 ---- */
+.preview-panel { height: 100%; overflow: auto; position: relative; }
+.preview-panel.dark-mode { background: #0a0a12; color: #e8e8e8; }
+
+/* ---- CSS 输出面板 ---- */
+.code-panel {
+  height: 100%;
+  display: none;
+  flex-direction: column;
+}
+.code-panel.active { display: flex; }
+
+.code-editor-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  position: relative;
+}
+
+.code-editor-wrap pre {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre;
+  tab-size: 2;
+  counter-reset: line;
+}
+
+.code-editor-wrap pre code { font-family: inherit; font-size: inherit; }
+
+.code-line {
+  display: block;
+  padding-left: 60px;
+  position: relative;
+  counter-increment: line;
+  color: #e8e8e8;
+}
+
+.code-line::before {
+  position: absolute;
+  left: 0;
+  width: 48px;
+  text-align: right;
+  color: #5a5a72;
+  font-size: 11px;
+  content: counter(line);
+}
+
+.code-comment { color: #5a5a72; font-style: italic; }
+.code-selector { color: #ff4d8f; }
+.code-property { color: #00b4ff; }
+.code-value { color: #ffdd00; }
+.code-bracket { color: #8a8aa0; }
+
+.code-actions {
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 77, 143, 0.15);
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 15, 26, 0.95);
+  flex-shrink: 0;
+}
+
+.copy-btn {
+  padding: 8px 20px;
+  background: rgba(255, 77, 143, 0.15);
+  border: 2px solid #ff4d8f;
+  border-radius: 2px;
+  color: #ff4d8f;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+
+.copy-btn:hover {
+  background: #ff4d8f;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(255, 77, 143, 0.3);
+}
+
+.copy-btn.copied {
+  background: #00ff88;
+  border-color: #00ff88;
+  color: #0a0a12;
+}
+
+/* ---- 底部状态栏 ---- */
+.status-bar {
+  padding: 4px 16px;
+  background: rgba(255, 77, 143, 0.08);
+  border-top: 1px solid rgba(255, 77, 143, 0.15);
+  font-size: 11px;
+  color: #5a5a72;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 900px) {
+  .editor-panel { width: 300px; min-width: 260px; }
+  .prop-label { min-width: 80px; font-size: 11px; }
+}
+</style>
+</head>
+<body class="editor-body">
+
+<!-- ===== 左侧属性面板 ===== -->
+<div class="editor-panel">
+  <div class="editor-panel-header">CYBERPUNK 2077 · CSS 编辑器</div>
+  <div class="editor-panel-search">
+    <input type="text" id="propSearch" placeholder="🔍 搜索选择器或属性名...">
+  </div>
+  <div class="editor-panel-content" id="propPanel"></div>
+</div>
+
+<!-- ===== 主区域 ===== -->
+<div class="main-area">
+  <div class="main-tabs">
+    <div class="main-tab active" data-tab="preview">预览</div>
+    <div class="main-tab" data-tab="css-output">CSS 代码</div>
+  </div>
+  <div class="main-content">
+    <div class="preview-panel dark-mode" id="previewPanel">
+      <div id="cherryPreview"></div>
+    </div>
+    <div class="code-panel" id="codePanel">
+      <div class="code-actions">
+        <button class="copy-btn" id="copyBtn">📋 复制全部 CSS</button>
+        <button class="copy-btn" id="copyDarkBtn">🌙 仅暗色</button>
+        <button class="copy-btn" id="copyLightBtn">☀️ 仅亮色</button>
+      </div>
+      <div class="code-editor-wrap">
+        <pre><code id="codeContent"></code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <span id="statusLeft">CherryStudio 2077 CSS 编辑器</span>
+    <span id="statusRight">就绪</span>
+  </div>
+</div>
+
+<script>
+// ========== 核心数据：选择器 -> 属性配置 ==========
+const PROPS = [
+  {
+    group: '🎨 CSS 变量定义',
+    items: [
+      { sel: ':root', label: '霓虹主色', prop: '--cyber-pink', type: 'color', val: '#ff4d8f' },
+      { sel: ':root', label: '荒坂黄', prop: '--cyber-yellow', type: 'color', val: '#ffdd00' },
+      { sel: ':root', label: '数据流蓝', prop: '--cyber-blue', type: 'color', val: '#00b4ff' },
+      { sel: ':root', label: '霓虹青', prop: '--cyber-cyan', type: 'color', val: '#00e5ff' },
+      { sel: ':root', label: '赛博橙', prop: '--cyber-orange', type: 'color', val: '#ff6b00' },
+      { sel: ':root', label: '矩阵绿', prop: '--cyber-green', type: 'color', val: '#00ff88' },
+      { sel: ':root', label: '主背景', prop: '--bg-primary', type: 'color', val: '#0a0a12' },
+      { sel: ':root', label: '二级背景', prop: '--bg-secondary', type: 'color', val: '#0f0f1a' },
+      { sel: ':root', label: '三级背景', prop: '--bg-tertiary', type: 'color', val: '#1a1a2e' },
+      { sel: ':root', label: '卡片背景', prop: '--bg-card', type: 'color', val: '#0f0f1a' },
+      { sel: ':root', label: '输入背景', prop: '--bg-input', type: 'color', val: 'rgba(255,255,255,0.04)' },
+      { sel: ':root', label: '主文字', prop: '--text-primary', type: 'color', val: '#e8e8e8' },
+      { sel: ':root', label: '二级文字', prop: '--text-secondary', type: 'color', val: '#8a8aa0' },
+      { sel: ':root', label: '暗淡文字', prop: '--text-muted', type: 'color', val: '#5a5a72' },
+      { sel: ':root', label: '边框颜色', prop: '--border-color', type: 'color', val: 'rgba(255,77,143,0.25)' },
+      { sel: ':root', label: '悬停边框', prop: '--border-hover', type: 'color', val: 'rgba(255,221,0,0.35)' },
+      { sel: ':root', label: '发光阴影', prop: '--shadow-glow', type: 'text', val: '0 0 30px rgba(255,77,143,0.08)' },
+      { sel: ':root', label: '用户气泡', prop: '--chat-user-bg', type: 'color', val: 'rgba(255,77,143,0.15)' },
+      { sel: ':root', label: '助手气泡', prop: '--chat-assistant-bg', type: 'color', val: 'rgba(0,180,255,0.08)' },
+      { sel: ':root', label: '圆角', prop: '--radius', type: 'text', val: '2px' },
+      { sel: ':root', label: '边框粗细', prop: '--all-stroke', type: 'text', val: '2px' },
+    ]
+  },
+  {
+    group: '🖥 全局',
+    items: [
+      { sel: 'body', label: '字体族', prop: 'font-family', type: 'text', val: '"Rajdhani","Orbitron","Noto Sans SC",sans-serif' },
+      { sel: 'body', label: '背景色', prop: 'background-color', type: 'color', val: '#0a0a12' },
+      { sel: 'body', label: '文字颜色', prop: 'color', type: 'color', val: '#e8e8e8' },
+    ]
+  },
+  {
+    group: '📊 表格',
+    items: [
+      { sel: '.markdown table', label: '边框', prop: 'border', type: 'text', val: '2px solid var(--cyber-blue)' },
+      { sel: '.markdown table', label: '边框圆角', prop: 'border-radius', type: 'text', val: '2px' },
+      { sel: '.markdown th', label: '表头背景', prop: 'background', type: 'color', val: '#1a1a2e' },
+      { sel: '.markdown th', label: '表头文字', prop: 'color', type: 'color', val: '#ffdd00' },
+      { sel: '.markdown th', label: '表头字号', prop: 'font-size', type: 'text', val: '1.1em' },
+      { sel: '.markdown td', label: '单元格背景', prop: 'background', type: 'color', val: 'rgba(0,0,0,0.2)' },
+      { sel: '.markdown td', label: '单元格字号', prop: 'font-size', type: 'text', val: 'inherit' },
+      { sel: '.markdown tr:nth-child(even) td', label: '偶数行背景', prop: 'background', type: 'color', val: 'rgba(0,180,255,0.04)' },
+      { sel: '.markdown tr:hover td', label: '行悬停背景', prop: 'background', type: 'color', val: 'rgba(255,221,0,0.04)' },
+    ]
+  },
+  {
+    group: '💬 聊天气泡',
+    items: [
+      { sel: '.bubble .message-content-container', label: '气泡圆角', prop: 'border-radius', type: 'text', val: '2px' },
+      { sel: '.bubble .message-content-container', label: '内边距', prop: 'padding', type: 'text', val: '10px 16px' },
+      { sel: '.bubble .message-content-container', label: '边框', prop: 'border', type: 'text', val: '2px solid var(--border-color)' },
+      { sel: '.bubble .message-user .message-content-container', label: '用户气泡背景', prop: 'background-color', type: 'color', val: 'rgba(255,77,143,0.15)' },
+      { sel: '.bubble .message-assistant .message-content-container', label: '助手气泡背景', prop: 'background-color', type: 'color', val: 'rgba(0,180,255,0.08)' },
+      { sel: '.bubble .message-content-container', label: '气泡字号', prop: 'font-size', type: 'text', val: '14px' },
+    ]
+  },
+  {
+    group: '⌨️ 输入框',
+    items: [
+      { sel: '.ant-input-outlined', label: '边框', prop: 'border', type: 'text', val: '2px solid var(--border-color)' },
+      { sel: '.ant-input-outlined', label: '背景色', prop: 'background', type: 'color', val: 'rgba(255,255,255,0.04)' },
+      { sel: '.ant-input-outlined', label: '文字颜色', prop: 'color', type: 'color', val: '#e8e8e8' },
+      { sel: '.ant-input-outlined:focus', label: '聚焦边框', prop: 'border-color', type: 'color', val: '#00b4ff' },
+      { sel: '.ant-input-outlined:focus', label: '聚焦阴影', prop: 'box-shadow', type: 'text', val: '0 0 0 2px #00b4ff, 0 0 25px rgba(0,180,255,0.08)' },
+      { sel: '.ant-input-outlined', label: '输入字号', prop: 'font-size', type: 'text', val: '14px' },
+    ]
+  },
+  {
+    group: '🔘 按钮',
+    items: [
+      { sel: 'button', label: '背景色', prop: 'background', type: 'color', val: '#0f0f1a' },
+      { sel: 'button', label: '文字颜色', prop: 'color', type: 'color', val: '#e8e8e8' },
+      { sel: 'button', label: '边框', prop: 'border', type: 'text', val: '2px solid var(--border-color)' },
+      { sel: 'button', label: '字号', prop: 'font-size', type: 'text', val: '13px' },
+      { sel: 'button:hover', label: '悬停背景', prop: 'background', type: 'color', val: '#ff4d8f' },
+      { sel: 'button:hover', label: '悬停文字', prop: 'color', type: 'color', val: '#ffffff' },
+    ]
+  },
+  {
+    group: '📝 Markdown',
+    items: [
+      { sel: '.markdown h2', label: 'H2 颜色', prop: 'color', type: 'color', val: '#ffdd00' },
+      { sel: '.markdown h2', label: 'H2 字号', prop: 'font-size', type: 'text', val: '1.4em' },
+      { sel: '.markdown h2', label: 'H2 边框', prop: 'border', type: 'text', val: '2px solid var(--cyber-yellow)' },
+      { sel: '.markdown h3', label: 'H3 颜色', prop: 'color', type: 'color', val: '#ff4d8f' },
+      { sel: '.markdown h3', label: 'H3 字号', prop: 'font-size', type: 'text', val: '1.3em' },
+      { sel: '.markdown h4', label: 'H4 颜色', prop: 'color', type: 'color', val: '#00b4ff' },
+      { sel: '.markdown h4', label: 'H4 字号', prop: 'font-size', type: 'text', val: '1.2em' },
+      { sel: '.markdown p', label: '段落行高', prop: 'line-height', type: 'text', val: '1.8' },
+      { sel: '.markdown p', label: '段落字号', prop: 'font-size', type: 'text', val: '14px' },
+      { sel: '.markdown code:not(pre code)', label: '行内代码颜色', prop: 'color', type: 'color', val: '#00ff88' },
+      { sel: '.markdown code:not(pre code)', label: '行内代码背景', prop: 'background', type: 'color', val: 'rgba(0,0,0,0.6)' },
+      { sel: '.markdown blockquote', label: '引用边框', prop: 'border-left-color', type: 'color', val: '#ff4d8f' },
+      { sel: '.markdown strong', label: '粗体颜色', prop: 'color', type: 'color', val: '#ffdd00' },
+      { sel: '.markdown em', label: '斜体颜色', prop: 'color', type: 'color', val: '#ff4d8f' },
+      { sel: '.markdown a', label: '链接颜色', prop: 'color', type: 'color', val: '#00b4ff' },
+      { sel: '.markdown hr', label: '分割线渐变色1', prop: 'gradient-color1', type: 'color', val: '#ff4d8f' },
+      { sel: '.markdown hr', label: '分割线渐变色2', prop: 'gradient-color2', type: 'color', val: '#ffdd00' },
+    ]
+  },
+  {
+    group: '🎭 动画',
+    items: [
+      { sel: '.bubble .message-content-container', label: '过渡时长', prop: 'transition', type: 'text', val: 'all 0.3s' },
+      { sel: 'button', label: '悬停上移', prop: 'transform', type: 'text', val: 'translateY(-2px) scale(1.02)' },
+      { sel: 'button:hover', label: '悬停发光', prop: 'box-shadow', type: 'text', val: '0 0 35px rgba(255,77,143,0.20)' },
+    ]
+  },
+  {
+    group: '🔑 浅色模式变量',
+    items: [
+      { sel: 'body[theme-mode="light"]', label: '主背景', prop: '--bg-primary', type: 'color', val: '#ece8e0' },
+      { sel: 'body[theme-mode="light"]', label: '二级背景', prop: '--bg-secondary', type: 'color', val: '#ded9cf' },
+      { sel: 'body[theme-mode="light"]', label: '三级背景', prop: '--bg-tertiary', type: 'color', val: '#c8c0b2' },
+      { sel: 'body[theme-mode="light"]', label: '卡片背景', prop: '--bg-card', type: 'color', val: '#f2eee6' },
+      { sel: 'body[theme-mode="light"]', label: '主文字', prop: '--text-primary', type: 'color', val: '#1a1a2a' },
+      { sel: 'body[theme-mode="light"]', label: '二级文字', prop: '--text-secondary', type: 'color', val: '#4a4a5a' },
+      { sel: 'body[theme-mode="light"]', label: '输入背景', prop: '--bg-input', type: 'color', val: 'rgba(0,0,0,0.03)' },
+      { sel: 'body[theme-mode="light"]', label: '用户气泡', prop: '--chat-user-bg', type: 'color', val: 'rgba(255,77,143,0.10)' },
+      { sel: 'body[theme-mode="light"]', label: '助手气泡', prop: '--chat-assistant-bg', type: 'color', val: 'rgba(0,180,255,0.06)' },
+    ]
+  }
+];
+
+// ========== 状态管理 ==========
+const state = {};
+PROPS.forEach(group => {
+  group.items.forEach(item => {
+    const key = `${item.sel}>>${item.prop}`;
+    state[key] = { sel: item.sel, prop: item.prop, value: item.val };
+  });
+});
+
+// ========== 渲染属性面板 ==========
+function renderPropPanel(filter = '') {
+  const panel = document.getElementById('propPanel');
+  let html = '';
+  const f = filter.toLowerCase();
+
+  PROPS.forEach(group => {
+    const filtered = group.items.length === 0 ||
+      (group.group.toLowerCase().includes(f) && group.items.length > 0) ||
+      group.items.some(i => i.label.toLowerCase().includes(f) || i.prop.toLowerCase().includes(f));
+
+    if (!filtered && filter) return;
+
+    html += `<div class="prop-group ${group.items.length > 0 ? 'open' : ''}" data-group="${group.group}">`;
+    html += `<div class="prop-group-title" onclick="this.parentElement.classList.toggle('open')">`;
+    html += `<span>${group.group}</span>`;
+    html += `</div><div class="prop-group-body">`;
+
+    group.items.forEach(item => {
+      if (filter && !item.label.toLowerCase().includes(f) && !item.prop.toLowerCase().includes(f) && !item.sel.toLowerCase().includes(f)) return;
+      const key = `${item.sel}>>${item.prop}`;
+      const val = state[key]?.value ?? item.val;
+
+      html += `<div class="prop-row">`;
+      html += `<span class="prop-label" title="${item.prop}">${item.label}</span>`;
+
+      if (item.type === 'color') {
+        html += `<input type="color" class="prop-color-input" value="${val}" data-key="${key}" onchange="updateProp(this)">`;
+        html += `<input type="text" class="prop-input" value="${val}" data-key="${key}" onchange="updateProp(this)" style="flex:0.4">`;
+      } else {
+        html += `<input type="text" class="prop-input" value="${val}" data-key="${key}" onchange="updateProp(this)">`;
+      }
+
+      html += `</div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  panel.innerHTML = html;
+}
+
+// ========== 更新属性 ==========
+function updateProp(el) {
+  const key = el.dataset.key;
+  state[key].value = el.value;
+  updatePreview();
+  updateCode();
+  updateStatus();
+}
+
+// ========== 更新预览 ==========
+function updatePreview() {
+  // 收集所有 :root 变量
+  const rootVars = Object.values(state)
+    .filter(s => s.sel === ':root')
+    .map(s => `  ${s.prop}: ${s.value};`)
+    .join('\n');
+
+  // 收集浅色模式变量
+  const lightVars = Object.values(state)
+    .filter(s => s.sel.includes('light') && s.prop.startsWith('--'))
+    .map(s => `  ${s.prop}: ${s.value};`)
+    .join('\n');
+
+  let lightStyle = '';
+  if (lightVars.trim()) {
+    lightStyle = `
+body[theme-mode="light"] {
+${lightVars}
+}`;
+  }
+
+  // 收集表格属性
+  const tableBdVal = state['.markdown table>>border']?.value || '2px solid var(--cyber-blue)';
+  const thBkgVal = state['.markdown th>>background']?.value || '#1a1a2e';
+  const thColorVal = state['.markdown th>>color']?.value || '#ffdd00';
+  const thBrdVal = state['.markdown th>>border']?.value || '2px solid var(--border-color)';
+  const tdBrdVal = state['.markdown td>>border']?.value || '2px solid var(--border-color)';
+  const tdBkgVal = state['.markdown td>>background']?.value || 'rgba(0,0,0,0.2)';
+  const evenBkgVal = state['.markdown tr:nth-child(even) td>>background']?.value || 'rgba(0,180,255,0.04)';
+
+  // 收集气泡属性
+  const bubbleRadius = state['.bubble .message-content-container>>border-radius']?.value || '2px';
+  const bubblePadding = state['.bubble .message-content-container>>padding']?.value || '10px 16px';
+  const bubbleBorder = state['.bubble .message-content-container>>border']?.value || '2px solid var(--border-color)';
+  const userBkgVal = state['.bubble .message-user .message-content-container>>background-color']?.value || 'rgba(255,77,143,0.15)';
+  const asstBkgVal = state['.bubble .message-assistant .message-content-container>>background-color']?.value || 'rgba(0,180,255,0.08)';
+  const bubbleShadow = state['.bubble .message-content-container>>box-shadow']?.value || 'var(--shadow-glow)';
+
+  // 收集 Markdown 属性
+  const h2Color = state['.markdown h2>>color']?.value || '#ffdd00';
+  const h2Size = state['.markdown h2>>font-size']?.value || '1.4em';
+  const h2Border = state['.markdown h2>>border']?.value || '2px solid var(--cyber-yellow)';
+  const h3Color = state['.markdown h3>>color']?.value || '#ff4d8f';
+  const h3Size = state['.markdown h3>>font-size']?.value || '1.3em';
+  const h4Color = state['.markdown h4>>color']?.value || '#00b4ff';
+  const h4Size = state['.markdown h4>>font-size']?.value || '1.2em';
+  const pLineHeight = state['.markdown p>>line-height']?.value || '1.8';
+  const codeColor = state['.markdown code:not(pre code)>>color']?.value || '#00ff88';
+  const codeBkg = state['.markdown code:not(pre code)>>background']?.value || 'rgba(0,0,0,0.6)';
+  const strongColor = state['.markdown strong>>color']?.value || '#ffdd00';
+  const emColor = state['.markdown em>>color']?.value || '#ff4d8f';
+  const linkColor = state['.markdown a>>color']?.value || '#00b4ff';
+  const blockQuoteLeft = state['.markdown blockquote>>border-left-color']?.value || '#ff4d8f';
+
+  // 收集输入框属性
+  const inputBorder = state['.ant-input-outlined>>border']?.value || '2px solid var(--border-color)';
+  const inputBkg = state['.ant-input-outlined>>background']?.value || 'rgba(255,255,255,0.04)';
+  const inputColor = state['.ant-input-outlined>>color']?.value || '#e8e8e8';
+  const inputFocusBorder = state['.ant-input-outlined:focus>>border-color']?.value || '#00b4ff';
+
+  // 收集圆角和边框
+  const radiusVal = state[':root>>--radius']?.value || '2px';
+  const strokeVal = state[':root>>--all-stroke']?.value || '2px';
+
+  // 收集按钮属性
+  const btnBorder = state['button>>border']?.value || '2px solid var(--border-color)';
+  const btnBkg = state['button>>background']?.value || '#0f0f1a';
+  const btnColor = state['button>>color']?.value || '#e8e8e8';
+  const btnHoverBkg = state['button:hover>>background']?.value || '#ff4d8f';
+  const btnHoverColor = state['button:hover>>color']?.value || '#ffffff';
+
+  document.getElementById('cherryPreview').innerHTML = `
+<style>
+  /* CherryStudio 2077 预览样式 */
+  :root { ${rootVars} }
+  ${lightStyle}
+
+  .preview-wrapper {
+    font-family: "Rajdhani", "Noto Sans SC", "Segoe UI", sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 整体布局 */
+  .cs-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* 左侧导航栏 */
+  .cs-leftnav {
+    width: 56px;
+    background: var(--bg-secondary);
+    border-right: 2px solid rgba(255, 77, 143, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .cs-leftnav-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 18px;
+    color: var(--text-secondary);
+    border: 2px solid transparent;
+  }
+
+  .cs-leftnav-icon:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--cyber-pink);
+  }
+
+  .cs-leftnav-icon.active {
+    color: var(--cyber-pink);
+    background: rgba(255, 77, 143, 0.08);
+    border-color: rgba(255, 77, 143, 0.3);
+  }
+
+  .cs-leftnav-divider {
+    width: 28px;
+    height: 2px;
+    background: rgba(255, 77, 143, 0.15);
+    margin: 4px 0;
+    border-radius: 1px;
+  }
+
+  /* 项目树面板 */
+  .cs-sidebar {
+    width: 220px;
+    background: var(--bg-secondary);
+    border-right: 2px solid rgba(255, 77, 143, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .cs-sidebar-header {
+    padding: 10px 12px;
+    font-family: "Orbitron", sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--cyber-pink);
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(255, 77, 143, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .cs-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .cs-sidebar-content::-webkit-scrollbar { width: 4px; }
+  .cs-sidebar-content::-webkit-scrollbar-track { background: transparent; }
+  .cs-sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,77,143,0.2); border-radius: 2px; }
+
+  .tree-item {
+    padding: 4px 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .tree-item:hover { background: rgba(255, 255, 255, 0.04); }
+
+  .tree-item.blue { color: var(--cyber-blue); }
+  .tree-item.green { color: var(--cyber-green); }
+  .tree-item.yellow { color: var(--cyber-yellow); }
+  .tree-item.pink { color: var(--cyber-pink); }
+
+  .tree-item.active {
+    background: rgba(255, 77, 143, 0.1);
+    color: var(--cyber-pink);
+  }
+
+  .tree-indent { margin-left: 16px; }
+
+  .tree-label {
+    display: inline-block;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 主内容区域 */
+  .cs-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-primary);
+  }
+
+  /* 顶部模型选择器 */
+  .cs-modelbar {
+    padding: 8px 16px;
+    border-bottom: 2px solid rgba(255, 77, 143, 0.2);
+    background: rgba(10, 10, 18, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .cs-model-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    background: rgba(0, 180, 255, 0.08);
+    border: 2px solid rgba(0, 180, 255, 0.3);
+    border-radius: 2px;
+    color: var(--cyber-blue);
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .cs-model-selector:hover {
+    border-color: var(--cyber-blue);
+    background: rgba(0, 180, 255, 0.12);
+    box-shadow: 0 0 20px rgba(0, 180, 255, 0.08);
+  }
+
+  .cs-model-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cs-model-dropdown-arrow {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .cs-model-badge {
+    font-size: 11px;
+    color: var(--cyber-green);
+    background: rgba(0, 255, 136, 0.1);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* 聊天区域 */
+  .cs-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 30px;
+  }
+
+  .cs-chat::-webkit-scrollbar { width: 6px; }
+  .cs-chat::-webkit-scrollbar-track { background: transparent; }
+  .cs-chat::-webkit-scrollbar-thumb { background: rgba(255,77,143,0.2); border-radius: 2px; }
+
+  /* 聊天气泡 */
+  .msg {
+    margin-bottom: 20px;
+  }
+
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .msg-avatar.asst {
+    background: rgba(0, 180, 255, 0.15);
+    border-color: rgba(0, 180, 255, 0.3);
+  }
+
+  .msg-avatar.user {
+    background: rgba(255, 77, 143, 0.15);
+    border-color: rgba(255, 77, 143, 0.3);
+  }
+
+  .msg-name {
+    font-family: "Orbitron", "Rajdhani", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyber-pink);
+    letter-spacing: 0.5px;
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .msg-bubble {
+    border-radius: 2px;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+
+  .msg-bubble.asst {
+    background-color: rgba(0, 180, 255, 0.06);
+    border-color: rgba(0, 180, 255, 0.18);
+  }
+
+  .msg-bubble.user {
+    background-color: rgba(255, 77, 143, 0.1);
+    border-color: rgba(255, 77, 143, 0.2);
+  }
+
+  .msg-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .msg-action-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 77, 143, 0.15);
+    border-radius: 2px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: "Rajdhani", sans-serif;
+    transition: all 0.3s;
+  }
+
+  .msg-action-btn:hover {
+    background: rgba(255, 77, 143, 0.08);
+    border-color: rgba(255, 77, 143, 0.3);
+    color: var(--cyber-pink);
+  }
+
+  /* Markdown 内容 */
+  .md h2 {
+    font-family: "Orbitron", "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: ${h2Size};
+    font-weight: 700;
+    color: ${h2Color};
+    background: rgba(0,0,0,0.4);
+    border: ${h2Border};
+    border-radius: ${radiusVal};
+    padding: 10px 16px;
+    margin: 14px 0;
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255,221,0,0.15);
+  }
+
+  .md h3 {
+    font-family: "Orbitron", "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: ${h3Size};
+    font-weight: 700;
+    color: ${h3Color};
+    background: rgba(255,77,143,0.06);
+    border: 2px solid var(--cyber-pink);
+    border-radius: ${radiusVal};
+    padding: 8px 14px;
+    margin: 12px 0;
+  }
+
+  .md h4 {
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: ${h4Size};
+    font-weight: 700;
+    color: ${h4Color};
+    background: rgba(0,180,255,0.06);
+    border: 2px solid var(--cyber-blue);
+    border-radius: ${radiusVal};
+    padding: 6px 12px;
+    margin: 10px 0;
+  }
+
+  .md p {
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    line-height: ${pLineHeight};
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .md strong {
+    font-weight: 700;
+    color: ${strongColor};
+    background: rgba(0,0,0,0.3);
+    padding: 1px 6px;
+    border-radius: ${radiusVal};
+  }
+
+  .md em {
+    font-style: italic;
+    color: ${emColor};
+    font-weight: 600;
+  }
+
+  .md a {
+    color: ${linkColor};
+    font-weight: 600;
+    border-bottom: 2px dashed var(--cyber-blue);
+    text-decoration: none;
+  }
+
+  .md code:not(pre code) {
+    background: ${codeBkg};
+    color: ${codeColor};
+    padding: 2px 6px;
+    border-radius: ${radiusVal};
+    border: 2px solid var(--cyber-green);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em;
+  }
+
+  .md table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: 12px 0;
+    border: ${tableBdVal};
+    border-radius: ${radiusVal};
+    overflow: hidden;
+  }
+
+  .md th {
+    background: ${thBkgVal};
+    color: ${thColorVal};
+    padding: 10px 14px;
+    border: ${thBrdVal};
+    font-family: "Orbitron", "Rajdhani", "Noto Sans SC", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .md td {
+    padding: 10px 14px;
+    border: ${tdBrdVal};
+    color: var(--text-primary);
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    text-align: center;
+    background: ${tdBkgVal};
+  }
+
+  .md tr:nth-child(even) td {
+    background: ${evenBkgVal};
+  }
+
+  .md ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .md ol li {
+    margin: 6px 0;
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  .md ol li::marker {
+    color: var(--cyber-blue);
+    font-weight: 700;
+  }
+
+  .md ul {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .md ul li {
+    margin: 6px 0;
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  .md ul li::marker {
+    color: var(--cyber-cyan);
+  }
+
+  /* 下拉面板 */
+  .cs-dropdown-panel {
+    background: var(--bg-secondary);
+    border: 2px solid var(--cyber-blue);
+    border-radius: 2px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .cs-dropdown-panel .dd-title {
+    font-family: "Orbitron", "Rajdhani", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cyber-pink);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid rgba(255, 77, 143, 0.15);
+  }
+
+  .cs-dropdown-panel .dd-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    color: var(--text-secondary);
+  }
+
+  .cs-dropdown-panel .dd-item.active { color: var(--cyber-green); }
+
+  /* 底部输入区域 */
+  .cs-inputbar {
+    padding: 12px 16px;
+    border-top: 2px solid rgba(255, 77, 143, 0.2);
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+  }
+
+  .cs-input-model {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cs-input-model-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: "Rajdhani", sans-serif;
+  }
+
+  .cs-input-model-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(0, 180, 255, 0.08);
+    border: 2px solid rgba(0, 180, 255, 0.3);
+    border-radius: 2px;
+    color: var(--cyber-blue);
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .cs-input-model-btn:hover {
+    border-color: var(--cyber-blue);
+    box-shadow: 0 0 15px rgba(0, 180, 255, 0.1);
+  }
+
+  .cs-input-model-arrow { font-size: 10px; color: var(--text-muted); }
+
+  .cs-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .cs-input-field {
+    flex: 1;
+    padding: 10px 14px;
+    background: ${inputBkg};
+    border: ${inputBorder};
+    border-radius: 2px;
+    color: ${inputColor};
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 44px;
+    transition: border-color 0.3s;
+  }
+
+  .cs-input-field:focus {
+    border-color: ${inputFocusBorder};
+    box-shadow: 0 0 0 2px ${inputFocusBorder}, 0 0 20px rgba(0,180,255,0.1);
+  }
+
+  .cs-input-field::placeholder {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .cs-send-btn {
+    padding: 8px 14px;
+    background: ${btnBkg};
+    border: ${btnBorder};
+    border-radius: 2px;
+    color: ${btnColor};
+    font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 13px;
+  }
+
+  .cs-send-btn:hover {
+    background: ${btnHoverBkg};
+    color: ${btnHoverColor};
+    box-shadow: 0 0 25px rgba(255,77,143,0.2);
+  }
+
+  /* 头像图片 */
+  .cs-avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    border: 2px solid var(--cyber-cyan);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+    display: block;
+  }
+
+  /* 消息内联元素 */
+  .inline-code {
+    background: rgba(0,0,0,0.5);
+    color: var(--cyber-green);
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 2px solid var(--cyber-green);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em;
+  }
+
+  .green-text { color: var(--cyber-green); font-weight: 600; }
+  .yellow-text { color: var(--cyber-yellow); font-weight: 600; }
+  .pink-text { color: var(--cyber-pink); font-weight: 600; }
+
+  /* 模型信息条 */
+  .model-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .model-info-bar .model-name {
+    font-family: "Orbitron", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cyber-cyan);
+  }
+
+  .model-info-bar .model-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* 检查框 */
+  .cs-check-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .cs-check {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--cyber-cyan);
+    border-radius: 2px;
+    background: rgba(0, 229, 255, 0.1);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .cs-check.checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 1px;
+    font-size: 12px;
+    color: var(--cyber-cyan);
+  }
+</style>
+
+<div class="preview-wrapper">
+  <div class="cs-layout">
+    <!-- 左侧图标导航 -->
+    <div class="cs-leftnav">
+      <div class="cs-leftnav-icon active">💬</div>
+      <div class="cs-leftnav-divider"></div>
+      <div class="cs-leftnav-icon">👤</div>
+      <div class="cs-leftnav-icon">🔧</div>
+      <div style="flex:1"></div>
+      <div class="cs-leftnav-icon">⚙️</div>
+    </div>
+
+    <!-- 项目树面板 -->
+    <div class="cs-sidebar">
+      <div class="cs-sidebar-header">
+        <span>📁</span>
+        <span>PROJECTS</span>
+      </div>
+      <div class="cs-sidebar-content">
+        <div class="tree-item pink"><span>👤</span> <span class="tree-label">Agent</span></div>
+        <div class="tree-item active"><span>🤖</span> <span class="tree-label">Assistant</span></div>
+        <div class="tree-item yellow"><span>💬</span> <span class="tree-label">Agent 项目规划</span></div>
+        <div class="tree-item yellow"><span>💬</span> <span class="tree-label">agent 使用</span></div>
+        <div class="tree-item yellow"><span>💬</span> <span class="tree-label">agent 能力</span></div>
+        <div class="tree-item yellow"><span>💬</span> <span class="tree-label">Agent 使用</span></div>
+        <div class="tree-item yellow"><span>💬</span> <span class="tree-label">Agent 创建</span></div>
+        <div class="tree-item blue"><span>📊</span> <span class="tree-label">Projects</span></div>
+        <div class="tree-item blue tree-indent"><span>📄</span> <span class="tree-label">agent 项目规划</span></div>
+        <div class="tree-item blue tree-indent"><span>📄</span> <span class="tree-label">agent 使用.md</span></div>
+        <div class="tree-item blue tree-indent"><span>📄</span> <span class="tree-label">agent 能力.md</span></div>
+        <div class="tree-item blue tree-indent"><span>📄</span> <span class="tree-label">agent 使用.md</span></div>
+        <div class="tree-item blue tree-indent"><span>📄</span> <span class="tree-label">Agent 创建.md</span></div>
+      </div>
+    </div>
+
+    <!-- 主聊天区域 -->
+    <div class="cs-main">
+      <!-- 顶部模型条 -->
+      <div class="cs-modelbar">
+        <div class="cs-model-selector">
+          <span>🤖</span>
+          <span>Kevin's Agent</span>
+          <span class="cs-model-badge">2077 模式</span>
+        </div>
+      </div>
+
+      <!-- 聊天内容 -->
+      <div class="cs-chat">
+        <!-- 助手消息 1 -->
+        <div class="msg">
+          <div class="msg-header">
+            <div class="msg-avatar asst">🤖</div>
+            <span class="msg-name">Kevin's Agent</span>
+            <span class="msg-time">20:30</span>
+          </div>
+          <div class="msg-bubble asst md">
+            <div class="model-info-bar">
+              <span class="model-name">gpt-4o · 3.5T</span>
+              <span class="model-meta">· 200K · 最新模型</span>
+            </div>
+            <p>我是 <span class="pink-text">小助</span>，你的 AI 助手。你可以让我帮你写代码、查资料、做计划等等。</p>
+
+            <h3>主要功能</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px">编号</th>
+                  <th>功能</th>
+                  <th>描述</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">1</td>
+                  <td>编码</td>
+                  <td>Python、JavaScript、C++ 等主流语言开发</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">2</td>
+                  <td>项目管理</td>
+                  <td>任务分解、进度跟踪、资源分配</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">3</td>
+                  <td>深度研究</td>
+                  <td>网络搜索、文献分析、报告生成</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">4</td>
+                  <td>文档处理</td>
+                  <td>PDF 解析、Word 生成、数据整理</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">5</td>
+                  <td>创意写作</td>
+                  <td>小说、剧本、诗歌、营销文案</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--cyber-yellow); font-weight:700;">6</td>
+                  <td>数据处理</td>
+                  <td>数据清洗、统计分析、可视化</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="msg-actions">
+            <button class="msg-action-btn">📋 复制</button>
+            <button class="msg-action-btn">👍</button>
+            <button class="msg-action-btn">👎</button>
+            <button class="msg-action-btn">🔄 重新生成</button>
+          </div>
+        </div>
+
+        <!-- 助手消息 2 (下拉面板) -->
+        <div class="msg">
+          <div class="msg-header">
+            <div class="msg-avatar asst">🤖</div>
+            <span class="msg-name">Kevin's Agent</span>
+          </div>
+          <div class="msg-bubble asst md">
+            <div class="cs-dropdown-panel">
+              <div class="dd-title">🔒 安全功能</div>
+              <div class="dd-item active">
+                <span class="cs-check checked"></span> 系统
+              </div>
+              <div class="dd-item active">
+                <span class="cs-check checked"></span> 用户
+              </div>
+              <div class="dd-item active">
+                <span class="cs-check checked"></span> 系统+用户
+              </div>
+              <div class="dd-item">
+                <span class="cs-check"></span> 系统+用户+工具
+              </div>
+              <div class="dd-item">
+                <span class="cs-check"></span> 无系统消息
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 助手消息 3 (头像图片) -->
+        <div class="msg">
+          <div class="msg-header">
+            <div class="msg-avatar asst">🤖</div>
+            <span class="msg-name">Kevin's Agent</span>
+          </div>
+          <div class="msg-bubble asst md">
+            <p>以下是我为你生成的 AI 角色形象：</p>
+            <div style="display:flex;align-items:center;gap:12px;margin:10px 0;">
+              <img class="cs-avatar-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%230f0f1a' width='80' height='80' rx='4'/%3E%3Ccircle cx='40' cy='32' r='18' fill='%23ff4d8f' opacity='0.6'/%3E%3Ccircle cx='40' cy='32' r='12' fill='%23ff4d8f' opacity='0.8'/%3E%3Ccircle cx='35' cy='28' r='3' fill='%23fff'/%3E%3Ccircle cx='45' cy='28' r='3' fill='%23fff'/%3E%3Cpath d='M32 38 Q40 46 48 38' stroke='%23fff' stroke-width='2' fill='none'/%3E%3Ctext x='40' y='62' text-anchor='middle' fill='%2300b4ff' font-size='10' font-family='sans-serif'%3ECYBER AI%3C/text%3E%3C/svg%3E" alt="AI Avatar">
+              <div>
+                <p class="green-text" style="font-weight:600;">AI 角色 · Cyberpunk 风格</p>
+                <p style="font-size:12px;color:var(--text-muted);">由 AI 生成的角色形象，赛博朋克风格</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部输入区域 -->
+      <div class="cs-inputbar">
+        <div class="cs-input-model">
+          <span class="cs-input-model-label">模型:</span>
+          <div class="cs-input-model-btn">
+            <span>Claude 4 Sonnet (latest)</span>
+            <span class="cs-input-model-arrow">▾</span>
+          </div>
+        </div>
+        <div class="cs-input-row">
+          <input type="text" class="cs-input-field" placeholder="输入消息...">
+          <button class="cs-send-btn">发送 ⏎</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+}
+
+// ========== 更新 CSS 代码 ==========
+function updateCode() {
+  const rootProps = [];
+  const lightProps = [];
+  const otherRules = [];
+
+  Object.values(state).forEach(s => {
+    if (s.sel === ':root') {
+      rootProps.push(s);
+    } else if (s.sel.includes('light') && s.prop.startsWith('--')) {
+      lightProps.push(s);
+    } else {
+      otherRules.push({ sel: s.sel, prop: s.prop, value: s.value });
+    }
+  });
+
+  // 按选择器分组
+  const ruleMap = {};
+  otherRules.forEach(r => {
+    if (!ruleMap[r.sel]) ruleMap[r.sel] = { sel: r.sel, props: [] };
+    ruleMap[r.sel].props.push({ prop: r.prop, value: r.value });
+  });
+
+  const rootVars = rootProps.map(r => `  ${r.prop}: ${r.value};`).join('\n');
+  const lightVars = lightProps.map(r => `  ${r.prop}: ${r.value};`).join('\n');
+
+  let rulesCss = '';
+  const ruleKeys = Object.keys(ruleMap);
+  ruleKeys.forEach((key, i) => {
+    const rule = ruleMap[key];
+    const props = rule.props.map(p => `  ${p.prop}: ${p.value};`).join('\n');
+    rulesCss += `\n/* ${key} */\n${key} {\n${props}\n}`;
+  });
+
+  let finalCss = `/* ============================================================\n   CHERRYSTUDIO · CYBERPUNK 2077\n   由 CSS 编辑器自动生成\n   ============================================================ */\n\n:root {\n${rootVars}\n}${rulesCss}`;
+
+  if (lightVars.trim()) {
+    finalCss += `\n\n/* ---- 浅色模式 ---- */\nbody[theme-mode="light"] {\n${lightVars}\n}`;
+  }
+
+  document.getElementById('codeContent').textContent = finalCss;
+  document.getElementById('copyBtn').dataset.css = finalCss;
+  const parts = finalCss.split('\n\n/* ---- 浅色模式 ---- */');
+  document.getElementById('copyDarkBtn').dataset.css = parts[0] || finalCss;
+  document.getElementById('copyLightBtn').dataset.css = parts[1] ? `/* ---- 浅色模式 ---- */\n${parts[1]}` : '';
+}
+
+// ========== 更新状态栏 ==========
+function updateStatus() {
+  const count = Object.keys(state).length;
+  document.getElementById('statusRight').textContent = `${count} 个属性已配置`;
+}
+
+// ========== 搜索 ==========
+document.getElementById('propSearch').addEventListener('input', function() {
+  renderPropPanel(this.value);
+});
+
+// ========== 标签切换 ==========
+document.querySelectorAll('.main-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const tabId = this.dataset.tab;
+    document.getElementById('previewPanel').style.display = tabId === 'preview' ? '' : 'none';
+    document.getElementById('codePanel').className = tabId === 'css-output' ? 'code-panel active' : 'code-panel';
+  });
+});
+
+// ========== 复制功能 ==========
+document.getElementById('copyBtn').addEventListener('click', function() {
+  navigator.clipboard.writeText(this.dataset.css).then(() => {
+    this.textContent = '✅ 已复制!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = '📋 复制全部 CSS'; this.classList.remove('copied'); }, 2000);
+  });
+});
+document.getElementById('copyDarkBtn').addEventListener('click', function() {
+  navigator.clipboard.writeText(this.dataset.css).then(() => {
+    this.textContent = '✅ 已复制!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = '🌙 仅暗色'; this.classList.remove('copied'); }, 2000);
+  });
+});
+document.getElementById('copyLightBtn').addEventListener('click', function() {
+  navigator.clipboard.writeText(this.dataset.css).then(() => {
+    this.textContent = '✅ 已复制!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = '☀️ 仅亮色'; this.classList.remove('copied'); }, 2000);
+  });
+});
+
+// ========== 初始化 ==========
+renderPropPanel();
+updatePreview();
+updateCode();
+updateStatus();
+</script>
+</body>
+</html>
