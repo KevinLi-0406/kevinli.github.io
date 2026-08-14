@@ -29,8 +29,6 @@
     .top-links { display: flex; align-items: center; gap: 8px; }
     .top-links a { padding: 9px 12px; color: var(--muted); border-radius: 8px; font-size: 14px; transition: .2s; }
     .top-links a:hover { color: var(--text); background: var(--card); }
-    .lang-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--muted); font-size: 13px; cursor: pointer; transition: .2s; font-weight: 600; }
-    .lang-btn:hover { color: var(--text); border-color: var(--blue); }
 
     .hero { position: relative; overflow: hidden; padding: 100px 0 82px; text-align: center; }
     .hero::before { position: absolute; top: 35px; left: 50%; width: 280px; height: 280px; content: ""; border-radius: 50%; background: rgba(88,166,255,.13); filter: blur(45px); transform: translateX(-50%); pointer-events: none; }
@@ -134,95 +132,94 @@
       .achievements-grid { grid-template-columns: 1fr; }
       .profile-info h2 { font-size: 24px; }
     }
+  .cp-toggle-btn{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 12px;border:1px solid var(--cp-yellow);color:var(--cp-yellow);background:transparent;transition:.2s;text-transform:uppercase;clip-path:polygon(8% 0%,100% 0%,92% 100%,0% 100%);text-decoration:none;}.cp-toggle-btn:hover{background:var(--cp-yellow);color:var(--cp-bg);}
   </style>
+<link rel="preconnect" href="https://api.github.com" crossorigin>
+  <link rel="dns-prefetch" href="https://api.github.com">
 </head>
 <body>
   <header class="topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="#top"><div class="brand-icon">K</div><div class="brand-text">KevinLI-0406<span data-i18n="nav.subtitle">Personal Portal</span></div></a>
+      <a class="brand" href="#top"><div class="brand-icon">K</div><div class="brand-text">KevinLI-0406<span>Personal Portal</span></div></a>
       <nav class="top-links">
-        <a class="nav-link" href="#about" data-i18n="nav.about">关于我</a>
-        <a class="nav-link" href="#skills" data-i18n="nav.skills">技能</a>
-        <a class="nav-link" href="#projects" data-i18n="nav.projects">项目</a>
+        <a class="nav-link" href="#about">关于我</a>
+        <a class="nav-link" href="#skills">技能</a>
+        <a class="nav-link" href="#projects">项目</a>
         <a class="nav-link" href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">GitHub</a>
-        <select class="lang-btn" id="langToggle" onchange="setLang(this.value)" style="cursor:pointer;padding-right:8px">
-          <option value="zh">🇨 中文</option>
-          <option value="en">🇺🇸 English</option>
-        </select>
-      </nav>
+      <a class="cp-toggle-btn" href="index2077.html" title="切换到赛博朋克风格">CyberPunk!</a></nav>
     </div>
   </header>
   <main>
     <section class="hero" id="top">
       <div class="container hero-content">
-        <span class="eyebrow" data-i18n="hero.eyebrow">WELCOME TO MY PORTAL</span>
-        <h1 data-i18n="hero.name">李奕兴 Kevin</h1>
-        <p data-i18n="hero.desc">纳恩博（Ninebot / Segway）应用工程师，SDS 售后数字化系统核心 BA 与 IT 负责人。这里是个人门户——我的职业介绍、技术能力和项目作品。</p>
+        <span class="eyebrow">WELCOME TO MY PORTAL</span>
+        <h1>李奕兴 Kevin</h1>
+        <p>纳恩博（Ninebot / Segway）应用工程师，SDS 售后数字化系统核心 BA 与 IT 负责人。这里是个人门户——我的职业介绍、技术能力和项目作品。</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="#about" data-i18n="hero.btn1">了解我</a>
-          <a class="button button-secondary" href="#projects" data-i18n="hero.btn2">浏览项目</a>
+          <a class="button button-primary" href="#about">了解我</a>
+          <a class="button button-secondary" href="#projects">浏览项目</a>
         </div>
       </div>
     </section>
 
     <section id="about" class="section">
       <div class="container">
-        <div class="section-heading"><div><h2 data-i18n="about.title">关于我</h2><p data-i18n="about.subtitle">个人简介与职业背景</p></div></div>
+        <div class="section-heading"><div><h2>关于我</h2><p>个人简介与职业背景</p></div></div>
         <div class="profile-card">
           <div class="profile-avatar">K</div>
           <div class="profile-info">
-            <h2 data-i18n="about.name">李奕兴 · Kevin</h2>
-            <div class="subtitle" data-i18n="about.role">应用工程师 · 集团信息化中心</div>
-            <p class="bio" data-i18n="about.bio">2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
+            <h2>李奕兴 · Kevin</h2>
+            <div class="subtitle">应用工程师 · 集团信息化中心</div>
+            <p class="bio">2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
             <div class="profile-meta">
-              <span data-i18n="about.meta1">🏢 纳恩博（北京）科技有限公司</span>
-              <span data-i18n="about.meta2">📍 海外销服系统部</span>
-              <span data-i18n="about.meta3">📅 2023年3月入职</span>
-              <span data-i18n="about.meta4">🌐 支持北美/欧洲/墨西哥</span>
+              <span>🏢 纳恩博（北京）科技有限公司</span>
+              <span>📍 海外销服系统部</span>
+              <span>📅 2023年3月入职</span>
+              <span>🌐 支持北美/欧洲/墨西哥</span>
             </div>
           </div>
         </div>
         <div class="achievements-grid" style="margin-top:0">
-          <div class="achievement-card"><div class="a-icon"></div><h3 data-i18n="about.stat1t">10+ 核心项目</h3><p data-i18n="about.stat1d">SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
-          <div class="achievement-card"><div class="a-icon"></div><h3 data-i18n="about.stat2t">跨文化协作</h3><p data-i18n="about.stat2d">北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
-          <div class="achievement-card"><div class="a-icon"></div><h3 data-i18n="about.stat3t">3 年 + 经验</h3><p data-i18n="about.stat3d">从项目启动到上线运维的全流程经验</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>10+ 核心项目</h3><p>SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>跨文化协作</h3><p>北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>3 年 + 经验</h3><p>从项目启动到上线运维的全流程经验</p></div>
         </div>
       </div>
     </section>
 
     <section id="skills" class="section">
       <div class="container">
-        <div class="section-heading"><div><h2 data-i18n="skills.title">技术能力</h2><p data-i18n="skills.subtitle">核心技能领域</p></div></div>
+        <div class="section-heading"><div><h2>技术能力</h2><p>核心技能领域</p></div></div>
         <div class="skills-grid">
-          <div class="skill-card"><h3 data-i18n="skills.s1t">🖥️ Salesforce / D365 平台</h3><div class="skill-tags">
-            <span class="skill-tag" data-i18n="skills.s1a">SF Flow 自动化</span>
-            <span class="skill-tag" data-i18n="skills.s1b">Case 字段配置</span>
+          <div class="skill-card"><h3>🖥️ Salesforce / D365 平台</h3><div class="skill-tags">
+            <span class="skill-tag">SF Flow 自动化</span>
+            <span class="skill-tag">Case 字段配置</span>
             <span class="skill-tag">Report & Dashboard</span>
-            <span class="skill-tag" data-i18n="skills.s1d">D365 Form 修改</span>
-            <span class="skill-tag" data-i18n="skills.s1e">权限体系管理</span>
+            <span class="skill-tag">D365 Form 修改</span>
+            <span class="skill-tag">权限体系管理</span>
           </div></div>
-          <div class="skill-card"><h3 data-i18n="skills.s2t">🔌 系统集成与接口</h3><div class="skill-tags">
-            <span class="skill-tag" data-i18n="skills.s2a">OA 接口对接</span>
-            <span class="skill-tag" data-i18n="skills.s2b">SAP ↔ SF 数据同步</span>
-            <span class="skill-tag" data-i18n="skills.s2c">B2X 接口映射</span>
-            <span class="skill-tag" data-i18n="skills.s2d">短信平台集成</span>
+          <div class="skill-card"><h3>🔌 系统集成与接口</h3><div class="skill-tags">
+            <span class="skill-tag">OA 接口对接</span>
+            <span class="skill-tag">SAP ↔ SF 数据同步</span>
+            <span class="skill-tag">B2X 接口映射</span>
+            <span class="skill-tag">短信平台集成</span>
             <span class="skill-tag">Azure Data Factory</span>
-            <span class="skill-tag" data-i18n="skills.s2f">Postman 调试</span>
+            <span class="skill-tag">Postman 调试</span>
           </div></div>
-          <div class="skill-card"><h3 data-i18n="skills.s3t">📊 数据分析与排查</h3><div class="skill-tags">
-            <span class="skill-tag" data-i18n="skills.s3a">SN 校验逻辑</span>
-            <span class="skill-tag" data-i18n="skills.s3b">Warranty 判定规则</span>
-            <span class="skill-tag" data-i18n="skills.s3c">Special Model 配置</span>
-            <span class="skill-tag" data-i18n="skills.s3d">窜货 / OOW 规则</span>
-            <span class="skill-tag" data-i18n="skills.s3e">翻新车数据治理</span>
+          <div class="skill-card"><h3>📊 数据分析与排查</h3><div class="skill-tags">
+            <span class="skill-tag">SN 校验逻辑</span>
+            <span class="skill-tag">Warranty 判定规则</span>
+            <span class="skill-tag">Special Model 配置</span>
+            <span class="skill-tag">窜货 / OOW 规则</span>
+            <span class="skill-tag">翻新车数据治理</span>
           </div></div>
-          <div class="skill-card"><h3 data-i18n="skills.s4t">📋 项目管理</h3><div class="skill-tags">
-            <span class="skill-tag" data-i18n="skills.s4a">需求调研</span>
-            <span class="skill-tag" data-i18n="skills.s4b">PDD 设计方案</span>
-            <span class="skill-tag" data-i18n="skills.s4c">UAT 测试组织</span>
-            <span class="skill-tag" data-i18n="skills.s4d">会议纪要</span>
-            <span class="skill-tag" data-i18n="skills.s4e">跨部门拉通</span>
-            <span class="skill-tag" data-i18n="skills.s4f">带教新人</span>
+          <div class="skill-card"><h3>📋 项目管理</h3><div class="skill-tags">
+            <span class="skill-tag">需求调研</span>
+            <span class="skill-tag">PDD 设计方案</span>
+            <span class="skill-tag">UAT 测试组织</span>
+            <span class="skill-tag">会议纪要</span>
+            <span class="skill-tag">跨部门拉通</span>
+            <span class="skill-tag">带教新人</span>
           </div></div>
         </div>
       </div>
@@ -230,24 +227,24 @@
 
     <section class="section">
       <div class="container">
-        <div class="section-heading"><div><h2 data-i18n="style.title">工作风格</h2><p data-i18n="style.subtitle">同事眼中的 Kevin</p></div></div>
+        <div class="section-heading"><div><h2>工作风格</h2><p>同事眼中的 Kevin</p></div></div>
         <div class="achievements-grid">
-          <div class="achievement-card"><div class="a-icon">🔥</div><h3 data-i18n="style.s1t">高强度投入</h3><p data-i18n="style.s1d">经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
-          <div class="achievement-card"><div class="a-icon">🛡️</div><h3 data-i18n="style.s2t">团队的安全感</h3><p data-i18n="style.s2d">"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
-          <div class="achievement-card"><div class="a-icon">🏃</div><h3 data-i18n="style.s3t">主动向前一步</h3><p data-i18n="style.s3d">主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
-          <div class="achievement-card"><div class="a-icon">😄</div><h3 data-i18n="style.s4t">幽默风趣</h3><p data-i18n="style.s4d">工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
-          <div class="achievement-card"><div class="a-icon">📝</div><h3 data-i18n="style.s5t">善于总结沉淀</h3><p data-i18n="style.s5d">多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
-          <div class="achievement-card"><div class="a-icon">🤝</div><h3 data-i18n="style.s6t">跨文化协作</h3><p data-i18n="style.s6d">耐心教海外同事系统操作，2025年赴阿姆斯特丹/巴黎现场演示。</p></div>
+          <div class="achievement-card"><div class="a-icon">🔥</div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
+          <div class="achievement-card"><div class="a-icon">🛡️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
+          <div class="achievement-card"><div class="a-icon">🏃</div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
+          <div class="achievement-card"><div class="a-icon">😄</div><h3>幽默风趣</h3><p>工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
+          <div class="achievement-card"><div class="a-icon">📝</div><h3>善于总结沉淀</h3><p>多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
+          <div class="achievement-card"><div class="a-icon">🤝</div><h3>跨文化协作</h3><p>耐心教海外同事系统操作，2025年赴阿姆斯特丹/巴黎现场演示。</p></div>
         </div>
       </div>
     </section>
 
     <section id="projects" class="section">
       <div class="container">
-        <div class="section-heading"><div><h2 data-i18n="projects.title">我的项目</h2><p id="projectCount" data-i18n="projects.subtitle">从 kevinli.github.io/Projects 目录实时加载</p></div></div>
+        <div class="section-heading"><div><h2>我的项目</h2><p id="projectCount">从 kevinli.github.io/Projects 目录实时加载</p></div></div>
         <div class="filter-bar" id="filterBar" style="display:none"></div>
         <div id="project-grid" class="project-grid">
-          <div class="loading-state"><div class="loading-spinner"></div><div data-i18n="projects.loading">正在从 GitHub 拉取项目…</div></div>
+          <div class="loading-state"><div class="loading-spinner"></div><div>正在从 GitHub 拉取项目…</div></div>
         </div>
       </div>
     </section>
@@ -255,8 +252,8 @@
     <section class="section">
       <div class="container">
         <div class="info-grid">
-          <div class="info-card"><h3 data-i18n="site.t1">关于这个网站</h3><p data-i18n="site.d1">部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。</p></div>
-          <div class="info-card"><h3 data-i18n="site.t2">使用技术</h3><p data-i18n="site.d2">纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
+          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。</p></div>
+          <div class="info-card"><h3>使用技术</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
         </div>
       </div>
     </section>
@@ -265,149 +262,7 @@
 
   <script>
     // ===== 双语切换 =====
-    var currentLang = "zh";
-    var translations = {
-      en: {
-        "nav.subtitle": "Personal Portal",
-        "nav.about": "About", "nav.skills": "Skills", "nav.projects": "Projects",
-        "hero.eyebrow": "WELCOME TO MY PORTAL",
-        "hero.name": "Li Yixing Kevin",
-        "hero.desc": "Application Engineer at Ninebot/Segway, Core BA & IT Lead for the SDS After-Sales Digital System. This is my personal portal — career intro, technical skills, and project showcase.",
-        "hero.btn1": "About Me", "hero.btn2": "Browse Projects",
-        "about.title": "About Me", "about.subtitle": "Profile & Career Background",
-        "about.name": "Li Yixing · Kevin",
-        "about.role": "Application Engineer · Group IT Center",
-        "about.bio": "Joined Ninebot/Segway in March 2023, working in the Group IT Center's Overseas Sales & Service Systems Department. Over the past three years, deeply involved in the full lifecycle of the SDS After-Sales Digital System from initiation to launch and operations, while also leading core projects including SPP, B2X, and Chat online customer service. Skilled at cross-department coordination, business solution delivery, and resolving technical issues.",
-        "about.meta1": "🏢 Ninebot (Beijing) Technology Co., Ltd.",
-        "about.meta2": "📍 Overseas Sales & Service Systems Dept.",
-        "about.meta3": "📅 Joined Mar 2023",
-        "about.meta4": " Supporting NA / Europe / Mexico",
-        "about.stat1t": "10+ Core Projects", "about.stat1d": "SDS, SPP, B2X, Chat, RPA, UDesk, etc.",
-        "about.stat2t": "Cross-Cultural Collaboration", "about.stat2d": "Business support and on-site demos across NA, Europe, and Mexico",
-        "about.stat3t": "3+ Years Experience", "about.stat3d": "Full-process experience from project initiation to operations",
-        "skills.title": "Technical Skills", "skills.subtitle": "Core Competency Areas",
-        "skills.s1t": "🖥️ Salesforce / D365 Platform",
-        "skills.s1a": "SF Flow Automation", "skills.s1b": "Case Field Configuration",
-        "skills.s1d": "D365 Form Modification", "skills.s1e": "Permission Management",
-        "skills.s2t": "🔌 System Integration & APIs",
-        "skills.s2a": "OA API Integration", "skills.s2b": "SAP ↔ SF Data Sync",
-        "skills.s2c": "B2X API Mapping", "skills.s2d": "SMS Platform Integration",
-        "skills.s2f": "Postman Debugging",
-        "skills.s3t": "📊 Data Analysis & Troubleshooting",
-        "skills.s3a": "SN Validation Logic", "skills.s3b": "Warranty Rules",
-        "skills.s3c": "Special Model Config", "skills.s3d": "Cross-selling / OOW Rules",
-        "skills.s3e": "Refurbished Vehicle Data Governance",
-        "skills.s4t": "📋 Project Management",
-        "skills.s4a": "Requirement Research", "skills.s4b": "PDD Design",
-        "skills.s4c": "UAT Testing", "skills.s4d": "Meeting Minutes",
-        "skills.s4e": "Cross-Dept Coordination", "skills.s4f": "Mentoring New Hires",
-        "style.title": "Work Style", "style.subtitle": "How Colleagues See Kevin",
-        "style.s1t": "High-Intensity Commitment", "style.s1d": "Often working late nights or even all-nighters to resolve issues. Replying to overseas colleagues in the early morning is routine.",
-        "style.s2t": "Team's Safety Net", "style.s2d": "\"Following Yixing gives you a sense of security\" — the go-to person for technical issues, business solutions, and cross-department push.",
-        "style.s3t": "Proactive & One Step Ahead", "style.s3d": "Proactively exported 657 error records for analysis, defined rework判定 rules, and discovered production code gaps.",
-        "style.s4t": "Humorous & Fun", "style.s4d": "The vibe-maker in work groups, IT team-building host and MC.",
-        "style.s5t": "Great at Summarizing", "style.s5d": "Frequently serves as meeting host and note-taker, turning discussions into documented plans.",
-        "style.s6t": "Cross-Cultural Collaboration", "style.s6d": "Patiently trains overseas colleagues on system operations. Traveled to Amsterdam/Paris for on-site SDS demos in 2025.",
-        "projects.title": "My Projects",
-        "projects.subtitle": "Loaded live from kevinli.github.io/Projects directory",
-        "projects.loading": "Fetching projects from GitHub…",
-        "projects.openBtn": "Open Project →",
-        "projects.clickDesc": "Click to open this project page",
-        "filter.category": "Category:", "filter.time": "Time:",
-        "filter.allCat": "All Categories", "filter.allTime": "All Time",
-        "filter.t1m": "Past 1 Month", "filter.t3m": "Past 3 Months",
-        "filter.t6m": "Past 6 Months", "filter.t1y": "Past 1 Year",
-        "filter.t1y+": "Over 1 Year",
-        "filter.unknown": "Unknown",
-        "filter.noMatch": "No matching projects", "filter.noMatchDesc": "Try adjusting the filters.",
-        "site.t1": "About This Site",
-        "site.d1": "A personal portal hosted on GitHub Pages. Project list is fetched in real-time from the Projects directory of the kevinli.github.io repo via GitHub Contents API.",
-        "site.t2": "Tech Stack",
-        "site.d2": "Pure HTML / CSS / JavaScript, dynamically fetching project files via GitHub REST API.",
-        // Categories
-        "cat.fun": "Fun & Interactive", "cat.tool": "Tools & Utilities",
-        "cat.profile": "Personal Info", "cat.content": "Content Showcase",
-        "cat.nav": "Navigation", "cat.data": "Data Analysis", "cat.other": "Other"
-      },
-      zh: {
-        "nav.subtitle": "Personal Portal",
-        "nav.about": "关于我", "nav.skills": "技能", "nav.projects": "项目",
-        "hero.eyebrow": "WELCOME TO MY PORTAL",
-        "hero.name": "李奕兴 Kevin",
-        "hero.desc": "纳恩博（Ninebot / Segway）应用工程师，SDS 售后数字化系统核心 BA 与 IT 负责人。这里是个人门户——我的职业介绍、技术能力和项目作品。",
-        "hero.btn1": "了解我", "hero.btn2": "浏览项目",
-        "about.title": "关于我", "about.subtitle": "个人简介与职业背景",
-        "about.name": "李奕兴 · Kevin",
-        "about.role": "应用工程师 · 集团信息化中心",
-        "about.bio": "2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。",
-        "about.meta1": " 纳恩博（北京）科技有限公司",
-        "about.meta2": "📍 海外销服系统部",
-        "about.meta3": "📅 2023年3月入职",
-        "about.meta4": " 支持北美/欧洲/墨西哥",
-        "about.stat1t": "10+ 核心项目", "about.stat1d": "SDS、SPP、B2X、Chat、RPA、UDesk 等",
-        "about.stat2t": "跨文化协作", "about.stat2d": "北美/欧洲/墨西哥多地业务支持与现场演示",
-        "about.stat3t": "3 年 + 经验", "about.stat3d": "从项目启动到上线运维的全流程经验",
-        "skills.title": "技术能力", "skills.subtitle": "核心技能领域",
-        "skills.s1t": "🖥️ Salesforce / D365 平台",
-        "skills.s1a": "SF Flow 自动化", "skills.s1b": "Case 字段配置",
-        "skills.s1d": "D365 Form 修改", "skills.s1e": "权限体系管理",
-        "skills.s2t": "🔌 系统集成与接口",
-        "skills.s2a": "OA 接口对接", "skills.s2b": "SAP ↔ SF 数据同步",
-        "skills.s2c": "B2X 接口映射", "skills.s2d": "短信平台集成",
-        "skills.s2f": "Postman 调试",
-        "skills.s3t": " 数据分析与排查",
-        "skills.s3a": "SN 校验逻辑", "skills.s3b": "Warranty 判定规则",
-        "skills.s3c": "Special Model 配置", "skills.s3d": "窜货 / OOW 规则",
-        "skills.s3e": "翻新车数据治理",
-        "skills.s4t": "📋 项目管理",
-        "skills.s4a": "需求调研", "skills.s4b": "PDD 设计方案",
-        "skills.s4c": "UAT 测试组织", "skills.s4d": "会议纪要",
-        "skills.s4e": "跨部门拉通", "skills.s4f": "带教新人",
-        "style.title": "工作风格", "style.subtitle": "同事眼中的 Kevin",
-        "style.s1t": "高强度投入", "style.s1d": "经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。",
-        "style.s2t": "团队的安全感", "style.s2d": ""跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。",
-        "style.s3t": "主动向前一步", "style.s3d": "主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。",
-        "style.s4t": "幽默风趣", "style.s4d": "工作群中的氛围担当，IT 团建主持人与串场王。",
-        "style.s5t": "善于总结沉淀", "style.s5d": "多次担任会议主持和记录人，将讨论成果固化为文档和方案。",
-        "style.s6t": "跨文化协作", "style.s6d": "耐心教海外同事系统操作，2025年赴阿姆斯特丹/巴黎现场演示。",
-        "projects.title": "我的项目",
-        "projects.subtitle": "从 kevinli.github.io/Projects 目录实时加载",
-        "projects.loading": "正在从 GitHub 拉取项目…",
-        "projects.openBtn": "打开项目 →",
-        "projects.clickDesc": "点击打开此项目页面",
-        "filter.category": "用途：", "filter.time": "时间：",
-        "filter.allCat": "全部用途", "filter.allTime": "全部时间",
-        "filter.t1m": "近 1 个月", "filter.t3m": "近 3 个月",
-        "filter.t6m": "近半年", "filter.t1y": "近 1 年",
-        "filter.t1y+": "1 年以上",
-        "filter.unknown": "未知",
-        "filter.noMatch": "没有匹配的项目", "filter.noMatchDesc": "尝试调整筛选条件。",
-        "site.t1": "关于这个网站",
-        "site.d1": "部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。",
-        "site.t2": "使用技术",
-        "site.d2": "纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。",
-        "cat.fun": "趣味互动", "cat.tool": "工具应用",
-        "cat.profile": "个人信息", "cat.content": "内容展示",
-        "cat.nav": "导航工具", "cat.data": "数据分析", "cat.other": "其他"
-      }
-    };
-
-    // ===== 语言切换（全局函数） =====
-    function t(key) { return translations[currentLang][key] || key; }
-
-    function setLang(lang) {
-      currentLang = lang;
-      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
-
-      document.querySelectorAll("[data-i18n]").forEach(function(el) {
-        var key = el.getAttribute("data-i18n");
-        if (translations[lang][key]) el.textContent = translations[lang][key];
-      });
-
-      if (allProjectData.length > 0) {
-        rebuildFilters();
-        applyFilters();
-      }
+        // ===== 语言切换（全局函数） =====
     }
 
     // ===== GitHub Projects =====
@@ -447,44 +302,30 @@
     function escapeHtml(v) { return String(v || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
 
     async function fetchProjectFiles() {
-      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR;
-      var resp = await fetch(url);
-      if (!resp.ok) {
-        if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" directory not found');
-        throw new Error("GitHub API error (" + resp.status + ")");
+      var cacheKey = 'projects_cache_v1';
+      var cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try { var data = JSON.parse(cached); if (Date.now() - data.ts < 300000) return data.files; } catch(e) {}
       }
+      var url = 'https://api.github.com/repos/' + GITHUB_USERNAME + '/' + GITHUB_REPO + '/contents/' + PROJECTS_DIR;
+      var r = await fetch(url);
+      if (!r.ok) { if (r.status===404) throw new Error('"'+PROJECTS_DIR+'" directory not found'); throw new Error('GitHub API error ('+r.status+')'); }
+      var files = (await r.json()).filter(function(f){ return f.type==='file' && /\.html?$/i.test(f.name) && f.name.toLowerCase()!=='index.html'; });
+      try { localStorage.setItem(cacheKey, JSON.stringify({ts:Date.now(),files:files})); } catch(e) {}
+      return files;
+    }
+
       var files = await resp.json();
       return files.filter(function(f) { return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html"; });
     }
-
-    async function fetchFileCreatedDate(filePath) {
-      try {
-        var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/commits?path=" + encodeURIComponent(filePath) + "&per_page=100&reverse=true";
-        var resp = await fetch(url);
-        if (!resp.ok) return null;
-        var commits = await resp.json();
-        return commits.length > 0 ? new Date(commits[0].commit.author.date) : null;
-      } catch (e) { return null; }
-    }
-
-    function getDateRangeLabel(date) {
-      if (!date) return t("filter.unknown");
-      var diffDays = Math.floor((new Date() - date) / 86400000);
-      if (diffDays <= 30) return t("filter.t1m");
-      if (diffDays <= 90) return t("filter.t3m");
-      if (diffDays <= 180) return t("filter.t6m");
-      if (diffDays <= 365) return t("filter.t1y");
-      return t("filter.t1y+");
-    }
-
     var allProjectData = [];
     var filterCategory = "all";
-    var filterTime = "all";
+    
 
     function applyFilters() {
       var filtered = allProjectData.filter(function(item) {
         return (filterCategory === "all" || item.catKey === filterCategory) &&
-               (filterTime === "all" || item.timeLabel === filterTime);
+               true;
       });
       renderCards(filtered);
     }
@@ -492,10 +333,10 @@
     function renderCards(items) {
       var grid = document.getElementById("project-grid");
       var countEl = document.getElementById("projectCount");
-      if (countEl) countEl.textContent = t("projects.title") + " — " + items.length + (currentLang === "zh" ? " 个项目" : " projects");
+      if (countEl) countEl.textContent = 我的项目 + " — " + items.length + (currentLang === "zh" ? " 个项目" : " projects");
 
       if (items.length === 0) {
-        grid.innerHTML = '<div class="empty-project"><h3>' + t("filter.noMatch") + '</h3><p>' + t("filter.noMatchDesc") + '</p></div>';
+        grid.innerHTML = '<div class="empty-project"><h3>' + 没有匹配的项目 + '</h3><p>' + 尝试调整筛选条件。 + '</p></div>';
         return;
       }
 
@@ -510,13 +351,13 @@
         html += '<a class="project-card" href="' + projectUrl + '" target="_blank" rel="noopener">';
         html += '<div class="project-icon">' + icon + '</div>';
         html += '<h3>' + escapeHtml(item.name) + '</h3>';
-        html += '<p>' + t("projects.clickDesc") + '</p>';
+        html += '<p>' + 点击打开此项目页面 + '</p>';
         html += '<div class="project-meta">';
         html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + getCategory(item.name) + '</span>';
         if (dateStr) html += '<span class="meta-item">\u{1F4C5} ' + dateStr + '</span>';
         html += '<span class="meta-item">\u{1F4BE} ' + (item.file.size / 1024).toFixed(1) + ' KB</span>';
         html += '</div>';
-        html += '<span class="card-link">' + t("projects.openBtn") + '</span>';
+        html += '<span class="card-link">' + 打开项目 → + '</span>';
         html += '</a>';
       }
       grid.innerHTML = html;
@@ -531,30 +372,19 @@
       var filterBar = document.getElementById("filterBar");
       filterBar.style.display = "flex";
       filterBar.innerHTML =
-        '<label>' + t("filter.category") + '</label>' +
-        '<select id="filterCategory"><option value="all">' + t("filter.allCat") + '</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + t(c) + '</option>'; }).join('') + '</select>' +
-        '<label style="margin-left:12px">' + t("filter.time") + '</label>' +
-        '<select id="filterTime"><option value="all">' + t("filter.allTime") + '</option>' +
-        '<option value="' + t("filter.t1m") + '">' + t("filter.t1m") + '</option>' +
-        '<option value="' + t("filter.t3m") + '">' + t("filter.t3m") + '</option>' +
-        '<option value="' + t("filter.t6m") + '">' + t("filter.t6m") + '</option>' +
-        '<option value="' + t("filter.t1y") + '">' + t("filter.t1y") + '</option>' +
-        '<option value="' + t("filter.t1y+") + '">' + t("filter.t1y+") + '</option></select>';
+        '<label>' + 用途： + '</label>' +
+        '<select id="filterCategory"><option value="all">' + 全部用途 + '</option>' +
+        cats.map(function(c) { return '<option value="' + c + '">' + t(c) + '</option>'; }).join('') + '</select>;
 
       document.getElementById("filterCategory").addEventListener("change", function(e) { filterCategory = e.target.value; applyFilters(); });
-      document.getElementById("filterTime").addEventListener("change", function(e) { filterTime = e.target.value; applyFilters(); });
     }
 
     (async function() {
       try {
         var files = await fetchProjectFiles();
-        var datePromises = files.map(function(f) { return fetchFileCreatedDate(PROJECTS_DIR + "/" + f.name); });
-        var dates = await Promise.all(datePromises);
-
         allProjectData = files.map(function(f, i) {
           var name = f.name.replace(/\.html?$/i, "");
-          return { file: f, name: name, catKey: getCategoryKey(name), createdDate: dates[i], timeLabel: getDateRangeLabel(dates[i]) };
+          return {file:f,name:n,catKey:getCategoryKey(n)};
         });
 
         rebuildFilters();
