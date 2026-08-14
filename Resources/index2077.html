@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KevinLI-0406 // PORTAL_2077</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --cp-yellow: #fcee0a;
+      --cp-cyan: #00f0ff;
+      --cp-red: #ff003c;
+      --cp-magenta: #ff00de;
+      --cp-bg: #0a0a0f;
+      --cp-bg2: #12121a;
+      --cp-card: rgba(18, 18, 30, 0.85);
+      --cp-border: rgba(252, 238, 10, 0.2);
+      --cp-text: #e0e0e0;
+      --cp-muted: #7a7a8e;
+      --cp-glow-yellow: 0 0 20px rgba(252,238,10,0.3), 0 0 40px rgba(252,238,10,0.1);
+      --cp-glow-cyan: 0 0 20px rgba(0,240,255,0.3), 0 0 40px rgba(0,240,255,0.1);
+      --cp-glow-red: 0 0 20px rgba(255,0,60,0.3);
+      --font-display: 'Orbitron', sans-serif;
+      --font-body: 'Rajdhani', 'Microsoft YaHei', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cp-bg);
+      color: var(--cp-text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ===== 背景网格 + 扫描线 ===== */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        linear-gradient(rgba(252,238,10,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(252,238,10,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .container { width: min(1200px, calc(100% - 40px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    /* ===== 顶部导航 ===== */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      border-bottom: 1px solid var(--cp-border);
+      backdrop-filter: blur(12px);
+    }
+    .topbar-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 64px; gap: 20px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-family: var(--font-display); font-weight: 700; font-size: 15px;
+      color: var(--cp-yellow); letter-spacing: 2px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--cp-yellow);
+      color: var(--cp-bg);
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-size: 18px; font-weight: 900;
+      clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+    }
+    .brand-text span { display: block; font-size: 10px; color: var(--cp-muted); font-weight: 400; letter-spacing: 3px; }
+    .top-links { display: flex; align-items: center; gap: 6px; }
+    .top-links a.nav-link {
+      padding: 8px 14px; color: var(--cp-muted);
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; transition: .2s;
+      border: 1px solid transparent;
+    }
+    .top-links a.nav-link:hover { color: var(--cp-yellow); border-color: var(--cp-border); background: rgba(252,238,10,0.05); }
+
+    /* ===== 通用 Section ===== */
+    .section { padding: 60px 0; position: relative; }
+    .section-heading { margin-bottom: 36px; }
+    .section-heading h2 {
+      font-family: var(--font-display); font-size: 26px; font-weight: 900;
+      color: var(--cp-yellow); letter-spacing: 3px; text-transform: uppercase;
+      position: relative; display: inline-block;
+    }
+    .section-heading h2::after {
+      content: ""; position: absolute; bottom: -6px; left: 0;
+      width: 60px; height: 3px; background: var(--cp-yellow);
+    }
+    .section-heading h2::before {
+      content: "//"; margin-right: 10px; color: var(--cp-cyan); font-size: 20px;
+    }
+    .section-heading p { color: var(--cp-muted); font-size: 14px; margin-top: 12px; letter-spacing: 1px; }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 120px 0 100px; text-align: center;
+      border-bottom: 1px solid var(--cp-border);
+    }
+    .hero::before {
+      content: ""; position: absolute; top: 50%; left: 50%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(252,238,10,0.08), transparent 60%);
+      transform: translate(-50%, -50%); pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-display); font-size: 12px; font-weight: 700;
+      color: var(--cp-cyan); letter-spacing: 6px; text-transform: uppercase;
+      margin-bottom: 20px; display: inline-block;
+      border: 1px solid rgba(0,240,255,0.3); padding: 6px 16px;
+    }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(42px, 7vw, 80px);
+      font-weight: 900; letter-spacing: -1px;
+      color: #fff; margin: 20px 0;
+      text-shadow: 0 0 40px rgba(252,238,10,0.15);
+    }
+    .hero h1 .accent { color: var(--cp-yellow); }
+    .hero-desc {
+      max-width: 640px; margin: 0 auto; color: var(--cp-muted);
+      font-size: 17px; line-height: 1.8;
+    }
+    .hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+    .cp-btn {
+      font-family: var(--font-display); font-size: 12px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      padding: 14px 28px; border: none; cursor: pointer; transition: .2s;
+      clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+    }
+    .cp-btn-primary { background: var(--cp-yellow); color: var(--cp-bg); }
+    .cp-btn-primary:hover { background: #fff; box-shadow: var(--cp-glow-yellow); }
+    .cp-btn-outline { background: transparent; color: var(--cp-yellow); border: 1px solid var(--cp-yellow); }
+    .cp-btn-outline:hover { background: rgba(252,238,10,0.1); }
+
+    /* ===== 个人资料卡 ===== */
+    .profile-card {
+      display: flex; gap: 40px; align-items: center;
+      padding: 36px; margin-bottom: 30px;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-card);
+      position: relative; overflow: hidden;
+    }
+    .profile-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--cp-yellow), var(--cp-cyan), var(--cp-red));
+    }
+    .profile-avatar {
+      flex-shrink: 0; width: 110px; height: 110px;
+      background: linear-gradient(135deg, var(--cp-yellow), var(--cp-cyan));
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-size: 48px; font-weight: 900; color: var(--cp-bg);
+      clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
+    }
+    .profile-info h2 {
+      font-family: var(--font-display); font-size: 28px; font-weight: 900;
+      color: #fff; letter-spacing: 1px;
+    }
+    .profile-info .subtitle {
+      color: var(--cp-cyan); font-size: 14px; font-weight: 600;
+      margin: 6px 0 12px; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .profile-info .bio { color: var(--cp-muted); font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+    .profile-meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--cp-muted); }
+    .profile-meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* ===== 统计卡片 ===== */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .stat-card {
+      padding: 24px; text-align: center;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-card);
+      position: relative; overflow: hidden;
+      transition: .25s;
+    }
+    .stat-card:hover { border-color: var(--cp-yellow); box-shadow: var(--cp-glow-yellow); transform: translateY(-3px); }
+    .stat-card .s-icon { font-size: 32px; margin-bottom: 10px; }
+    .stat-card h3 { font-family: var(--font-display); font-size: 15px; color: var(--cp-yellow); letter-spacing: 2px; margin-bottom: 6px; }
+    .stat-card p { color: var(--cp-muted); font-size: 13px; line-height: 1.6; }
+
+    /* ===== 技能 ===== */
+    .skills-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .skill-card {
+      padding: 24px; border: 1px solid var(--cp-border);
+      background: var(--cp-card); position: relative;
+      transition: .25s;
+    }
+    .skill-card::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+      background: var(--cp-cyan);
+    }
+    .skill-card:hover { border-color: var(--cp-cyan); box-shadow: var(--cp-glow-cyan); }
+    .skill-card h3 {
+      font-family: var(--font-display); font-size: 14px; color: var(--cp-cyan);
+      letter-spacing: 2px; margin-bottom: 14px;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-tag {
+      padding: 4px 10px; font-size: 11px;
+      border: 1px solid rgba(0,240,255,0.2);
+      color: var(--cp-text); letter-spacing: 1px;
+      transition: .2s;
+    }
+    .skill-tag:hover { border-color: var(--cp-cyan); color: var(--cp-cyan); background: rgba(0,240,255,0.05); }
+
+    /* ===== 工作风格 ===== */
+    .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .style-card {
+      padding: 24px; text-align: center;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-card); transition: .25s;
+    }
+    .style-card:hover { border-color: var(--cp-red); transform: translateY(-3px); }
+    .style-card .st-icon { font-size: 32px; margin-bottom: 10px; }
+    .style-card h3 { font-family: var(--font-display); font-size: 14px; color: #fff; letter-spacing: 2px; margin-bottom: 8px; }
+    .style-card p { color: var(--cp-muted); font-size: 13px; line-height: 1.6; }
+
+    /* ===== 项目 ===== */
+    .filter-bar { display: none; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+    .filter-bar select {
+      padding: 8px 24px 8px 12px; border: 1px solid var(--cp-border);
+      background: var(--cp-bg2); color: var(--cp-yellow);
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 1px;
+      cursor: pointer; outline: none; clip-path: polygon(4% 0%, 100% 0%, 96% 100%, 0% 100%);
+    }
+    .filter-bar select:hover { border-color: var(--cp-yellow); }
+    .filter-bar label { color: var(--cp-muted); font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+
+    .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .project-card {
+      display: flex; flex-direction: column; min-height: 240px;
+      padding: 24px; border: 1px solid var(--cp-border);
+      background: var(--cp-card); position: relative; overflow: hidden;
+      transition: .25s;
+    }
+    .project-card::after {
+      content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--cp-yellow), var(--cp-cyan));
+      transform: scaleX(0); transform-origin: left; transition: .3s;
+    }
+    .project-card:hover { border-color: var(--cp-yellow); transform: translateY(-4px); }
+    .project-card:hover::after { transform: scaleX(1); }
+    .project-card .project-icon {
+      display: grid; place-items: center; width: 50px; height: 50px;
+      margin-bottom: 16px; font-size: 26px;
+      border: 1px solid var(--cp-border);
+      background: rgba(252,238,10,0.05);
+      clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+    }
+    .project-card h3 { font-family: var(--font-display); font-size: 16px; color: #fff; letter-spacing: 1px; margin-bottom: 8px; }
+    .project-card p { flex: 1; color: var(--cp-muted); font-size: 13px; line-height: 1.6; }
+    .project-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 11px; color: var(--cp-muted); }
+    .card-link {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+      font-family: var(--font-display); font-size: 11px; color: var(--cp-yellow);
+      letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+    }
+    .card-link:hover { color: #fff; }
+
+    .loading-state { grid-column: 1/-1; padding: 60px 20px; text-align: center; color: var(--cp-muted); }
+    .loading-spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--cp-border); border-top-color: var(--cp-yellow); border-radius: 50%; animation: spin .6s linear infinite; margin-bottom: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-project { grid-column: 1/-1; padding: 50px 20px; color: var(--cp-muted); text-align: center; border: 1px dashed var(--cp-border); }
+    .empty-project h3 { font-family: var(--font-display); color: var(--cp-yellow); margin-bottom: 8px; letter-spacing: 2px; }
+
+    /* ===== 关于网站 ===== */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .info-card { padding: 24px; border: 1px solid var(--cp-border); background: var(--cp-card); }
+    .info-card h3 { font-family: var(--font-display); font-size: 14px; color: var(--cp-yellow); letter-spacing: 2px; margin-bottom: 10px; }
+    .info-card p { color: var(--cp-muted); font-size: 14px; line-height: 1.7; }
+    .tech-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tech-list span { padding: 4px 10px; font-size: 11px; border: 1px solid var(--cp-border); color: var(--cp-muted); letter-spacing: 1px; }
+
+    /* ===== Footer ===== */
+    footer { padding: 24px 0; color: var(--cp-muted); text-align: center; font-size: 12px; border-top: 1px solid var(--cp-border); font-family: var(--font-display); letter-spacing: 2px; }
+    footer a { color: var(--cp-yellow); }
+
+    /* ===== GLITCH 效果 ===== */
+    .glitch { position: relative; }
+    .glitch::before, .glitch::after {
+      content: attr(data-text); position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+    .glitch::before {
+      color: var(--cp-cyan); z-index: -1;
+      animation: glitch-1 3s infinite linear alternate-reverse;
+    }
+    .glitch::after {
+      color: var(--cp-red); z-index: -2;
+      animation: glitch-2 2s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-1 {
+      0%, 95% { clip-path: inset(0 0 0 0); transform: translate(0); }
+      96% { clip-path: inset(20% 0 60% 0); transform: translate(-3px, 1px); }
+      97% { clip-path: inset(60% 0 10% 0); transform: translate(3px, -1px); }
+      98% { clip-path: inset(40% 0 30% 0); transform: translate(-2px, 2px); }
+      99% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+    }
+    @keyframes glitch-2 {
+      0%, 93% { clip-path: inset(0 0 0 0); transform: translate(0); }
+      94% { clip-path: inset(30% 0 50% 0); transform: translate(2px, -1px); }
+      95% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 1px); }
+      96% { clip-path: inset(10% 0 70% 0); transform: translate(1px, 2px); }
+      97% { clip-path: inset(50% 0 20% 0); transform: translate(-1px, -2px); }
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 900px) {
+      .profile-card { flex-direction: column; text-align: center; gap: 20px; }
+      .profile-meta { justify-content: center; }
+      .skills-grid, .style-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .top-links a.nav-link { display: none; }
+      .project-grid { grid-template-columns: 1fr 1fr; }
+      .info-grid { grid-template-columns: 1fr; }
+      .hero { padding: 80px 0 60px; }
+    }
+    @media (max-width: 560px) {
+      .container { width: min(100% - 24px, 1200px); }
+      .project-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .section-heading h2 { font-size: 20px; }
+    }
+  .cp-toggle-btn{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 12px;border:1px solid var(--cp-bg);color:var(--cp-bg);background:var(--cp-yellow);transition:.2s;text-transform:uppercase;clip-path:polygon(8% 0%,100% 0%,92% 100%,0% 100%);text-decoration:none;}.cp-toggle-btn:hover{background:#fff;color:var(--cp-bg);}
+  </style>
+<link rel="preconnect" href="https://api.github.com" crossorigin>
+  <link rel="dns-prefetch" href="https://api.github.com">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#top">
+        <div class="brand-icon">K</div>
+        <div class="brand-text">KEVINLI_0406<span>PORTAL // 2077</span></div>
+      </a>
+      <nav class="top-links">
+        <a class="nav-link" href="#about">关于</a>
+        <a class="nav-link" href="#skills">技能</a>
+        <a class="nav-link" href="#projects">项目</a>
+        <a class="nav-link" href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">GitHub</a>
+      <a class="cp-toggle-btn" href="index.html" title="切换回正常风格">Normal!</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="container">
+        <div class="hero-eyebrow">SYSTEM ONLINE // WELCOME</div>
+        <h1><span class="glitch" data-text="KEVIN LI">KEVIN <span class="accent">LI</span></span></h1>
+        <p class="hero-desc">纳恩博（Ninebot / Segway）应用工程师，SDS 售后数字化系统核心 BA 与 IT 负责人。个人门户——职业档案、技术栈与项目作品。</p>
+        <div class="hero-actions">
+          <a class="cp-btn cp-btn-primary" href="#about">[ 了解我 ]</a>
+          <a class="cp-btn cp-btn-outline" href="#projects">[ 浏览项目 ]</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-heading"><h2>关于我</h2><p>// 个人简介与职业背景</p></div>
+        <div class="profile-card">
+          <div class="profile-avatar">K</div>
+          <div class="profile-info">
+            <h2>李奕兴 · Kevin</h2>
+            <div class="subtitle">应用工程师 · 集团信息化中心</div>
+            <p class="bio">2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
+            <div class="profile-meta">
+              <span>🏢 纳恩博（北京）科技有限公司</span>
+              <span> 海外销服系统部</span>
+              <span>📅 2023年3月入职</span>
+              <span>🌐 支持北美/欧洲/墨西哥</span>
+            </div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="s-icon"></div><h3>10+ 核心项目</h3><p>SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
+          <div class="stat-card"><div class="s-icon"></div><h3>跨文化协作</h3><p>北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
+          <div class="stat-card"><div class="s-icon"></div><h3>3 年 + 经验</h3><p>从项目启动到上线运维的全流程经验</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="section">
+      <div class="container">
+        <div class="section-heading"><h2>技术能力</h2><p>// 核心技能领域</p></div>
+        <div class="skills-grid">
+          <div class="skill-card"><h3>️ SALESFORCE / D365</h3><div class="skill-tags">
+            <span class="skill-tag">SF Flow 自动化</span>
+            <span class="skill-tag">Case 字段配置</span>
+            <span class="skill-tag">Report & Dashboard</span>
+            <span class="skill-tag">D365 Form 修改</span>
+            <span class="skill-tag">权限体系管理</span>
+          </div></div>
+          <div class="skill-card"><h3> 系统集成与接口</h3><div class="skill-tags">
+            <span class="skill-tag">OA 接口对接</span>
+            <span class="skill-tag">SAP ↔ SF 数据同步</span>
+            <span class="skill-tag">B2X 接口映射</span>
+            <span class="skill-tag">短信平台集成</span>
+            <span class="skill-tag">Azure Data Factory</span>
+            <span class="skill-tag">Postman 调试</span>
+          </div></div>
+          <div class="skill-card"><h3>📊 数据分析与排查</h3><div class="skill-tags">
+            <span class="skill-tag">SN 校验逻辑</span>
+            <span class="skill-tag">Warranty 判定规则</span>
+            <span class="skill-tag">Special Model 配置</span>
+            <span class="skill-tag">窜货 / OOW 规则</span>
+            <span class="skill-tag">翻新车数据治理</span>
+          </div></div>
+          <div class="skill-card"><h3>📋 项目管理</h3><div class="skill-tags">
+            <span class="skill-tag">需求调研</span>
+            <span class="skill-tag">PDD 设计方案</span>
+            <span class="skill-tag">UAT 测试组织</span>
+            <span class="skill-tag">会议纪要</span>
+            <span class="skill-tag">跨部门拉通</span>
+            <span class="skill-tag">带教新人</span>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORK STYLE -->
+    <section class="section">
+      <div class="container">
+        <div class="section-heading"><h2>工作风格</h2><p>// 同事眼中的 Kevin</p></div>
+        <div class="style-grid">
+          <div class="style-card"><div class="st-icon">🔥</div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
+          <div class="style-card"><div class="st-icon">🛡️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
+          <div class="style-card"><div class="st-icon">🏃</div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
+          <div class="style-card"><div class="st-icon">😄</div><h3>幽默风趣</h3><p>工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
+          <div class="style-card"><div class="st-icon">📝</div><h3>善于总结沉淀</h3><p>多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
+          <div class="style-card"><div class="st-icon">🤝</div><h3>跨文化协作</h3><p>耐心教海外同事系统操作，2025年赴阿姆斯特丹/巴黎现场演示。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="section-heading"><h2>我的项目</h2><p id="projectCount">// 从 kevinli.github.io/Projects 目录实时加载</p></div>
+        <div class="filter-bar" id="filterBar" style="display:none"></div>
+        <div id="project-grid" class="project-grid">
+          <div class="loading-state"><div class="loading-spinner"></div><div>正在从 GitHub 拉取项目…</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SITE INFO -->
+    <section class="section">
+      <div class="container">
+        <div class="info-grid">
+          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。</p></div>
+          <div class="info-card"><h3>技术栈</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container">© 2077 KEVINLI-0406 // POWERED BY <a href="https://pages.github.com/" target="_blank" rel="noopener">GITHUB_PAGES</a></div></footer>
+
+    <script>
+    var GITHUB_USERNAME = "KevinLI-0406";
+    var GITHUB_REPO = "kevinli.github.io";
+    var PROJECTS_DIR = "Projects";
+    var PAGES_BASE = "https://" + GITHUB_USERNAME + ".github.io/" + GITHUB_REPO;
+
+    var CATEGORY_MAP = {
+      "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
+      "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
+      "游戏":"cat.fun","game":"cat.fun","音乐":"cat.fun",
+      "画":"cat.fun","draw":"cat.fun",
+      "工具":"cat.tool","tool":"cat.tool","utility":"cat.tool",
+      "计算器":"cat.tool","calc":"cat.tool","天气":"cat.tool",
+      "关于":"cat.profile","个人":"cat.profile","about":"cat.profile",
+      "博客":"cat.content","blog":"cat.content",
+      "项目展示":"cat.content","portfolio":"cat.content",
+      "链接":"cat.nav","link":"cat.nav","导航":"cat.nav",
+      "数据":"cat.data","data":"cat.data","分析":"cat.data"
+    };
+
+    var CAT_ZH = {"cat.fun":"趣味互动","cat.tool":"工具应用","cat.profile":"个人信息","cat.content":"内容展示","cat.nav":"导航工具","cat.data":"数据分析","cat.other":"其他"};
+    var ICONS = {"cat.fun":"⚡","cat.tool":"🛠️","cat.profile":"👤","cat.content":"🚀","cat.nav":"🔗","cat.data":"📊"};
+
+    function getCatKey(name) {
+      var low = name.toLowerCase();
+      for (var k in CATEGORY_MAP) { if (low.includes(k)) return CATEGORY_MAP[k]; }
+      return "cat.other";
+    }
+    function getCatName(name) { return CAT_ZH[getCatKey(name)] || "其他"; }
+    function getIcon(name) { return ICONS[getCatKey(name)] || "📄"; }
+    function esc(v) { return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    async function fetchProjectFiles() {
+      var cacheKey = "kp_cache_v1";
+      var cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.files; } catch(e) {}
+      }
+      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR;
+      var resp = await fetch(url);
+      if (!resp.ok) {
+        if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" 目录未找到');
+        throw new Error("GitHub API 错误 (" + resp.status + ")");
+      }
+      var files = (await resp.json()).filter(function(f) {
+        return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
+      });
+      try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), files: files})); } catch(e) {}
+      return files;
+    }
+
+    var allItems = [];
+    var filterCat = "all";
+
+    function applyFilters() {
+      var list = filterCat === "all" ? allItems : allItems.filter(function(i) { return i.catKey === filterCat; });
+      renderCards(list);
+    }
+
+    function renderCards(items) {
+      var grid = document.getElementById("project-grid");
+      var cnt = document.getElementById("projectCount");
+      if (cnt) cnt.textContent = "我的项目 — " + items.length + " 个项目";
+
+      if (items.length === 0) {
+        grid.innerHTML = '<div class="empty-project"><h3>没有匹配的项目</h3><p>尝试调整筛选条件。</p></div>';
+        return;
+      }
+
+      var html = "";
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
+        html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
+        html += '<div class="project-icon">' + getIcon(it.name) + '</div>';
+        html += '<h3>' + esc(it.name) + '</h3>';
+        html += '<p>点击打开此项目页面</p>';
+        html += '<div class="project-meta">';
+        html += '<span class="meta-item" style="padding:2px 8px;border-radius:0;background:var(--bg2);border:1px solid var(--cp-border);font-size:11px;font-family:var(--font-display);letter-spacing:1px;color:var(--cp-cyan)">' + getCatName(it.name) + '</span>';
+        html += '<span class="meta-item">💾 ' + (it.file.size / 1024).toFixed(1) + ' KB</span>';
+        html += '</div>';
+        html += '<span class="card-link">打开项目 →</span>';
+        html += '</a>';
+      }
+      grid.innerHTML = html;
+    }
+
+    function buildFilter() {
+      var cats = [], cs = {};
+      allItems.forEach(function(i) { if (!cs[i.catKey]) { cs[i.catKey] = true; cats.push(i.catKey); } });
+      cats.sort();
+      var fb = document.getElementById("filterBar");
+      fb.style.display = "flex";
+      fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
+        cats.map(function(c) { return '<option value="' + c + '">' + (CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
+      document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
+    }
+
+    (async function() {
+      try {
+        var files = await fetchProjectFiles();
+        allItems = files.map(function(f) {
+          var name = f.name.replace(/\.html?$/i, "");
+          return { file: f, name: name, catKey: getCatKey(name) };
+        });
+        buildFilter();
+        applyFilters();
+      } catch(err) {
+        document.getElementById("project-grid").innerHTML =
+          '<div class="empty-project"><h3>⚠️ 加载失败</h3><p>' + esc(err.message) + '</p><p style="margin-top:10px;font-size:13px">请检查网络连接或稍后刷新。</p></div>';
+      }
+    })();
+  </script>
+</body>
+</html>
