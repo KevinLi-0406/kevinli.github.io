@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>KevinLI-0406 | 个人门户</title>
+  <title>Lyx的个人门户</title>
 
   <style>
     :root {
@@ -270,7 +270,7 @@
     .project-card {
       display: flex;
       flex-direction: column;
-      min-height: 270px;
+      min-height: 260px;
       padding: 24px;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -312,7 +312,6 @@
     .project-card h3 {
       margin: 0 0 10px;
       font-size: 20px;
-      word-break: break-word;
     }
 
     .project-card p {
@@ -338,31 +337,22 @@
       text-decoration: underline;
     }
 
-    .project-date {
-      display: block;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
     .empty-project {
       grid-column: 1 / -1;
-      padding: 30px;
+      padding: 45px 20px;
       color: var(--muted);
       text-align: center;
-      border: 1px solid var(--border);
+      border: 1px dashed var(--border);
       border-radius: 14px;
-      background: rgba(22, 27, 34, .78);
     }
 
     .empty-project h3 {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       color: var(--text);
     }
 
     .empty-project p {
       margin: 0;
-      line-height: 1.8;
     }
 
     .info-grid {
@@ -478,7 +468,6 @@
 </head>
 
 <body>
-
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
@@ -493,7 +482,6 @@
       <nav class="top-links">
         <a href="#projects">项目</a>
         <a href="#about">关于</a>
-
         <a
           href="https://github.com/KevinLI-0406/kevinlii.github.io"
           target="_blank"
@@ -514,7 +502,7 @@
 
         <p>
           这里收集了我的网页项目、实用工具和个人作品。
-          请选择下面的项目开始浏览。
+          上传新的 HTML 页面后，项目会自动显示在下面。
         </p>
 
         <div class="hero-actions">
@@ -539,14 +527,11 @@
         <div class="section-heading">
           <div>
             <h2>项目导航</h2>
-            <p>上传新的 HTML 文件后，项目会自动显示在这里</p>
+            <p>仓库中的其他 HTML 页面会自动生成项目卡片</p>
           </div>
         </div>
 
-        <div
-          id="project-grid"
-          class="project-grid"
-        ></div>
+        <div id="project-grid" class="project-grid"></div>
       </div>
     </section>
 
@@ -576,7 +561,6 @@
               <span>CSS</span>
               <span>JavaScript</span>
               <span>GitHub Pages</span>
-              <span>GitHub Actions</span>
             </div>
           </div>
         </div>
@@ -587,7 +571,6 @@
   <footer>
     <div class="container">
       © 2026 KevinLI-0406 · Hosted by
-
       <a
         href="https://pages.github.com/"
         target="_blank"
@@ -614,62 +597,6 @@
         .replace(/'/g, "&#039;");
     }
 
-    function formatDate(dateString) {
-      if (!dateString) {
-        return "日期未知";
-      }
-
-      const date = new Date(dateString);
-
-      if (Number.isNaN(date.getTime())) {
-        return "日期未知";
-      }
-
-      return date.toLocaleDateString("zh-CN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    }
-
-    function createProjectCard(project) {
-      const filename = String(project.filename || "");
-      const title = String(project.title || filename);
-      const icon = String(project.icon || "📄");
-      const description = String(
-        project.description || "这是一个网页项目。"
-      );
-
-      const href = escapeHtml(encodeURI(filename));
-
-      return `
-        <a
-          class="project-card"
-          href="${href}"
-        >
-          <div class="project-icon">
-            ${escapeHtml(icon)}
-          </div>
-
-          <h3>
-            ${escapeHtml(title)}
-          </h3>
-
-          <p>
-            ${escapeHtml(description)}
-          </p>
-
-          <span class="card-link">
-            打开项目 →
-          </span>
-
-          <small class="project-date">
-            创建于：${escapeHtml(formatDate(project.createdAt))}
-          </small>
-        </a>
-      `;
-    }
-
     function renderProjects() {
       if (!projectGrid) {
         return;
@@ -679,23 +606,39 @@
         projectGrid.innerHTML = `
           <div class="empty-project">
             <h3>暂无项目</h3>
-            <p>
-              将其他 HTML 文件上传到仓库后，
-              GitHub Actions 会自动把项目添加到这里。
-            </p>
+            <p>仓库中暂时没有可显示的 HTML 项目。</p>
           </div>
         `;
 
         return;
       }
 
-      projectGrid.innerHTML = PROJECTS
-        .map(createProjectCard)
-        .join("");
+      projectGrid.innerHTML = PROJECTS.map((project) => {
+        const filename = encodeURI(project.filename || "");
+        const title = project.title || project.filename || "未命名项目";
+        const icon = project.icon || "📄";
+        const description =
+          project.description || "这是一个网页项目。";
+
+        return `
+          <a class="project-card" href="${filename}">
+            <div class="project-icon">
+              ${escapeHtml(icon)}
+            </div>
+
+            <h3>${escapeHtml(title)}</h3>
+
+            <p>${escapeHtml(description)}</p>
+
+            <span class="card-link">
+              打开项目 →
+            </span>
+          </a>
+        `;
+      }).join("");
     }
 
     renderProjects();
   </script>
-
 </body>
 </html>
