@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Lyx的个人门户</title>
+  <title>KevinLI-0406 | 个人门户</title>
 
   <style>
     :root {
@@ -22,50 +22,31 @@
       --shadow: rgba(0, 0, 0, .35);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       min-height: 100vh;
       color: var(--text);
       font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        "Microsoft YaHei",
-        "PingFang SC",
-        Arial,
-        sans-serif;
+        -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
       background:
-        radial-gradient(
-          circle at top right,
-          rgba(88, 166, 255, .16),
-          transparent 34%
-        ),
-        radial-gradient(
-          circle at bottom left,
-          rgba(188, 140, 255, .12),
-          transparent 32%
-        ),
+        radial-gradient(circle at top right, rgba(88, 166, 255, .16), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(188, 140, 255, .12), transparent 32%),
         var(--bg);
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
 
     .container {
       width: min(1120px, calc(100% - 36px));
       margin: 0 auto;
     }
 
+    /* ===== 顶部导航 ===== */
     .topbar {
       position: sticky;
       top: 0;
@@ -131,6 +112,7 @@
       background: var(--card);
     }
 
+    /* ===== 主视觉 ===== */
     .hero {
       position: relative;
       overflow: hidden;
@@ -152,10 +134,7 @@
       pointer-events: none;
     }
 
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
+    .hero-content { position: relative; z-index: 1; }
 
     .eyebrow {
       display: inline-block;
@@ -173,12 +152,7 @@
       font-size: clamp(38px, 7vw, 72px);
       line-height: 1.1;
       letter-spacing: -2px;
-      background: linear-gradient(
-        120deg,
-        #ffffff,
-        #8ec5ff 48%,
-        #d8b4fe
-      );
+      background: linear-gradient(120deg, #ffffff, #8ec5ff 48%, #d8b4fe);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -213,9 +187,7 @@
       transition: .2s;
     }
 
-    .button:hover {
-      transform: translateY(-2px);
-    }
+    .button:hover { transform: translateY(-2px); }
 
     .button-primary {
       color: #fff;
@@ -224,9 +196,7 @@
       box-shadow: 0 8px 22px rgba(35, 134, 54, .22);
     }
 
-    .button-primary:hover {
-      background: #2ea043;
-    }
+    .button-primary:hover { background: #2ea043; }
 
     .button-secondary {
       color: var(--text);
@@ -238,9 +208,8 @@
       border-color: #6e7681;
     }
 
-    .section {
-      padding: 34px 0 80px;
-    }
+    /* ===== 项目区域 ===== */
+    .section { padding: 34px 0 80px; }
 
     .section-heading {
       display: flex;
@@ -250,10 +219,7 @@
       margin-bottom: 25px;
     }
 
-    .section-heading h2 {
-      margin: 0;
-      font-size: 28px;
-    }
+    .section-heading h2 { margin: 0; font-size: 28px; }
 
     .section-heading p {
       margin: 7px 0 0;
@@ -261,6 +227,37 @@
       font-size: 14px;
     }
 
+    /* 筛选栏 */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-light);
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .filter-btn:hover {
+      color: var(--text);
+      border-color: var(--blue);
+    }
+
+    .filter-btn.active {
+      color: #fff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    /* 项目网格 */
     .project-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -274,11 +271,7 @@
       padding: 24px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: linear-gradient(
-        145deg,
-        rgba(33, 38, 45, .96),
-        rgba(22, 27, 34, .96)
-      );
+      background: linear-gradient(145deg, rgba(33, 38, 45, .96), rgba(22, 27, 34, .96));
       box-shadow: 0 14px 35px var(--shadow);
       transition: .25s;
     }
@@ -290,7 +283,7 @@
       box-shadow: 0 18px 42px rgba(0, 0, 0, .5);
     }
 
-    .project-icon {
+    .project-card .project-icon {
       display: grid;
       place-items: center;
       width: 54px;
@@ -301,13 +294,8 @@
       background: rgba(88, 166, 255, .13);
     }
 
-    .project-card:nth-child(2n) .project-icon {
-      background: rgba(188, 140, 255, .14);
-    }
-
-    .project-card:nth-child(3n) .project-icon {
-      background: rgba(63, 185, 80, .14);
-    }
+    .project-card:nth-child(2n) .project-icon { background: rgba(188, 140, 255, .14); }
+    .project-card:nth-child(3n) .project-icon { background: rgba(63, 185, 80, .14); }
 
     .project-card h3 {
       margin: 0 0 10px;
@@ -322,20 +310,72 @@
       line-height: 1.7;
     }
 
+    /* 项目元数据行 */
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meta-item .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
     .card-link {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       width: fit-content;
-      margin-top: 22px;
+      margin-top: 16px;
       color: var(--blue);
       font-size: 14px;
       font-weight: 700;
     }
 
-    .card-link:hover {
-      text-decoration: underline;
+    .card-link:hover { text-decoration: underline; }
+
+    /* 语言标签 */
+    .lang-tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      color: #c9d1d9;
     }
+
+    /* 加载中 & 空状态 */
+    .loading-state {
+      grid-column: 1 / -1;
+      padding: 50px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .empty-project {
       grid-column: 1 / -1;
@@ -346,15 +386,9 @@
       border-radius: 14px;
     }
 
-    .empty-project h3 {
-      margin: 0 0 8px;
-      color: var(--text);
-    }
+    .empty-project h3 { margin: 0 0 8px; color: var(--text); }
 
-    .empty-project p {
-      margin: 0;
-    }
-
+    /* ===== 关于区域 ===== */
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -369,10 +403,7 @@
       background: rgba(22, 27, 34, .78);
     }
 
-    .info-card h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
+    .info-card h3 { margin: 0 0 12px; font-size: 18px; }
 
     .info-card p {
       margin: 0;
@@ -397,6 +428,7 @@
       background: var(--bg-light);
     }
 
+    /* ===== 页脚 ===== */
     footer {
       padding: 28px 0;
       color: var(--muted);
@@ -405,161 +437,114 @@
       border-top: 1px solid var(--border);
     }
 
-    footer a {
-      color: var(--blue);
-    }
+    footer a { color: var(--blue); }
 
+    /* ===== 响应式 ===== */
     @media (max-width: 800px) {
-      .topbar-inner {
-        min-height: 60px;
-      }
-
-      .top-links a {
-        display: none;
-      }
-
-      .hero {
-        padding: 75px 0 60px;
-      }
-
-      .project-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
+      .topbar-inner { min-height: 60px; }
+      .top-links a { display: none; }
+      .hero { padding: 75px 0 60px; }
+      .project-grid { grid-template-columns: 1fr 1fr; }
+      .info-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
-      .container {
-        width: min(100% - 28px, 1120px);
-      }
-
-      .brand-text {
-        font-size: 14px;
-      }
-
-      .hero h1 {
-        font-size: 43px;
-      }
-
-      .hero p {
-        font-size: 15px;
-      }
-
-      .project-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section-heading {
-        display: block;
-      }
-
-      .section-heading h2 {
-        font-size: 25px;
-      }
-
-      .hero-actions .button {
-        width: 100%;
-      }
+      .container { width: min(100% - 28px, 1120px); }
+      .brand-text { font-size: 14px; }
+      .hero h1 { font-size: 43px; }
+      .hero p { font-size: 15px; }
+      .project-grid { grid-template-columns: 1fr; }
+      .section-heading { display: block; }
+      .section-heading h2 { font-size: 25px; }
+      .hero-actions .button { width: 100%; }
     }
   </style>
 </head>
 
 <body>
+
+  <!-- 顶部导航 -->
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
         <div class="brand-icon">K</div>
-
         <div class="brand-text">
           KevinLI-0406
           <span>Personal Portal</span>
         </div>
       </a>
-
       <nav class="top-links">
         <a href="#projects">项目</a>
         <a href="#about">关于</a>
-        <a
-          href="https://github.com/KevinLI-0406/kevinlii.github.io"
-          target="_blank"
-          rel="noopener"
-        >
-          GitHub
-        </a>
+        <a href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
+    <!-- 主视觉 -->
     <section class="hero">
       <div class="container hero-content">
         <span class="eyebrow">WELCOME TO MY WEBSITE</span>
-
         <h1>我的个人门户</h1>
-
         <p>
-          这里收集了我的网页项目、实用工具和个人作品。
-          上传新的 HTML 页面后，项目会自动显示在下面。
+          这里自动展示我 GitHub 仓库中的所有公开项目。
+          每次打开页面时实时拉取，新增仓库无需手动更新。
         </p>
-
         <div class="hero-actions">
-          <a class="button button-primary" href="#projects">
-            浏览项目
-          </a>
-
-          <a
-            class="button button-secondary"
-            href="https://github.com/KevinLI-0406/kevinlii.github.io"
-            target="_blank"
-            rel="noopener"
-          >
-            查看 GitHub
-          </a>
+          <a class="button button-primary" href="#projects">浏览项目</a>
+          <a class="button button-secondary" href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">查看 GitHub</a>
         </div>
       </div>
     </section>
 
+    <!-- 项目区域（动态生成） -->
     <section id="projects" class="section">
       <div class="container">
         <div class="section-heading">
           <div>
-            <h2>项目导航</h2>
-            <p>仓库中的其他 HTML 页面会自动生成项目卡片</p>
+            <h2>GitHub 项目</h2>
+            <p>从 GitHub API 实时拉取，点击卡片跳转到对应仓库</p>
           </div>
         </div>
 
-        <div id="project-grid" class="project-grid"></div>
+        <!-- 筛选栏 -->
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-btn active" data-lang="all">全部</button>
+        </div>
+
+        <div id="project-grid" class="project-grid">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <div>正在从 GitHub 拉取项目…</div>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- 关于 -->
     <section id="about" class="section">
       <div class="container">
         <div class="info-grid">
           <div class="info-card">
             <h3>关于这个网站</h3>
-
             <p>
               这是一个部署在 GitHub Pages 上的个人门户网站。
-              所有页面都存放在同一个 GitHub 仓库中，
-              可以通过首页导航快速访问。
+              项目列表通过 GitHub REST API 实时获取，
+              无需手动维护。
             </p>
           </div>
-
           <div class="info-card">
             <h3>使用技术</h3>
-
             <p>
               网站使用纯 HTML、CSS 和 JavaScript 编写，
-              不需要额外安装服务器或数据库。
+              通过 GitHub REST API 动态获取仓库数据。
             </p>
-
             <div class="tech-list">
               <span>HTML</span>
               <span>CSS</span>
               <span>JavaScript</span>
+              <span>GitHub API</span>
               <span>GitHub Pages</span>
             </div>
           </div>
@@ -571,87 +556,175 @@
   <footer>
     <div class="container">
       © 2026 KevinLI-0406 · Hosted by
-      <a
-        href="https://pages.github.com/"
-        target="_blank"
-        rel="noopener"
-      >
-        GitHub Pages
-      </a>
+      <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>
     </div>
   </footer>
 
   <script>
-    // PROJECTS_START
-const PROJECTS = [
-  {
-    "filename": "宝可梦图鉴.html",
-    "title": "宝可梦全国图鉴",
-    "icon": "⚡",
-    "description": "宝可梦图鉴网页项目，点击查看详细内容。"
-  },
-  {
-    "filename": "CherryStudio CSS 编辑器.html",
-    "title": "CherryStudio Cyberpunk 2077 CSS 编辑器",
-    "icon": "📄",
-    "description": "CherryStudio CSS 编辑器网页项目，点击查看详细内容。"
-  }
-];
-// PROJECTS_END
+    // ===== 配置 =====
+    const GITHUB_USERNAME = "KevinLI-0406";
+    const REPO_BASE_URL = `https://github.com/${GITHUB_USERNAME}`;
 
-    const projectGrid = document.getElementById("project-grid");
+    // ===== 语言颜色映射 =====
+    const LANG_COLORS = {
+      JavaScript: "#f1e05a", TypeScript: "#3178c6", Python: "#3572A5",
+      Java: "#b07219", "C++": "#f34b7d", C: "#555555", "C#": "#178600",
+      Go: "#00ADD8", Rust: "#dea584", Swift: "#F05138", Kotlin: "#A97BFF",
+      Ruby: "#701516", PHP: "#4F5D95", Dart: "#00B4AB", Lua: "#000080",
+      Shell: "#89e051", HTML: "#e34c26", CSS: "#563d7c", Vue: "#41b883",
+      SCSS: "#c6538c", Jupyter: "#DA5B0B", R: "#198CE7",
+      Dockerfile: "#384d54", Makefile: "#427819",
+    };
 
+    // ===== 项目图标映射 =====
+    function getProjectIcon(name, desc) {
+      const text = `${name} ${desc}`.toLowerCase();
+      if (text.includes("宝可梦") || text.includes("pokemon") || text.includes("图鉴")) return "⚡";
+      if (text.includes("工具") || text.includes("tool") || text.includes("utility")) return "🛠️";
+      if (text.includes("关于") || text.includes("个人") || text.includes("about") || text.includes("profile")) return "👤";
+      if (text.includes("博客") || text.includes("blog")) return "📝";
+      if (text.includes("链接") || text.includes("link") || text.includes("portal")) return "🔗";
+      if (text.includes("项目") || text.includes("作品") || text.includes("project") || text.includes("portfolio")) return "";
+      if (text.includes("游戏") || text.includes("game")) return "";
+      if (text.includes("数据") || text.includes("data") || text.includes("分析")) return "📊";
+      if (text.includes("杰尼龟") || text.includes("squirtle") || text.includes("宠物")) return "";
+      if (text.includes("杰尼")) return "🐢";
+      if (text.includes("杰尼龟")) return "🐢";
+      if (text.includes("github") || text.includes("page")) return "";
+      return "📄";
+    }
+
+    // ===== HTML 转义 =====
     function escapeHtml(value) {
       return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
 
-    function renderProjects() {
-      if (!projectGrid) {
-        return;
+    // ===== 获取 GitHub 仓库列表 =====
+    async function fetchRepos() {
+      const allRepos = [];
+      let page = 1;
+      const perPage = 100;
+
+      while (true) {
+        const url = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=${perPage}&page=${page}&sort=updated&direction=desc`;
+        const resp = await fetch(url);
+
+        if (!resp.ok) {
+          throw new Error(`GitHub API 请求失败 (${resp.status})`);
+        }
+
+        const repos = await resp.json();
+        if (repos.length === 0) break;
+
+        allRepos.push(...repos);
+        if (repos.length < perPage) break;
+        page++;
       }
 
-      if (!Array.isArray(PROJECTS) || PROJECTS.length === 0) {
-        projectGrid.innerHTML = `
-          <div class="empty-project">
-            <h3>暂无项目</h3>
-            <p>仓库中暂时没有可显示的 HTML 项目。</p>
-          </div>
-        `;
-
-        return;
-      }
-
-      projectGrid.innerHTML = PROJECTS.map((project) => {
-        const filename = encodeURI(project.filename || "");
-        const title = project.title || project.filename || "未命名项目";
-        const icon = project.icon || "📄";
-        const description =
-          project.description || "这是一个网页项目。";
-
-        return `
-          <a class="project-card" href="${filename}">
-            <div class="project-icon">
-              ${escapeHtml(icon)}
-            </div>
-
-            <h3>${escapeHtml(title)}</h3>
-
-            <p>${escapeHtml(description)}</p>
-
-            <span class="card-link">
-              打开项目 →
-            </span>
-          </a>
-        `;
-      }).join("");
+      return allRepos;
     }
 
-    renderProjects();
+    // ===== 渲染项目卡片 =====
+    function renderProjects(repos) {
+      const grid = document.getElementById("project-grid");
+      const filterBar = document.getElementById("filterBar");
+
+      // 收集语言用于筛选
+      const langs = new Set();
+      repos.forEach(r => { if (r.language) langs.add(r.language); });
+
+      // 生成筛选按钮
+      filterBar.innerHTML = '<button class="filter-btn active" data-lang="all">全部</button>';
+      [...langs].sort().forEach(lang => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn";
+        btn.dataset.lang = lang;
+        const dot = LANG_COLORS[lang] || "#8b949e";
+        btn.innerHTML = `<span class="dot" style="background:${dot};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px"></span>${escapeHtml(lang)}`;
+        filterBar.appendChild(btn);
+      });
+
+      // 筛选逻辑
+      let activeLang = "all";
+      filterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest(".filter-btn");
+        if (!btn) return;
+        activeLang = btn.dataset.lang;
+        filterBar.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        applyFilter();
+      });
+
+      function applyFilter() {
+        const filtered = activeLang === "all"
+          ? repos
+          : repos.filter(r => r.language === activeLang);
+        renderCards(filtered);
+      }
+
+      function renderCards(list) {
+        if (list.length === 0) {
+          grid.innerHTML = `<div class="empty-project"><h3>没有匹配的项目</h3><p>尝试切换筛选条件。</p></div>`;
+          return;
+        }
+
+        grid.innerHTML = list.map(repo => {
+          const icon = getProjectIcon(repo.name, repo.description || "");
+          const langColor = LANG_COLORS[repo.language] || "#8b949e";
+          const updated = new Date(repo.updated_at).toLocaleDateString("zh-CN", {
+            year: "numeric", month: "2-digit", day: "2-digit"
+          });
+
+          return `
+            <a class="project-card" href="${repo.html_url}" target="_blank" rel="noopener">
+              <div class="project-icon">${icon}</div>
+              <h3>${escapeHtml(repo.name)}</h3>
+              <p>${escapeHtml(repo.description || "暂无描述")}</p>
+              <div class="project-meta">
+                ${repo.language ? `
+                  <span class="meta-item">
+                    <span class="dot" style="background:${langColor}"></span>
+                    ${escapeHtml(repo.language)}
+                  </span>
+                ` : ""}
+                <span class="meta-item">⭐ ${repo.stargazers_count}</span>
+                <span class="meta-item">🍴 ${repo.forks_count}</span>
+                <span class="meta-item">📅 ${updated}</span>
+              </div>
+              <span class="card-link">查看仓库 →</span>
+            </a>
+          `;
+        }).join("");
+      }
+
+      applyFilter();
+    }
+
+    // ===== 初始化 =====
+    (async function init() {
+      try {
+        const repos = await fetchRepos();
+        // 过滤掉 fork 的仓库和 .github.io 本身（可选）
+        const ownedRepos = repos.filter(r => !r.fork);
+        renderProjects(ownedRepos);
+      } catch (err) {
+        const grid = document.getElementById("project-grid");
+        grid.innerHTML = `
+          <div class="empty-project">
+            <h3>⚠️ 加载失败</h3>
+            <p>${escapeHtml(err.message)}</p>
+            <p style="margin-top:10px;font-size:13px">
+              可能是 GitHub API 请求频率限制（60次/小时）。<br>
+              请稍后刷新页面，或检查网络连接。
+            </p>
+          </div>
+        `;
+      }
+    })();
   </script>
+
 </body>
 </html>
