@@ -669,7 +669,7 @@
 <!-- ==================== 登录弹窗 ==================== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
-    <h2>🔐 登录共享相册</h2>
+    <h2> 登录共享相册</h2>
     <p>选择用户并输入密码登录。<br>管理员可上传和删除文件，非管理员以游客身份浏览。</p>
 
     <div class="field-group">
@@ -704,7 +704,7 @@
 <!-- ==================== 删除确认弹窗 ==================== -->
 <div class="modal-overlay" id="deleteModal">
   <div class="modal-box">
-    <h2>🗑️ 确认删除</h2>
+    <h2>️ 确认删除</h2>
     <p>确定要删除 <strong id="deleteFileName"></strong> 吗？此操作不可恢复。</p>
     <div class="btn-row">
       <button class="btn btn-danger" style="flex:1;" onclick="confirmDelete()">确认删除</button>
@@ -837,7 +837,8 @@ async function loadManifest() {
 
 // ==================== 刷新目录（重新扫描 + 同步 manifest） ====================
 async function refreshMedia() {
-  if (!state.isAdministrator && !state.loginPat) {
+  // 修复：只需已登录即可刷新，不需要管理员权限
+  if (!state.currentUser) {
     showToast('请先登录', 'info');
     return;
   }
@@ -877,9 +878,15 @@ async function refreshMedia() {
           mediaType: f.type,
         }))
       ];
-      await updateManifestBulk(updated);
-      state.mediaFiles = updated;
-      showToast(`✅ 已同步 ${newFiles.length} 个新文件`, 'success');
+      // 只有管理员才能更新 manifest
+      if (state.isAdministrator && state.loginPat) {
+        await updateManifestBulk(updated);
+        state.mediaFiles = updated;
+        showToast(`✅ 已同步 ${newFiles.length} 个新文件`, 'success');
+      } else {
+        state.mediaFiles = updated;
+        showToast(`✅ 发现 ${newFiles.length} 个新文件（仅管理员可同步到 manifest）`, 'info');
+      }
     } else {
       state.mediaFiles = manifestFiles.length > 0 ? manifestFiles : dirFiles;
       showToast('✅ 相册已是最新', 'success');
@@ -1087,7 +1094,7 @@ function handleFileSelect(files) {
   state.pendingFiles = [];
 
   for (const file of files) {
-    if (file.size > CONFIG.MAX_FILE_SIZE) { showToast(`⚠️ ${file.name} 超过 20MB 限制，已跳过`, 'error'); continue; }
+    if (file.size > CONFIG.MAX_FILE_SIZE) { showToast(`️ ${file.name} 超过 20MB 限制，已跳过`, 'error'); continue; }
     const mediaType = guessMediaType(file.name);
     if (mediaType === 'unknown') { showToast(`⚠️ ${file.name} 格式不支持`, 'error'); continue; }
 
@@ -1168,7 +1175,7 @@ async function uploadFiles() {
     } catch (e) {
       console.error(`上传 ${pf.filename} 失败:`, e);
       failed++;
-      showToast(`❌ ${pf.filename} 上传失败: ${e.message}`, 'error');
+      showToast(` ${pf.filename} 上传失败: ${e.message}`, 'error');
     }
   }
 
@@ -1191,7 +1198,7 @@ async function uploadFiles() {
   if (failed === 0) {
     showToast(`🎉 成功上传 ${success} 个文件！`, 'success');
   } else {
-    showToast(`⚠️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
+    showToast(`️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
   }
 }
 
@@ -1366,7 +1373,7 @@ async function confirmDelete() {
     closeDeleteModal();
     closeLightbox();
     await loadManifest();
-    showToast(`🗑️ 已删除 ${item.filename}`, 'success');
+    showToast(`️ 已删除 ${item.filename}`, 'success');
   } catch (e) {
     closeDeleteModal();
     showToast(`删除失败: ${e.message}`, 'error');
@@ -1445,7 +1452,7 @@ function renderAlbum() {
 
     return `
       <div class="gallery-item" onclick="openLightbox(${idx})">
-        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除">🗑</button>` : ''}
+        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除"></button>` : ''}
         <span class="file-type-badge">${icon} ${ext}</span>
         ${isVideo
           ? `<video src="${url}" muted preload="metadata"></video>`
@@ -1522,7 +1529,7 @@ function updateLightboxContent() {
   document.getElementById('lightboxInfo').innerHTML = `
     <strong>${f.filename}</strong>
     &nbsp;·&nbsp; 👤 ${f.uploaderNickname || f.uploader || '未知'}
-    &nbsp;·&nbsp; 🕐 ${formatTimeFull(time)}
+    &nbsp;·&nbsp;  ${formatTimeFull(time)}
     &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
   `;
 
