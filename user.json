@@ -3,21 +3,18 @@
     "username": "Kevin",
     "password": "Liyixing980406",
     "nickname": "李奕兴",
-    "is_admin": true,
-    "pat": "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"
+    "is_admin": true
   },
   {
     "username": "Test",
     "password": "test001",
     "nickname": "访客用户",
-    "is_admin": false,
-    "pat": ""
+    "is_admin": false
   },
   {
     "username": "Kira",
     "password": "skg2026",
     "nickname": "沈凯歌（李奕兴的老婆）",
-    "is_admin": true,
-    "pat": "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"
+    "is_admin": true
   }
 ]
