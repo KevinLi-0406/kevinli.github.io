@@ -13,6 +13,7 @@
 5. `2026-08-17 11:42:23` · `18c2fca`：共享相册改为强制账号密码登录，取消游客模式；登录方式从 PAT 改为 username + password 验证；登录弹窗仅展示 user.json 中 is_admin=true 的用户；用户选择页面展示 username 不展示 nickname；管理员登录后直接显示管理员页面（含上传功能）。
 6. `2026-08-17 12:30:00` · `5764569`：共享相册五项修复——① 登录弹窗遮罩从 `rgba(0,0,0,0.7)` 加强为 `rgba(0,0,0,0.97)` + `backdrop-filter: blur(30px)`，完全遮挡背后内容；② 非管理员也可登录，进入游客模式（橙色徽章显示"👤 xxx（游客）"），管理员进入管理员模式（绿色徽章+上传/删除功能）；③ 登录用户名从手动输入改为 `<select>` 下拉选择，管理员用户后显示 👑 标记；④ 新增 GitHub PAT 输入框，`state.loginPat` 存储并传递至所有 API 调用（上传/删除/扫描目录），解决 credential 报错；⑤ 筛选面板重置按钮添加空白 `<label>` 占位，与左侧筛选条件的输入框底部对齐。同时创建根目录 `user.json`（含 Kevin/Kira/Test 三个用户）。
 7. `2026-08-17 18:02:47` · `accd6ae`：共享相册登录弹窗三项优化——① 密码和 PAT 输入框均添加 👁️/🙈 明文/密文切换按钮（`.pwd-toggle-btn`）；② 选择管理员用户时 PAT 字段显示且必填（去掉"可选"提示），`doLogin()` 增加管理员 PAT 校验；③ 选择非管理员用户时 PAT 字段完全隐藏并清空值，`onLoginUserChange()` 联动控制显隐。`openLoginModal()` 重置所有眼睛按钮和 PAT 字段初始状态。
+8. `2026-08-17 18:12:15` · `e6436cf`：修复多文件上传时 manifest.json SHA 不匹配错误（`does not match`）——① `updateManifest()` 改为从同一次 API 响应中同时获取 manifest 内容和 SHA（消除两次请求的时间差导致的 SHA 不一致）；② 新增 PUT 失败自动重试机制（HTTP 409/422 时等待 1.5 秒后重新获取最新 manifest 和 SHA 并重试一次）；③ `btoa()` 编码改为 `btoa(unescape(encodeURIComponent(...)))` 以支持中文昵称；④ `uploadSingleFile()` 文件上传成功后增加 500ms 延迟，让 GitHub 内部处理完毕再更新 manifest；⑤ 删除流程中 manifest 更新也统一使用 `encodeURIComponent` 编码路径。
 
 ## 2026-08-14
 
