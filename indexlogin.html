@@ -149,7 +149,6 @@
       <a class="cp-toggle-btn" href="Resources/index2077.html" title="切换到赛博朋克风格">CyberPunk!</a>
       <div id="userProfile" style="display:none; align-items:center; gap:12px;">
         <span id="currentNickname" style="color:var(--blue); font-weight:700; font-size:13px;"></span>
-        <a href="#" class="nav-link" onclick="changePassword(); return false;">修改密码</a>
         <a href="#" class="nav-link" onclick="logout(); return false;">退出登录</a>
       </div>
       </nav>
@@ -186,9 +185,9 @@
           </div>
         </div>
         <div class="achievements-grid" style="margin-top:0">
-          <div class="achievement-card"><div class="a-icon"></div><h3>10+ 核心项目</h3><p>SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
-          <div class="achievement-card"><div class="a-icon"></div><h3>跨文化协作</h3><p>北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
-          <div class="achievement-card"><div class="a-icon"></div><h3>3 年 + 经验</h3><p>从项目启动到上线运维的全流程经验</p></div>
+          <div class="achievement-card"><div class="a-icon">📦</div><h3>10+ 核心项目</h3><p>SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
+          <div class="achievement-card"><div class="a-icon">🌍</div><h3>跨文化协作</h3><p>北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
+          <div class="achievement-card"><div class="a-icon">⏳</div><h3>3 年 + 经验</h3><p>从项目启动到上线运维的全流程经验</p></div>
         </div>
       </div>
     </section>
@@ -270,15 +269,16 @@
   <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
       <h2 style="margin: 0 0 10px; font-size: 24px; color: var(--blue);">🔐 登录 Portal</h2>
-      <p style="color: var(--muted); margin-bottom: 24px; font-size: 14px;">请输入用户名和密码以访问系统</p>
+      <p style="color: var(--muted); margin-bottom: 24px; font-size: 14px;">请选择用户并输入密码以访问系统</p>
       <div class="login-form">
-        <input type="text" id="usernameInput" placeholder="用户名 (如: yixing.li)" style="width: 100%; padding: 12px; margin-bottom: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
-        <input type="password" id="passwordInput" placeholder="密码" style="width: 100%; padding: 12px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
+        <label style="display:block; text-align:left; color:var(--muted); font-size:12px; margin-bottom:6px; font-weight:600;">选择用户</label>
+        <select id="usernameInput" style="width: 100%; padding: 12px 36px 12px 12px; margin-bottom: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none; cursor: pointer;">
+          <option value="" disabled selected>正在加载用户列表…</option>
+        </select>
+        <label style="display:block; text-align:left; color:var(--muted); font-size:12px; margin-bottom:6px; font-weight:600;">密码</label>
+        <input type="password" id="passwordInput" placeholder="请输入密码" style="width: 100%; padding: 12px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
         <p id="loginError" style="color: #f85149; font-size: 13px; min-height: 20px;"></p>
         <button class="button button-primary" onclick="handleLogin()" style="width: 100%; min-width: auto;">登录</button>
-        <p style="margin-top: 16px; text-align: center; font-size: 12px; color: var(--muted);">
-          可用账号: yixing.li / skg
-        </p>
       </div>
     </div>
   </div>
@@ -294,7 +294,15 @@
       width: 100%; max-width: 360px; padding: 32px; background: var(--card); border: 1px solid var(--border);
       border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;
     }
-    .login-form input:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(88,166,255,.2); }
+    .login-form input:focus, .login-form select:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(88,166,255,.2); }
+    .login-form select {
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+    .login-form select option { background: var(--bg); color: var(--text); padding: 8px; }
     body.logged-out main { display: none; }
     body.logged-out footer { display: none; }
   </style>
@@ -322,11 +330,11 @@
       }
     })();
 
-    // 获取用户列表
+    // 获取用户列表（从 user.json）
     async function fetchUsers() {
       if (USERS_DB) return USERS_DB;
       try {
-        var url = PAGES_BASE + "/users.json?v=" + Date.now();
+        var url = PAGES_BASE + "/user.json?v=" + Date.now();
         var res = await fetch(url);
         if (!res.ok) throw new Error("Failed to load users");
         USERS_DB = await res.json();
@@ -337,10 +345,39 @@
       }
     }
 
+    // 用 user.json 的数据填充用户名下拉框
+    async function populateUserDropdown() {
+      var users = await fetchUsers();
+      var select = document.getElementById('usernameInput');
+      if (!users || users.length === 0) {
+        select.innerHTML = '<option value="" disabled selected>暂无可用用户</option>';
+        document.getElementById('loginError').textContent = '无法加载用户列表，请检查网络连接。';
+        return;
+      }
+      var html = '<option value="" disabled selected>请选择用户…</option>';
+      for (var i = 0; i < users.length; i++) {
+        html += '<option value="' + users[i].username + '">' + users[i].username + '（' + users[i].nickname + '）</option>';
+      }
+      select.innerHTML = html;
+    }
+
+    // 页面加载时填充下拉框
+    populateUserDropdown();
+
+    // 密码框回车登录
+    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+
     async function handleLogin() {
-      var u = document.getElementById("usernameInput").value.trim();
+      var u = document.getElementById("usernameInput").value;
       var p = document.getElementById("passwordInput").value;
       document.getElementById("loginError").textContent = "";
+
+      if (!u) {
+        document.getElementById("loginError").textContent = "请先选择一个用户";
+        return;
+      }
 
       var users = await fetchUsers();
       if (!users) {
@@ -348,7 +385,7 @@
         return;
       }
 
-      var found = users.find(x => x.username === u && x.password === p);
+      var found = users.find(function(x) { return x.username === u && x.password === p; });
       if (found) {
         localStorage.setItem("portal_session", JSON.stringify({ username: found.username, nickname: found.nickname }));
         document.body.classList.remove("logged-out");
@@ -358,21 +395,13 @@
         // 触发项目加载
         loadProjects();
       } else {
-        document.getElementById("loginError").textContent = "用户名或密码错误";
+        document.getElementById("loginError").textContent = "密码错误，请重试";
       }
     }
 
     function logout() {
       localStorage.removeItem("portal_session");
       location.reload();
-    }
-
-    function changePassword() {
-      var newPass = prompt("请输入新密码：");
-      if (newPass) {
-        alert("演示环境：密码已修改（本地生效）。\n注意：由于 GitHub Pages 限制，无法保存密码到服务器。此修改仅在当前浏览器有效。");
-        // 实际项目中，这里通常需要后端 API。演示仅做提示。
-      }
     }
 
     // 原有项目加载逻辑
