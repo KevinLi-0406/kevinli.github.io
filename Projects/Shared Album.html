@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📸 共享相册</title>
+<title> 共享相册</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   /* ========== 全局 & 暗色主题 ========== */
@@ -247,6 +247,7 @@
     overflow-x: auto;
     overflow-y: hidden;
     z-index: 10000;
+    scroll-behavior: smooth;
   }
   .lightbox-thumbs-bar::-webkit-scrollbar { height: 4px; }
   .lightbox-thumbs-bar::-webkit-scrollbar-track { background: transparent; }
@@ -587,7 +588,7 @@
 <!-- ==================== 上传面板（管理员） ==================== -->
 <div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6 hidden">
   <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:24px;">
-    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
+    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;"> 上传文件</h2>
     <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">文件将上传至 <code style="background:var(--bg-card);padding:2px 8px;border-radius:4px;">Resources/Media/</code> · 单文件上限 20MB</p>
 
     <!-- 选择上传用户 -->
@@ -619,7 +620,7 @@
 
     <!-- 上传按钮 -->
     <div class="mt-4">
-      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled>🚀 开始上传</button>
+      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled> 开始上传</button>
       <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
     </div>
   </div>
@@ -652,6 +653,7 @@
     <button onclick="resetZoom()" title="还原">↺</button>
     <button onclick="zoomIn()" title="放大">➕</button>
     <button onclick="downloadCurrent()" title="下载">⬇️</button>
+    <button id="lightboxDeleteBtn" onclick="deleteFromLightbox()" title="删除" style="display:none;">🗑️</button>
   </div>
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">‹</button>
@@ -689,7 +691,7 @@
       <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（必填，上传/删除文件时需要）</span></label>
       <div style="position:relative;margin-bottom:12px;">
         <input type="password" id="loginPat" placeholder="ghp_xxxx" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
-        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">👁️</button>
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">️</button>
       </div>
     </div>
 
@@ -741,10 +743,11 @@ let state = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadUsers();
-  setupDropZone();
-  renderUserFilters();
+  // 立即显示登录弹窗（不等待任何加载）
   checkLoginStatus();
+  // 后台加载用户数据
+  loadUsers();
+  setupDropZone();
 });
 
 // ==================== 加载 user.json ====================
@@ -1010,7 +1013,7 @@ async function doLogin() {
 
   const user = state.users.find(u => (u.username || u.name) === selectedUsername && u.password === password);
   if (!user) { showToast('❌ 密码错误', 'error'); return; }
-  if (user.is_admin === true && !pat) { showToast('⚠️ 管理员必须填写 GitHub PAT', 'error'); return; }
+  if (user.is_admin === true && !pat) { showToast('️ 管理员必须填写 GitHub PAT', 'error'); return; }
 
   state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
   state.isAdministrator = (user.is_admin === true);
@@ -1077,7 +1080,7 @@ function setupDropZone() {
 
 function handleFileSelect(files) {
   if (!state.isAdministrator) { showToast('请先登录为管理员才能上传', 'error'); return; }
-  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
+  if (!state.loginPat) { showToast('️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
   const preview = document.getElementById('uploadPreview');
   preview.classList.remove('hidden');
   preview.innerHTML = '';
@@ -1315,6 +1318,12 @@ async function deleteFile(item) {
   document.getElementById('deleteModal').classList.add('active');
 }
 
+// 从灯箱中删除当前图片
+function deleteFromLightbox() {
+  const f = state.filteredFiles[state.lightboxIndex];
+  if (f) deleteFile(f);
+}
+
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('active');
   state.deletingFile = null;
@@ -1337,7 +1346,7 @@ async function confirmDelete() {
     });
     if (!delResp.ok) throw new Error('删除失败');
 
-    // 更新 manifest
+    // 更新 manifest：移除被删除的文件，然后强制写回
     let manifest = state.mediaFiles.filter(f => f.filename !== item.filename);
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
     let manifestSha = null;
@@ -1355,6 +1364,7 @@ async function confirmDelete() {
     }
 
     closeDeleteModal();
+    closeLightbox();
     await loadManifest();
     showToast(`🗑️ 已删除 ${item.filename}`, 'success');
   } catch (e) {
@@ -1426,7 +1436,7 @@ function renderAlbum() {
     const url = getFileUrl(f);
     const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
     const isVideo = mediaType === 'video';
-    const icon = isVideo ? '🎬' : '🖼️';
+    const icon = isVideo ? '🎬' : '️';
     const ext = f.filename.split('.').pop().toUpperCase();
     const time = new Date(f.uploadedAt);
     const timeStr = formatTime(time);
@@ -1515,6 +1525,12 @@ function updateLightboxContent() {
     &nbsp;·&nbsp; 🕐 ${formatTimeFull(time)}
     &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
   `;
+
+  // 更新删除按钮可见性（仅 admin 可见）
+  const deleteBtn = document.getElementById('lightboxDeleteBtn');
+  if (deleteBtn) {
+    deleteBtn.style.display = state.isAdministrator ? '' : 'none';
+  }
 }
 
 // 缩放功能
@@ -1549,7 +1565,7 @@ function downloadCurrent() {
   document.body.removeChild(a);
 }
 
-// 缩略图更新
+// 缩略图更新（当前图片始终居中）
 function updateThumbs() {
   const thumbsContainer = document.getElementById('lightboxThumbs');
   thumbsContainer.innerHTML = '';
@@ -1571,9 +1587,15 @@ function updateThumbs() {
     };
     thumbsContainer.appendChild(thumb);
   });
-  // 滚动到当前选中项
+  // 滚动到当前选中项并居中
   const activeThumb = thumbsContainer.querySelector('.lightbox-thumb.active');
-  if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  if (activeThumb) {
+    const containerWidth = thumbsContainer.clientWidth;
+    const thumbWidth = activeThumb.offsetWidth;
+    const thumbLeft = activeThumb.offsetLeft;
+    const scrollTarget = thumbLeft - (containerWidth / 2) + (thumbWidth / 2);
+    thumbsContainer.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+  }
 }
 
 // 键盘事件
@@ -1586,6 +1608,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '-') zoomOut();
   if (e.key === '0') resetZoom();
   if (e.key === 'd' || e.key === 'D') downloadCurrent();
+  if (e.key === 'Delete' && state.isAdministrator) deleteFromLightbox();
 });
 
 // 点击灯箱背景关闭
