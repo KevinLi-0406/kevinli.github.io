@@ -75,6 +75,12 @@
     display: block;
     transition: opacity 0.3s;
   }
+  /* 显示模式：contain（原始大小，不超出格子） */
+  .gallery-item.contain-mode img,
+  .gallery-item.contain-mode video {
+    object-fit: contain;
+    background: var(--bg-primary);
+  }
 
   /* 删除按钮 - 始终可见且更易点击 */
   .gallery-item .delete-btn {
@@ -211,6 +217,22 @@
     transform-origin: center center;
   }
   .lightbox-media-content:active { cursor: grabbing; }
+
+  /* 幻灯片切换动效 */
+  .lightbox-media-content.slide-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+  .lightbox-media-content.slide-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(60px) scale(var(--zoom, 1)); }
+    to { opacity: 1; transform: translateX(0) scale(var(--zoom, 1)); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(-60px) scale(var(--zoom, 1)); }
+    to { opacity: 1; transform: translateX(0) scale(var(--zoom, 1)); }
+  }
 
   /* 灯箱底部信息 */
   .lightbox-info {
@@ -522,9 +544,9 @@
 
 <!-- ==================== 顶部导航 ==================== -->
 <header class="border-b border-[var(--border)]" style="background:var(--bg-secondary);">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+  <div class="max-w-[1400px] mx-auto px-4 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <span style="font-size:28px;"></span>
+      <span style="font-size:28px;">📸</span>
       <div>
         <h1 style="font-size:20px;font-weight:700;">共享相册</h1>
         <p style="font-size:12px;color:var(--text-secondary);">Shared Album on GitHub</p>
@@ -538,111 +560,122 @@
   </div>
 </header>
 
-<!-- ==================== 统计栏 ==================== -->
-<div class="max-w-7xl mx-auto px-4 mt-6">
-  <div class="flex gap-4 flex-wrap" id="statsBar">
-    <div class="stat-card">
-      <div class="num" id="statTotal">0</div>
-      <div class="label">总文件</div>
-    </div>
-    <div class="stat-card">
-      <div class="num" id="statImages">0</div>
-      <div class="label">图片</div>
-    </div>
-    <div class="stat-card">
-      <div class="num" id="statVideos">0</div>
-      <div class="label">视频</div>
-    </div>
-    <div class="stat-card">
-      <div class="num" id="statUsers">0</div>
-      <div class="label">上传用户</div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 筛选 & 排序栏 ==================== -->
-<div class="max-w-7xl mx-auto px-4 mt-4">
-  <div class="filter-panel">
-    <div>
-      <label class="block mb-1">排序</label>
-      <select id="sortSelect" onchange="renderAlbum()">
-        <option value="time-desc">🕐 最新优先</option>
-        <option value="time-asc">🕐 最早优先</option>
-      </select>
-    </div>
-    <div>
-      <label class="block mb-1">上传用户</label>
-      <select id="userFilter" onchange="renderAlbum()">
-        <option value="">全部用户</option>
-      </select>
-    </div>
-    <div>
-      <label class="block mb-1">开始日期</label>
-      <input type="date" id="dateFrom" onchange="renderAlbum()">
-    </div>
-    <div>
-      <label class="block mb-1">结束日期</label>
-      <input type="date" id="dateTo" onchange="renderAlbum()">
-    </div>
-    <div>
-      <label class="block mb-1">类型</label>
-      <select id="typeFilter" onchange="renderAlbum()">
-        <option value="">全部</option>
-        <option value="image">🖼️ 图片</option>
-        <option value="video">🎬 视频</option>
-      </select>
-    </div>
-    <div>
-      <label class="block mb-1">&nbsp;</label>
-      <button class="btn btn-secondary btn-sm" onclick="refreshMedia()">🔄 刷新</button>
-      <button class="btn btn-secondary btn-sm" onclick="clearFilters()">🔁 重置</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 上传面板（管理员） ==================== -->
-<div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6 hidden">
-  <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:24px;">
-    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
-    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">文件将上传至 <code style="background:var(--bg-card);padding:2px 8px;border-radius:4px;">Resources/Media/</code> · 单文件上限 20MB</p>
-
-    <!-- 选择上传用户 -->
-    <div class="mb-4">
-      <label style="color:var(--text-secondary);font-size:13px;font-weight:600;display:block;margin-bottom:6px;">选择上传者</label>
-      <select id="uploadUserSelect" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:10px 14px;border-radius:10px;font-size:14px;width:100%;max-width:300px;outline:none;">
-      </select>
-    </div>
-
-    <!-- 拖拽区域 -->
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <div class="drop-zone-icon">📁</div>
-      <p style="font-size:16px;font-weight:600;margin-bottom:4px;">拖拽文件到这里，或点击选择</p>
-      <p style="font-size:13px;color:var(--text-secondary);">支持 JPG / PNG / GIF / WEBP / MP4 / WEBM / MOV</p>
-      <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(this.files)">
-    </div>
-
-    <!-- 文件预览 -->
-    <div id="uploadPreview" class="upload-preview-list hidden"></div>
-
-    <!-- 上传进度 -->
-    <div id="uploadProgress" class="hidden mt-4">
-      <div class="flex items-center justify-between mb-1">
-        <span style="font-size:13px;color:var(--text-secondary);" id="progressText">上传中...</span>
-        <span style="font-size:13px;color:var(--accent-light);" id="progressPercent">0%</span>
+<!-- ==================== 主内容区：左侧 (统计 + 筛选) + 右侧 (上传) 并排 ==================== -->
+<div class="max-w-[1400px] mx-auto px-4 mt-3">
+  <div class="flex gap-6 items-start">
+    <!-- 左侧：统计栏 + 筛选器 -->
+    <div class="flex-1 min-w-0">
+      <!-- 统计栏 -->
+      <div class="flex gap-4 flex-wrap mb-4" id="statsBar">
+        <div class="stat-card">
+          <div class="num" id="statTotal">0</div>
+          <div class="label">总文件</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statImages">0</div>
+          <div class="label">图片</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statVideos">0</div>
+          <div class="label">视频</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statUsers">0</div>
+          <div class="label">上传用户</div>
+        </div>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+      <!-- 筛选 & 排序栏 -->
+      <div class="filter-panel">
+        <div>
+          <label class="block mb-1">排序</label>
+          <select id="sortSelect" onchange="renderAlbum()">
+            <option value="time-desc"> 最新优先</option>
+            <option value="time-asc"> 最早优先</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1">上传用户</label>
+          <select id="userFilter" onchange="renderAlbum()">
+            <option value="">全部用户</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1">开始日期</label>
+          <input type="date" id="dateFrom" onchange="renderAlbum()">
+        </div>
+        <div>
+          <label class="block mb-1">结束日期</label>
+          <input type="date" id="dateTo" onchange="renderAlbum()">
+        </div>
+        <div>
+          <label class="block mb-1">类型</label>
+          <select id="typeFilter" onchange="renderAlbum()">
+            <option value="">全部</option>
+            <option value="image">🖼️ 图片</option>
+            <option value="video">🎬 视频</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1">显示模式</label>
+          <select id="displayModeSelect" onchange="setDisplayMode(this.value)">
+            <option value="cover"> 填满格子</option>
+            <option value="contain">🖼️ 原始大小</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-1">&nbsp;</label>
+          <button class="btn btn-secondary btn-sm" onclick="refreshMedia()">🔄 刷新</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearFilters()"> 重置</button>
+        </div>
+      </div>
     </div>
 
-    <!-- 上传按钮 -->
-    <div class="mt-4">
-      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled>🚀 开始上传</button>
-      <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
+    <!-- 右侧：上传面板（管理员） -->
+    <div class="w-[380px] flex-shrink-0" id="uploadPanelContainer">
+      <div id="uploadPanel" class="hidden" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:20px;">
+        <h2 style="font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
+        <p style="color:var(--text-secondary);font-size:12px;margin-bottom:12px;">单文件上限 20MB</p>
+
+        <!-- 选择上传用户 -->
+        <div class="mb-3">
+          <label style="color:var(--text-secondary);font-size:12px;font-weight:600;display:block;margin-bottom:4px;">选择上传者</label>
+          <select id="uploadUserSelect" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;outline:none;">
+          </select>
+        </div>
+
+        <!-- 拖拽区域 -->
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="padding:24px 16px;">
+          <div class="drop-zone-icon" style="font-size:32px;margin-bottom:8px;">📁</div>
+          <p style="font-size:14px;font-weight:600;margin-bottom:2px;">拖拽或点击选择</p>
+          <p style="font-size:11px;color:var(--text-secondary);">JPG / PNG / GIF / WEBP / MP4 / WEBM</p>
+          <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(this.files)">
+        </div>
+
+        <!-- 文件预览 -->
+        <div id="uploadPreview" class="upload-preview-list hidden"></div>
+
+        <!-- 上传进度 -->
+        <div id="uploadProgress" class="hidden mt-3">
+          <div class="flex items-center justify-between mb-1">
+            <span style="font-size:12px;color:var(--text-secondary);" id="progressText">上传中...</span>
+            <span style="font-size:12px;color:var(--accent-light);" id="progressPercent">0%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+
+        <!-- 上传按钮 -->
+        <div class="mt-3">
+          <button id="uploadBtn" class="btn btn-primary btn-sm" onclick="uploadFiles()" disabled>开始上传</button>
+          <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- ==================== 相册网格 ==================== -->
-<main class="max-w-7xl mx-auto px-4 mt-6 pb-20">
+<main class="max-w-[1400px] mx-auto px-4 mt-4 pb-20">
   <div id="loadingState" class="flex flex-col items-center justify-center py-32">
     <div class="loader mb-4"></div>
     <p style="color:var(--text-secondary);font-size:14px;">正在加载相册...</p>
@@ -684,7 +717,7 @@
 <!-- ==================== 登录弹窗 ==================== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
-    <h2>🔐 登录共享相册</h2>
+    <h2> 登录共享相册</h2>
     <p>选择用户并输入密码登录。<br>管理员可上传和删除文件，非管理员以游客身份浏览。</p>
 
     <div class="field-group">
@@ -698,7 +731,7 @@
       <label class="field-label">密码</label>
       <div style="position:relative;margin-bottom:12px;">
         <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
-        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">️</button>
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
       </div>
     </div>
 
@@ -754,14 +787,13 @@ let state = {
   lightboxZoom: 1,
   filteredFiles: [],
   deletingFile: null,
+  displayMode: 'cover', // 显示模式 'cover' | 'contain'
 };
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', async () => {
-  // 【修复】先加载用户数据，确保登录弹窗的用户下拉列表有选项
   await loadUsers();
   setupDropZone();
-  // 用户数据加载完成后再检查登录状态（弹出登录弹窗）
   checkLoginStatus();
 });
 
@@ -807,18 +839,11 @@ async function loadManifest() {
       manifestFiles = await resp.json();
     }
 
-    // 无论 manifest 是否存在，都扫描目录
     const dirFiles = await scanMediaDirectory();
-
-    // 将 manifest 中已有的文件标记为已存在
     const manifestSet = new Set(manifestFiles.map(f => f.filename));
     dirFiles.forEach(f => { f._inManifest = manifestSet.has(f.filename); });
 
-    // 如果 manifest 存在，保留 manifest 中的文件
-    // 如果 manifest 不存在，使用目录扫描结果
-    // 如果有些文件在目录中但不在 manifest 中，添加它们
     if (manifestFiles.length > 0) {
-      // 检查是否有目录中的文件不在 manifest 中
       const missingInManifest = dirFiles.filter(f => !manifestSet.has(f.filename));
       if (missingInManifest.length > 0) {
         console.log(`发现 ${missingInManifest.length} 个新文件未加入 manifest，自动添加...`);
@@ -852,17 +877,13 @@ async function loadManifest() {
 
 // ==================== 刷新目录（重新扫描 + 同步 manifest） ====================
 async function refreshMedia() {
-  // 修复：只需已登录即可刷新，不需要管理员权限
   if (!state.currentUser) {
     showToast('请先登录', 'info');
     return;
   }
-  showToast('🔄 正在刷新目录...', 'info');
+  showToast(' 正在刷新目录...', 'info');
   try {
-    // 扫描目录
     const dirFiles = await scanMediaDirectory();
-
-    // 如果 manifest 不存在，创建它
     let manifestFiles = [];
     try {
       const rawUrl = `https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.MANIFEST_PATH}`;
@@ -876,7 +897,6 @@ async function refreshMedia() {
     const newFiles = dirFiles.filter(f => !manifestSet.has(f.filename));
 
     if (newFiles.length > 0) {
-      // 合并
       const updated = [
         ...manifestFiles,
         ...newFiles.map(f => ({
@@ -893,7 +913,6 @@ async function refreshMedia() {
           mediaType: f.type,
         }))
       ];
-      // 只有管理员才能更新 manifest
       if (state.isAdministrator && state.loginPat) {
         await updateManifestBulk(updated);
         state.mediaFiles = updated;
@@ -909,7 +928,7 @@ async function refreshMedia() {
     renderAlbum();
   } catch (e) {
     console.error('刷新失败:', e);
-    showToast('刷新失败: ' + e.message, 'error');
+    showToast('刷新失败：' + e.message, 'error');
   }
 }
 
@@ -961,10 +980,10 @@ function togglePasswordVisibility(inputId, btn) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
     input.type = 'text';
-    btn.textContent = '🙈';
+    btn.textContent = '';
   } else {
     input.type = 'password';
-    btn.textContent = '👁️';
+    btn.textContent = '️';
   }
 }
 
@@ -1049,10 +1068,10 @@ async function doLogin() {
 
   if (state.isAdministrator) {
     updateUIForAdmin();
-    showToast(`👋 欢迎回来, 管理员 ${state.currentUser.username}！`, 'success');
+    showToast(`👋 欢迎回来，管理员 ${state.currentUser.username}！`, 'success');
   } else {
     updateUIForGuest();
-    showToast(`👋 欢迎, ${state.currentUser.username}！你以游客身份浏览。`, 'success');
+    showToast(`👋 欢迎，${state.currentUser.username}！你以游客身份浏览。`, 'success');
   }
   await loadManifest();
 }
@@ -1102,7 +1121,7 @@ function setupDropZone() {
 
 function handleFileSelect(files) {
   if (!state.isAdministrator) { showToast('请先登录为管理员才能上传', 'error'); return; }
-  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
+  if (!state.loginPat) { showToast('️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
   const preview = document.getElementById('uploadPreview');
   preview.classList.remove('hidden');
   preview.innerHTML = '';
@@ -1190,7 +1209,7 @@ async function uploadFiles() {
     } catch (e) {
       console.error(`上传 ${pf.filename} 失败:`, e);
       failed++;
-      showToast(`❌ ${pf.filename} 上传失败: ${e.message}`, 'error');
+      showToast(`❌ ${pf.filename} 上传失败：${e.message}`, 'error');
     }
   }
 
@@ -1198,7 +1217,6 @@ async function uploadFiles() {
   document.getElementById('progressPercent').textContent = '100%';
   document.getElementById('progressFill').style.width = '100%';
 
-  // 统一更新 manifest（仅一次）
   if (newEntries.length > 0) {
     try {
       await updateManifestBulk(newEntries);
@@ -1242,7 +1260,6 @@ async function uploadSingleFile(fileInfo, uploaderInfo) {
     throw new Error(err.message || `HTTP ${fileResp.status}`);
   }
 
-  // 记录上传条目
   fileInfo._entry = {
     filename,
     uploader: uploaderInfo.username || uploaderInfo,
@@ -1279,7 +1296,6 @@ async function updateManifestBulk(entries) {
     }
   } catch (e) { console.warn('读取 manifest 失败，创建新文件:', e); }
 
-  // 合并：如果 manifest 中已有同 filename，跳过；否则添加
   for (const entry of entries) {
     const exists = manifest.find(f => f.filename === entry.filename);
     if (!exists) manifest.push(entry);
@@ -1297,7 +1313,6 @@ async function updateManifestBulk(entries) {
     body: JSON.stringify(putBody),
   });
 
-  // 如果 SHA 不匹配，重试一次
   if (!putResp.ok && (putResp.status === 409 || putResp.status === 422)) {
     await new Promise(r => setTimeout(r, 1500));
     let retryManifest = [];
@@ -1340,7 +1355,6 @@ async function deleteFile(item) {
   document.getElementById('deleteModal').classList.add('active');
 }
 
-// 从灯箱中删除当前图片
 function deleteFromLightbox() {
   const f = state.filteredFiles[state.lightboxIndex];
   if (f) deleteFile(f);
@@ -1358,7 +1372,7 @@ async function confirmDelete() {
     const apiPath = item.path || `${CONFIG.MEDIA_PATH}/${item.filename}`;
     const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}?ref=${CONFIG.BRANCH}`;
     const fileResp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
-    if (!fileResp.ok) throw new Error(`无法获取文件信息: ${fileResp.status}`);
+    if (!fileResp.ok) throw new Error(`无法获取文件信息：${fileResp.status}`);
     const fileData = await fileResp.json();
 
     const delResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}`, {
@@ -1368,21 +1382,42 @@ async function confirmDelete() {
     });
     if (!delResp.ok) throw new Error('删除失败');
 
-    // 更新 manifest：移除被删除的文件，然后强制写回
+    // 【修复 1】更新 manifest：移除被删除的文件，然后强制写回
     let manifest = state.mediaFiles.filter(f => f.filename !== item.filename);
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
+    
+    // 获取 manifest 的 SHA（如果存在）
     let manifestSha = null;
     try {
-      const mResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`, { headers: { Authorization: `token ${state.loginPat || ''}` } });
-      if (mResp.ok) manifestSha = (await mResp.json()).sha;
-    } catch (e) { }
-
-    if (manifestSha) {
-      await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
-        method: 'PUT',
-        headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `[Album] Remove ${item.filename}`, content, sha: manifestSha, branch: CONFIG.BRANCH }),
+      const mResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`, { 
+        headers: { Authorization: `token ${state.loginPat || ''}` } 
       });
+      if (mResp.ok) {
+        manifestSha = (await mResp.json()).sha;
+      }
+    } catch (e) { 
+      console.warn('获取 manifest SHA 失败:', e);
+    }
+
+    // 无论 manifest 是否存在，都尝试更新
+    const putBody = { 
+      message: `[Album] Remove ${item.filename}`, 
+      content, 
+      branch: CONFIG.BRANCH 
+    };
+    if (manifestSha) {
+      putBody.sha = manifestSha;
+    }
+
+    const putResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(putBody),
+    });
+
+    if (!putResp.ok) {
+      const err = await putResp.json().catch(() => ({}));
+      console.warn('更新 manifest 失败:', err.message);
     }
 
     closeDeleteModal();
@@ -1391,7 +1426,7 @@ async function confirmDelete() {
     showToast(`✅ 已删除 ${item.filename}`, 'success');
   } catch (e) {
     closeDeleteModal();
-    showToast(`删除失败: ${e.message}`, 'error');
+    showToast(`删除失败：${e.message}`, 'error');
   }
 }
 
@@ -1416,7 +1451,6 @@ function renderUserFilters() {
 }
 
 function renderAlbum() {
-  // 每次渲染时更新用户筛选器选项
   renderUserFilters();
 
   const sort = document.getElementById('sortSelect').value;
@@ -1466,10 +1500,11 @@ function renderAlbum() {
     const time = new Date(f.uploadedAt);
     const timeStr = formatTime(time);
     const uploader = f.uploaderNickname || f.uploader || '未知';
-    const sizeStr = formatFileSize(f.size);
+    // 【修改 4】根据 displayMode 添加对应 CSS 类
+    const modeClass = state.displayMode === 'contain' ? 'contain-mode' : '';
 
     return `
-      <div class="gallery-item" onclick="openLightbox(${idx})">
+      <div class="gallery-item ${modeClass}" onclick="openLightbox(${idx})">
         ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除">🗑️</button>` : ''}
         <span class="file-type-badge">${icon} ${ext}</span>
         ${isVideo
@@ -1498,6 +1533,14 @@ function clearFilters() {
   document.getElementById('dateFrom').value = '';
   document.getElementById('dateTo').value = '';
   document.getElementById('typeFilter').value = '';
+  document.getElementById('displayModeSelect').value = 'cover';
+  state.displayMode = 'cover';
+  renderAlbum();
+}
+
+// 【修改 4】显示模式切换函数
+function setDisplayMode(mode) {
+  state.displayMode = mode;
   renderAlbum();
 }
 
@@ -1509,6 +1552,17 @@ function openLightbox(index) {
   document.getElementById('lightbox').classList.add('active');
   document.body.style.overflow = 'hidden';
   updateThumbs();
+
+  // 【修改 2】添加鼠标滚轮缩放监听
+  const container = document.getElementById('lightboxContainer');
+  container.onwheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
 }
 
 function closeLightbox() {
@@ -1518,6 +1572,9 @@ function closeLightbox() {
   const media = document.getElementById('lightboxMedia');
   if (media) media.innerHTML = '';
   state.lightboxIndex = -1;
+  // 移除滚轮监听
+  const container = document.getElementById('lightboxContainer');
+  container.onwheel = null;
 }
 
 function navigateLightbox(direction) {
@@ -1525,11 +1582,11 @@ function navigateLightbox(direction) {
   if (len === 0) return;
   state.lightboxIndex = (state.lightboxIndex + direction + len) % len;
   state.lightboxZoom = 1;
-  updateLightboxContent();
+  updateLightboxContent(direction); // 【修改 3】传入方向参数
   updateThumbs();
 }
 
-function updateLightboxContent() {
+function updateLightboxContent(direction) {
   const f = state.filteredFiles[state.lightboxIndex];
   if (!f) return;
 
@@ -1543,22 +1600,30 @@ function updateLightboxContent() {
     container.innerHTML = `<img class="lightbox-content" src="${url}" alt="${f.filename}" style="transform:scale(${state.lightboxZoom})">`;
   }
 
+  // 【修改 3】添加幻灯片切换动效
+  const mediaEl = container.querySelector('.lightbox-content');
+  if (mediaEl && direction !== undefined) {
+    mediaEl.style.setProperty('--zoom', state.lightboxZoom);
+    mediaEl.classList.remove('slide-left', 'slide-right');
+    void mediaEl.offsetWidth; // 触发重绘
+    mediaEl.classList.add(direction > 0 ? 'slide-left' : 'slide-right');
+  }
+
   const time = new Date(f.uploadedAt);
   document.getElementById('lightboxInfo').innerHTML = `
     <strong>${f.filename}</strong>
     &nbsp;·&nbsp;  ${f.uploaderNickname || f.uploader || '未知'}
-    &nbsp;·&nbsp; 🕐 ${formatTimeFull(time)}
+    &nbsp;·&nbsp;  ${formatTimeFull(time)}
     &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
+    &nbsp;·&nbsp; 🖱️ 滚轮缩放
   `;
 
-  // 更新删除按钮可见性（仅 admin 可见）
   const deleteBtn = document.getElementById('lightboxDeleteBtn');
   if (deleteBtn) {
     deleteBtn.style.display = state.isAdministrator ? '' : 'none';
   }
 }
 
-// 缩放功能
 function zoomIn() {
   state.lightboxZoom = Math.min(state.lightboxZoom + 0.25, 5);
   applyZoom();
@@ -1573,10 +1638,12 @@ function resetZoom() {
 }
 function applyZoom() {
   const media = document.querySelector('.lightbox-content');
-  if (media) media.style.transform = `scale(${state.lightboxZoom})`;
+  if (media) {
+    media.style.transform = `scale(${state.lightboxZoom})`;
+    media.style.setProperty('--zoom', state.lightboxZoom);
+  }
 }
 
-// 下载功能
 function downloadCurrent() {
   const f = state.filteredFiles[state.lightboxIndex];
   if (!f) return;
@@ -1590,7 +1657,6 @@ function downloadCurrent() {
   document.body.removeChild(a);
 }
 
-// 缩略图更新（当前图片始终居中）
 function updateThumbs() {
   const thumbsContainer = document.getElementById('lightboxThumbs');
   thumbsContainer.innerHTML = '';
@@ -1612,7 +1678,6 @@ function updateThumbs() {
     };
     thumbsContainer.appendChild(thumb);
   });
-  // 滚动到当前选中项并居中
   const activeThumb = thumbsContainer.querySelector('.lightbox-thumb.active');
   if (activeThumb) {
     const containerWidth = thumbsContainer.clientWidth;
@@ -1623,7 +1688,6 @@ function updateThumbs() {
   }
 }
 
-// 键盘事件
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('active')) return;
   if (e.key === 'Escape') closeLightbox();
@@ -1636,7 +1700,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Delete' && state.isAdministrator) deleteFromLightbox();
 });
 
-// 点击灯箱背景关闭
 document.getElementById('lightbox').addEventListener('click', e => {
   if (e.target === document.getElementById('lightbox')) closeLightbox();
 });
@@ -1671,7 +1734,7 @@ function showToast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  const icons = { success: '✅', error: '', info: 'ℹ️' };
+  const icons = { success: '✅', error: '❌', info: '️' };
   toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
