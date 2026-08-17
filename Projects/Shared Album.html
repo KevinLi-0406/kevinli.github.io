@@ -168,7 +168,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px 20px;
-    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
   }
   .filter-panel select, .filter-panel input {
     background: var(--bg-card);
@@ -194,7 +194,9 @@
   /* ========== 登录弹窗 ========== */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 8000;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.97);
+    backdrop-filter: blur(30px) saturate(0.5);
+    -webkit-backdrop-filter: blur(30px) saturate(0.5);
     display: none; align-items: center; justify-content: center;
   }
   .modal-overlay.active { display: flex; }
@@ -225,6 +227,16 @@
   }
   .modal-box input:focus, .modal-box select:focus { border-color: var(--accent); }
   .modal-box .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+  .modal-box .field-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .modal-box .field-group { margin-bottom: 4px; }
 
   /* ========== 按钮 ========== */
   .btn {
@@ -353,8 +365,8 @@
     </div>
     <div class="flex items-center gap-3">
       <span id="modeBadge" class="text-xs px-3 py-1 rounded-full font-semibold"
-            style="background:rgba(46,204,113,0.2);color:#2ecc71;">🔑 管理员</span>
-      <button id="logoutBtn" class="btn btn-secondary btn-sm" onclick="logout()">退出登录</button>
+            style="background:rgba(108,92,231,0.2);color:var(--accent-light);">未登录</span>
+      <button id="logoutBtn" class="btn btn-secondary btn-sm hidden" onclick="logout()">退出登录</button>
     </div>
   </div>
 </header>
@@ -413,14 +425,15 @@
         <option value="video">🎬 视频</option>
       </select>
     </div>
-    <div class="flex items-end">
+    <div>
+      <label class="block mb-1">&nbsp;</label>
       <button class="btn btn-secondary btn-sm" onclick="clearFilters()">🔄 重置</button>
     </div>
   </div>
 </div>
 
 <!-- ==================== 上传面板（管理员） ==================== -->
-<div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6">
+<div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6 hidden">
   <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:24px;">
     <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
     <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">文件将上传至 <code style="background:var(--bg-card);padding:2px 8px;border-radius:4px;">Resources/Media/</code> · 单文件上限 20MB</p>
@@ -492,9 +505,25 @@
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <h2>🔐 登录共享相册</h2>
-    <p>请输入用户名和密码登录。<br>仅管理员可登录。</p>
-    <input type="text" id="loginUsername" placeholder="用户名" autocomplete="off">
-    <input type="password" id="loginPassword" placeholder="密码" autocomplete="off">
+    <p>选择用户并输入密码登录。<br>管理员可上传和删除文件，非管理员以游客身份浏览。</p>
+
+    <div class="field-group">
+      <label class="field-label">选择用户</label>
+      <select id="loginUserSelect">
+        <option value="">-- 请选择用户 --</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">密码</label>
+      <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（管理员上传/删除文件时需要）</span></label>
+      <input type="password" id="loginPat" placeholder="ghp_xxxx（可选，登录后也可补填）" autocomplete="off">
+    </div>
+
     <div class="btn-row">
       <button class="btn btn-primary" style="flex:1;" onclick="doLogin()">登录</button>
     </div>
@@ -530,6 +559,7 @@ const CONFIG = {
 let state = {
   isAdministrator: false,
   currentUser: null,        // 当前登录的用户
+  loginPat: null,           // GitHub PAT
   users: [],                // user.json 中的所有用户列表
   adminUsers: [],           // user.json 中 is_admin=true 的用户列表
   mediaFiles: [],           // manifest.json 中的文件列表
@@ -542,6 +572,8 @@ let state = {
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', async () => {
   await loadUsers();
+  setupDropZone();
+  renderUserFilters();
   checkLoginStatus();
 });
 
@@ -556,12 +588,21 @@ async function loadUsers() {
     // 筛选出管理员用户
     state.adminUsers = state.users.filter(u => u.is_admin === true);
 
-    // 填充上传用户选择 - 仅展示 username
+    // 填充上传用户选择 - 展示 username
     const uploadSelect = document.getElementById('uploadUserSelect');
     uploadSelect.innerHTML = '';
     state.users.forEach(u => {
       const username = u.username || u.name || 'Unknown';
       uploadSelect.innerHTML += `<option value="${username}">${username}</option>`;
+    });
+
+    // 填充登录用户选择 - 展示 username
+    const loginSelect = document.getElementById('loginUserSelect');
+    loginSelect.innerHTML = '<option value="">-- 请选择用户 --</option>';
+    state.users.forEach(u => {
+      const username = u.username || u.name || 'Unknown';
+      const badge = u.is_admin ? ' 👑' : '';
+      loginSelect.innerHTML += `<option value="${username}">${username}${badge}</option>`;
     });
   } catch (e) {
     console.warn('加载 user.json 失败，使用备用方式:', e);
@@ -615,7 +656,6 @@ async function scanMediaDirectory() {
         uploaderNickname: '未知',
         uploadedAt: item.commit ? item.commit.author.date : new Date().toISOString(),
         sha: item.sha,
-        // 通过 GitHub API 获取的 URL（需要认证）
         github_url: item.html_url,
       });
     }
@@ -639,19 +679,28 @@ function guessMediaType(filename) {
 function checkLoginStatus() {
   const username = localStorage.getItem('album_username');
   const password = localStorage.getItem('album_password');
+  const pat = localStorage.getItem('album_pat') || '';
+
   if (username && password) {
     // 验证该用户是否仍然有效
     const user = state.users.find(u => (u.username || u.name) === username && u.password === password);
-    if (user && user.is_admin === true) {
+    if (user) {
       state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
-      state.isAdministrator = true;
-      updateUIForAdmin();
+      state.isAdministrator = (user.is_admin === true);
+      state.loginPat = pat;
+
+      if (state.isAdministrator) {
+        updateUIForAdmin();
+      } else {
+        updateUIForGuest();
+      }
       // 加载相册数据
       loadManifest();
     } else {
       // 用户无效或已移除，清除登录状态
       localStorage.removeItem('album_username');
       localStorage.removeItem('album_password');
+      localStorage.removeItem('album_pat');
       openLoginModal();
     }
   } else {
@@ -661,6 +710,9 @@ function checkLoginStatus() {
 }
 
 function openLoginModal() {
+  // 清除之前的输入
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginPat').value = '';
   document.getElementById('loginModal').classList.add('active');
 }
 function closeLoginModal() {
@@ -668,33 +720,41 @@ function closeLoginModal() {
 }
 
 async function doLogin() {
-  const username = document.getElementById('loginUsername').value.trim();
+  const selectedUsername = document.getElementById('loginUserSelect').value;
   const password = document.getElementById('loginPassword').value.trim();
-  if (!username) { showToast('请输入用户名', 'error'); return; }
+  const pat = document.getElementById('loginPat').value.trim();
+
+  if (!selectedUsername) { showToast('请选择一个用户', 'error'); return; }
   if (!password) { showToast('请输入密码', 'error'); return; }
 
   // 在 user.json 中查找匹配的用户
-  const user = state.users.find(u => (u.username || u.name) === username && u.password === password);
+  const user = state.users.find(u => (u.username || u.name) === selectedUsername && u.password === password);
 
   if (!user) {
-    showToast('❌ 用户名或密码错误', 'error');
-    return;
-  }
-
-  if (user.is_admin !== true) {
-    showToast('❌ 您不是管理员，无法登录', 'error');
+    showToast('❌ 密码错误', 'error');
     return;
   }
 
   // 保存登录状态
   state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
-  state.isAdministrator = true;
-  localStorage.setItem('album_username', username);
+  state.isAdministrator = (user.is_admin === true);
+  state.loginPat = pat;
+
+  localStorage.setItem('album_username', selectedUsername);
   localStorage.setItem('album_password', password);
+  if (pat) {
+    localStorage.setItem('album_pat', pat);
+  }
 
   closeLoginModal();
-  updateUIForAdmin();
-  showToast(`👋 欢迎回来, ${state.currentUser.nickname}！`, 'success');
+
+  if (state.isAdministrator) {
+    updateUIForAdmin();
+    showToast(`👋 欢迎回来, 管理员 ${state.currentUser.username}！`, 'success');
+  } else {
+    updateUIForGuest();
+    showToast(`👋 欢迎, ${state.currentUser.username}！你以游客身份浏览。`, 'success');
+  }
 
   // 加载相册数据
   await loadManifest();
@@ -703,9 +763,16 @@ async function doLogin() {
 function logout() {
   state.isAdministrator = false;
   state.currentUser = null;
+  state.loginPat = null;
   localStorage.removeItem('album_username');
   localStorage.removeItem('album_password');
-  updateUIForVisitor();
+  localStorage.removeItem('album_pat');
+  // 重置 UI
+  document.getElementById('modeBadge').textContent = '未登录';
+  document.getElementById('modeBadge').style.background = 'rgba(108,92,231,0.2)';
+  document.getElementById('modeBadge').style.color = 'var(--accent-light)';
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('uploadPanel').classList.add('hidden');
   showToast('已退出登录', 'info');
   // 显示登录弹窗
   setTimeout(() => openLoginModal(), 500);
@@ -719,11 +786,11 @@ function updateUIForAdmin() {
   document.getElementById('uploadPanel').classList.remove('hidden');
 }
 
-function updateUIForVisitor() {
-  document.getElementById('modeBadge').textContent = '未登录';
-  document.getElementById('modeBadge').style.background = 'rgba(108,92,231,0.2)';
-  document.getElementById('modeBadge').style.color = 'var(--accent-light)';
-  document.getElementById('logoutBtn').classList.add('hidden');
+function updateUIForGuest() {
+  document.getElementById('modeBadge').textContent = `👤 ${state.currentUser?.username || '游客'}（游客）`;
+  document.getElementById('modeBadge').style.background = 'rgba(243,156,18,0.2)';
+  document.getElementById('modeBadge').style.color = '#f39c12';
+  document.getElementById('logoutBtn').classList.remove('hidden');
   document.getElementById('uploadPanel').classList.add('hidden');
 }
 
@@ -741,6 +808,10 @@ function setupDropZone() {
 function handleFileSelect(files) {
   if (!state.isAdministrator) {
     showToast('请先登录为管理员才能上传', 'error');
+    return;
+  }
+  if (!state.loginPat) {
+    showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error');
     return;
   }
   const preview = document.getElementById('uploadPreview');
@@ -821,6 +892,10 @@ function clearUpload() {
 // ==================== 上传文件到 GitHub ====================
 async function uploadFiles() {
   if (state.pendingFiles.length === 0) return;
+  if (!state.loginPat) {
+    showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error');
+    return;
+  }
   const uploader = document.getElementById('uploadUserSelect').value;
   const uploaderInfo = state.users.find(u => (u.username || u) === uploader) || { username: uploader, nickname: uploader };
 
@@ -976,6 +1051,10 @@ async function getManifestSha() {
 async function deleteFile(item) {
   if (!state.isAdministrator) {
     showToast('只有管理员可以删除文件', 'error');
+    return;
+  }
+  if (!state.loginPat) {
+    showToast('⚠️ 未设置 GitHub PAT，无法删除。', 'error');
     return;
   }
   state.deletingFile = item;
@@ -1292,6 +1371,13 @@ function showToast(msg, type = 'info') {
     setTimeout(() => toast.remove(), 300);
   }, 4000);
 }
+
+// 登录弹窗内按 Enter 键触发登录
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginModal').classList.contains('active')) {
+    doLogin();
+  }
+});
 </script>
 
 </body>

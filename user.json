@@ -1,20 +1,20 @@
 [
   {
     "username": "Kevin",
+    "nickname": "Kevin Li",
     "password": "Liyixing980406",
-    "nickname": "李奕兴",
+    "is_admin": true
+  },
+  {
+    "username": "Kira",
+    "nickname": "Kira",
+    "password": "skg2026",
     "is_admin": true
   },
   {
     "username": "Test",
+    "nickname": "Test User",
     "password": "test001",
-    "nickname": "访客用户",
     "is_admin": false
-  },
-  {
-    "username": "Kira",
-    "password": "skg2026",
-    "nickname": "沈凯歌（李奕兴的老婆）",
-    "is_admin": true
   }
 ]
