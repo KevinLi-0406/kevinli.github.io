@@ -276,7 +276,15 @@
           <option value="" disabled selected>正在加载用户列表…</option>
         </select>
         <label style="display:block; text-align:left; color:var(--muted); font-size:12px; margin-bottom:6px; font-weight:600;">密码</label>
-        <input type="password" id="passwordInput" placeholder="请输入密码" style="width: 100%; padding: 12px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
+        <div class="password-wrapper">
+          <input type="password" id="passwordInput" placeholder="请输入密码" style="width: 100%; padding: 12px 42px 12px 12px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
+          <button type="button" id="togglePassword" class="toggle-password" onclick="togglePwdVisibility()" aria-label="显示/隐藏密码">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2C4.5 2 1.7 4.1.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14s6.3-2.1 7.5-5c.2-.5.2-1 0-1.5C14.3 4.1 11.5 2 8 2zm0 10c-2.8 0-5.1-1.7-6-4 .9-2.3 3.2-4 6-4s5.1 1.7 6 4c-.9 2.3-3.2 4-6 4z"/>
+              <path d="M8 5.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM4.5 8a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/>
+            </svg>
+          </button>
+        </div>
         <p id="loginError" style="color: #f85149; font-size: 13px; min-height: 20px;"></p>
         <button class="button button-primary" onclick="handleLogin()" style="width: 100%; min-width: auto;">登录</button>
       </div>
@@ -305,6 +313,34 @@
     .login-form select option { background: var(--bg); color: var(--text); padding: 8px; }
     body.logged-out main { display: none; }
     body.logged-out footer { display: none; }
+
+    /* 密码可视化切换按钮样式 */
+    .password-wrapper {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 6px;
+      top: 10px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .2s, background .2s;
+    }
+    .toggle-password:hover {
+      color: var(--text);
+      background: rgba(88,166,255,.12);
+    }
+    .toggle-password svg {
+      pointer-events: none;
+    }
   </style>
 
     <script>
@@ -368,6 +404,19 @@
     document.getElementById('passwordInput').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') handleLogin();
     });
+
+    // 密码明文/密文切换
+    function togglePwdVisibility() {
+      var input = document.getElementById('passwordInput');
+      var icon = document.getElementById('eyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M.143 2.31a.75.75 0 011.047-.173l13.5 9.5a.75.75 0 01-.878 1.218L.312 3.355A.75.75 0 01.143 2.31z"/><path d="M6.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958a3.984 3.984 0 00-.497-1.07A4.098 4.098 0 008 6.25a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5zM8 12c-2.8 0-5.1-1.7-6-4a6.658 6.658 0 011.766-2.226L2.29 4.72A8.146 8.146 0 00.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14c1.162 0 2.24-.27 3.194-.74l-1.503-1.057A4.154 4.154 0 018 12.5V12zm4.71-3.39a3.984 3.984 0 01-.497 1.07 4.098 4.098 0 01-2.789 1.284c.17-.416.378-.81.618-1.176A5.508 5.508 0 008 5.5a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958a3.984 3.984 0 00-.497-1.07A4.098 4.098 0 008 6.25a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958zM8 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/><path d="M15.5 7c-.2-.5-.2-1 0-1.5-.128.358-.336.696-.612 1.016l.612-.516z"/><path d="M13.234 5.774a8.146 8.146 0 011.266 1.726c.2.5.2 1 0 1.5C14.3 11.9 11.5 14 8 14c-.702 0-1.378-.1-2.02-.286l1.574-1.106c.144.028.292.042.446.042 2.8 0 5.1-1.7 6-4-.166-.39-.39-.756-.663-1.093l-.103-.083z"/><path d="M8 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>';
+      } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M8 2C4.5 2 1.7 4.1.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14s6.3-2.1 7.5-5c.2-.5.2-1 0-1.5C14.3 4.1 11.5 2 8 2zm0 10c-2.8 0-5.1-1.7-6-4 .9-2.3 3.2-4 6-4s5.1 1.7 6 4c-.9 2.3-3.2 4-6 4z"/><path d="M8 5.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM4.5 8a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/>';
+      }
+    }
 
     async function handleLogin() {
       var u = document.getElementById("usernameInput").value;
