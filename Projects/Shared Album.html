@@ -1033,6 +1033,9 @@ async function uploadSingleFile(fileInfo, uploaderInfo) {
     throw new Error(err.message || `HTTP ${fileResp.status}`);
   }
 
+  // 上传成功后等待一小段时间，让 GitHub 内部处理完毕再更新 manifest
+  await new Promise(r => setTimeout(r, 500));
+
   // 更新 manifest.json
   await updateManifest({
     filename,
@@ -1061,14 +1064,16 @@ function fileToBase64(file) {
 
 // ==================== 管理 manifest.json ====================
 async function updateManifest(newEntry) {
-  // 1. 获取当前 manifest
+  // 1. 获取当前 manifest 内容和 SHA（同一次 API 调用）
   let manifest = [];
+  let currentSha = null;
   try {
-    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`;
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`;
     const resp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
     if (resp.ok) {
       const data = await resp.json();
       manifest = JSON.parse(atob(data.content.replace(/\s/g, '')));
+      currentSha = data.sha;  // ← 从同一个响应中提取 SHA，避免额外请求导致不一致
     }
   } catch (e) {
     console.warn('读取 manifest.json 失败，创建新文件:', e);
@@ -1077,26 +1082,76 @@ async function updateManifest(newEntry) {
   // 2. 添加新条目
   manifest.push(newEntry);
 
-  // 3. 写回
-  const content = btoa(JSON.stringify(manifest, null, 2));
-  const sha = manifest.length > 0 ? await getManifestSha() : null;
+  // 3. 写回（使用步骤1中获取的 SHA）
+  const contentStr = JSON.stringify(manifest, null, 2);
+  const content = btoa(unescape(encodeURIComponent(contentStr)));
 
-  const putResp = await fetch(
-    `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}`,
+  const putBody = {
+    message: `[Album] Update manifest for ${newEntry.filename}`,
+    content,
+    branch: CONFIG.BRANCH,
+  };
+  if (currentSha) putBody.sha = currentSha;
+
+  let putResp = await fetch(
+    `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`,
     {
       method: 'PUT',
       headers: {
         Authorization: `token ${state.loginPat || ''}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: `[Album] Update manifest for ${newEntry.filename}`,
-        content,
-        sha: sha || undefined,
-        branch: CONFIG.BRANCH,
-      }),
+      body: JSON.stringify(putBody),
     }
   );
+
+  // 4. 如果 SHA 不匹配（HTTP 409），等待后重新获取最新 SHA 并重试一次
+  if (!putResp.ok && (putResp.status === 409 || putResp.status === 422)) {
+    const errData = await putResp.json().catch(() => ({}));
+    const errMsg = errData.message || '';
+    if (errMsg.includes('does not match') || errMsg.includes('sha') || putResp.status === 409) {
+      console.warn('manifest SHA 不匹配，等待 1.5 秒后重新获取最新 SHA 并重试...');
+      await new Promise(r => setTimeout(r, 1500));
+
+      // 重新获取最新的 manifest 内容和 SHA
+      let retryManifest = [];
+      let retrySha = null;
+      try {
+        const retryApiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`;
+        const retryResp = await fetch(retryApiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
+        if (retryResp.ok) {
+          const retryData = await retryResp.json();
+          retryManifest = JSON.parse(atob(retryData.content.replace(/\s/g, '')));
+          retrySha = retryData.sha;
+        }
+      } catch (e2) {
+        console.warn('重试获取 manifest 失败:', e2);
+      }
+
+      // 基于最新的 manifest 重新添加条目
+      retryManifest.push(newEntry);
+      const retryContent = btoa(unescape(encodeURIComponent(JSON.stringify(retryManifest, null, 2))));
+
+      const retryPutBody = {
+        message: `[Album] Update manifest for ${newEntry.filename} (retry)`,
+        content: retryContent,
+        branch: CONFIG.BRANCH,
+      };
+      if (retrySha) retryPutBody.sha = retrySha;
+
+      putResp = await fetch(
+        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${state.loginPat || ''}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(retryPutBody),
+        }
+      );
+    }
+  }
 
   if (!putResp.ok) {
     const err = await putResp.json().catch(() => ({}));
@@ -1106,7 +1161,7 @@ async function updateManifest(newEntry) {
 
 async function getManifestSha() {
   try {
-    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`;
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`;
     const resp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
     if (resp.ok) {
       const data = await resp.json();
@@ -1170,11 +1225,11 @@ async function confirmDelete() {
 
     // 3. 更新 manifest
     let manifest = state.mediaFiles.filter(f => f.filename !== item.filename);
-    const content = btoa(JSON.stringify(manifest, null, 2));
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
     let manifestSha = null;
     try {
       const mResp = await fetch(
-        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`,
+        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`,
         { headers: { Authorization: `token ${state.loginPat || ''}` } }
       );
       if (mResp.ok) manifestSha = (await mResp.json()).sha;
@@ -1182,7 +1237,7 @@ async function confirmDelete() {
 
     if (manifestSha) {
       await fetch(
-        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}`,
+        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`,
         {
           method: 'PUT',
           headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
