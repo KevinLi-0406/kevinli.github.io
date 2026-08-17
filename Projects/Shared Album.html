@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 共享相册</title>
+<title>共享相册</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   /* ========== 全局 & 暗色主题 ========== */
@@ -326,6 +326,21 @@
     letter-spacing: 0.5px;
   }
 
+  /* 日期输入框深色适配 */
+  input[type="date"] {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    color-scheme: dark;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) sepia(0.3) saturate(1) hue-rotate(220deg);
+    cursor: pointer;
+  }
+  input[type="date"]:focus {
+    border-color: var(--accent) !important;
+  }
+
   /* ========== 登录弹窗 ========== */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 8000;
@@ -409,7 +424,7 @@
   .btn-sm { padding: 6px 14px; font-size: 13px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ========== Toast 通知 ========== */
+  /* Toast 通知 */
   .toast-container {
     position: fixed; top: 20px; right: 20px; z-index: 9999;
     display: flex; flex-direction: column; gap: 8px;
@@ -431,7 +446,7 @@
   .toast.info { border-left: 4px solid var(--accent); }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-  /* ========== 进度条 ========== */
+  /* 进度条 */
   .progress-bar {
     height: 6px;
     background: var(--border);
@@ -446,7 +461,7 @@
     transition: width 0.3s;
   }
 
-  /* ========== 空状态 ========== */
+  /* 空状态 */
   .empty-state {
     text-align: center;
     padding: 80px 20px;
@@ -455,7 +470,7 @@
   .empty-state .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
   .empty-state h3 { font-size: 20px; color: var(--text-primary); margin-bottom: 8px; }
 
-  /* ========== 统计卡片 ========== */
+  /* 统计卡片 */
   .stat-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -467,7 +482,7 @@
   .stat-card .num { font-size: 28px; font-weight: 700; color: var(--accent-light); }
   .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* ========== 文件预览列表（上传前） ========== */
+  /* 文件预览列表（上传前） */
   .upload-preview-list {
     display: flex; flex-wrap: wrap; gap: 12px;
     margin-top: 16px;
@@ -491,7 +506,7 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  /* ========== 响应式 ========== */
+  /* 响应式 */
   @media (max-width: 640px) {
     .filter-panel { flex-direction: column; align-items: stretch; }
     .filter-panel > div { width: 100%; }
@@ -509,7 +524,7 @@
 <header class="border-b border-[var(--border)]" style="background:var(--bg-secondary);">
   <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <span style="font-size:28px;">📸</span>
+      <span style="font-size:28px;"></span>
       <div>
         <h1 style="font-size:20px;font-weight:700;">共享相册</h1>
         <p style="font-size:12px;color:var(--text-secondary);">Shared Album on GitHub</p>
@@ -588,7 +603,7 @@
 <!-- ==================== 上传面板（管理员） ==================== -->
 <div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6 hidden">
   <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:24px;">
-    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;"> 上传文件</h2>
+    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
     <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">文件将上传至 <code style="background:var(--bg-card);padding:2px 8px;border-radius:4px;">Resources/Media/</code> · 单文件上限 20MB</p>
 
     <!-- 选择上传用户 -->
@@ -620,7 +635,7 @@
 
     <!-- 上传按钮 -->
     <div class="mt-4">
-      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled> 开始上传</button>
+      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled>🚀 开始上传</button>
       <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
     </div>
   </div>
@@ -669,7 +684,7 @@
 <!-- ==================== 登录弹窗 ==================== -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
-    <h2> 登录共享相册</h2>
+    <h2>🔐 登录共享相册</h2>
     <p>选择用户并输入密码登录。<br>管理员可上传和删除文件，非管理员以游客身份浏览。</p>
 
     <div class="field-group">
@@ -683,7 +698,7 @@
       <label class="field-label">密码</label>
       <div style="position:relative;margin-bottom:12px;">
         <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
-        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">️</button>
       </div>
     </div>
 
@@ -691,7 +706,7 @@
       <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（必填，上传/删除文件时需要）</span></label>
       <div style="position:relative;margin-bottom:12px;">
         <input type="password" id="loginPat" placeholder="ghp_xxxx" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
-        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">️</button>
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">👁️</button>
       </div>
     </div>
 
@@ -704,7 +719,7 @@
 <!-- ==================== 删除确认弹窗 ==================== -->
 <div class="modal-overlay" id="deleteModal">
   <div class="modal-box">
-    <h2>️ 确认删除</h2>
+    <h2>⚠️ 确认删除</h2>
     <p>确定要删除 <strong id="deleteFileName"></strong> 吗？此操作不可恢复。</p>
     <div class="btn-row">
       <button class="btn btn-danger" style="flex:1;" onclick="confirmDelete()">确认删除</button>
@@ -743,11 +758,11 @@ let state = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', async () => {
-  // 立即显示登录弹窗（不等待任何加载）
-  checkLoginStatus();
-  // 后台加载用户数据
-  loadUsers();
+  // 【修复】先加载用户数据，确保登录弹窗的用户下拉列表有选项
+  await loadUsers();
   setupDropZone();
+  // 用户数据加载完成后再检查登录状态（弹出登录弹窗）
+  checkLoginStatus();
 });
 
 // ==================== 加载 user.json ====================
@@ -1020,7 +1035,7 @@ async function doLogin() {
 
   const user = state.users.find(u => (u.username || u.name) === selectedUsername && u.password === password);
   if (!user) { showToast('❌ 密码错误', 'error'); return; }
-  if (user.is_admin === true && !pat) { showToast('️ 管理员必须填写 GitHub PAT', 'error'); return; }
+  if (user.is_admin === true && !pat) { showToast('⚠️ 管理员必须填写 GitHub PAT', 'error'); return; }
 
   state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
   state.isAdministrator = (user.is_admin === true);
@@ -1087,14 +1102,14 @@ function setupDropZone() {
 
 function handleFileSelect(files) {
   if (!state.isAdministrator) { showToast('请先登录为管理员才能上传', 'error'); return; }
-  if (!state.loginPat) { showToast('️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
+  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
   const preview = document.getElementById('uploadPreview');
   preview.classList.remove('hidden');
   preview.innerHTML = '';
   state.pendingFiles = [];
 
   for (const file of files) {
-    if (file.size > CONFIG.MAX_FILE_SIZE) { showToast(`️ ${file.name} 超过 20MB 限制，已跳过`, 'error'); continue; }
+    if (file.size > CONFIG.MAX_FILE_SIZE) { showToast(`⚠️ ${file.name} 超过 20MB 限制，已跳过`, 'error'); continue; }
     const mediaType = guessMediaType(file.name);
     if (mediaType === 'unknown') { showToast(`⚠️ ${file.name} 格式不支持`, 'error'); continue; }
 
@@ -1151,7 +1166,7 @@ async function uploadFiles() {
   if (state.pendingFiles.length === 0) return;
   if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。请退出登录后重新登录并填写 PAT。', 'error'); return; }
   const uploader = document.getElementById('uploadUserSelect').value;
-  const uploaderInfo = state.users.find(u => (u.username || u) === uploader) || { username: uploader, nickname: uploader };
+  const uploaderInfo = state.users.find(u => (u.username || u.name) === uploader) || { username: uploader, nickname: uploader };
 
   const progressEl = document.getElementById('uploadProgress');
   progressEl.classList.remove('hidden');
@@ -1175,7 +1190,7 @@ async function uploadFiles() {
     } catch (e) {
       console.error(`上传 ${pf.filename} 失败:`, e);
       failed++;
-      showToast(` ${pf.filename} 上传失败: ${e.message}`, 'error');
+      showToast(`❌ ${pf.filename} 上传失败: ${e.message}`, 'error');
     }
   }
 
@@ -1198,7 +1213,7 @@ async function uploadFiles() {
   if (failed === 0) {
     showToast(`🎉 成功上传 ${success} 个文件！`, 'success');
   } else {
-    showToast(`️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
+    showToast(`⚠️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
   }
 }
 
@@ -1373,7 +1388,7 @@ async function confirmDelete() {
     closeDeleteModal();
     closeLightbox();
     await loadManifest();
-    showToast(`️ 已删除 ${item.filename}`, 'success');
+    showToast(`✅ 已删除 ${item.filename}`, 'success');
   } catch (e) {
     closeDeleteModal();
     showToast(`删除失败: ${e.message}`, 'error');
@@ -1392,7 +1407,7 @@ function renderUserFilters() {
   });
   state.users.forEach(u => {
     const name = u.nickname || u.username || u.name || 'Unknown';
-    const key = u.username || u;
+    const key = u.username || u.name;
     if (!uploaders.has(key)) uploaders.set(key, name);
   });
   uploaders.forEach((nick, key) => {
@@ -1401,6 +1416,9 @@ function renderUserFilters() {
 }
 
 function renderAlbum() {
+  // 每次渲染时更新用户筛选器选项
+  renderUserFilters();
+
   const sort = document.getElementById('sortSelect').value;
   const userFilter = document.getElementById('userFilter').value;
   const dateFrom = document.getElementById('dateFrom').value;
@@ -1443,7 +1461,7 @@ function renderAlbum() {
     const url = getFileUrl(f);
     const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
     const isVideo = mediaType === 'video';
-    const icon = isVideo ? '🎬' : '️';
+    const icon = isVideo ? '🎬' : '🖼️';
     const ext = f.filename.split('.').pop().toUpperCase();
     const time = new Date(f.uploadedAt);
     const timeStr = formatTime(time);
@@ -1452,7 +1470,7 @@ function renderAlbum() {
 
     return `
       <div class="gallery-item" onclick="openLightbox(${idx})">
-        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除"></button>` : ''}
+        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除">🗑️</button>` : ''}
         <span class="file-type-badge">${icon} ${ext}</span>
         ${isVideo
           ? `<video src="${url}" muted preload="metadata"></video>`
@@ -1528,8 +1546,8 @@ function updateLightboxContent() {
   const time = new Date(f.uploadedAt);
   document.getElementById('lightboxInfo').innerHTML = `
     <strong>${f.filename}</strong>
-    &nbsp;·&nbsp; 👤 ${f.uploaderNickname || f.uploader || '未知'}
-    &nbsp;·&nbsp;  ${formatTimeFull(time)}
+    &nbsp;·&nbsp;  ${f.uploaderNickname || f.uploader || '未知'}
+    &nbsp;·&nbsp; 🕐 ${formatTimeFull(time)}
     &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
   `;
 
@@ -1653,7 +1671,7 @@ function showToast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const icons = { success: '✅', error: '', info: 'ℹ️' };
   toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
