@@ -1,4 +1,8 @@
 [
-  { "username": "yixing.li", "password": "Liyixing980406", "nickname": "李奕兴" },
-  { "username": "skg", "password": "skg2026", "nickname": "沈凯歌" }
+  { "username": "yixing.li", 
+    "password": "Liyixing980406", 
+    "nickname": "李奕兴" },
+  { "username": "skg",
+    "password": "skg2026", 
+    "nickname": "沈凯歌" }
 ]
