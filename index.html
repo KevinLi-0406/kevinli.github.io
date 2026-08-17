@@ -137,7 +137,7 @@
 <link rel="preconnect" href="https://api.github.com" crossorigin>
   <link rel="dns-prefetch" href="https://api.github.com">
 </head>
-<body>
+<body class="logged-out">
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="#top"><div class="brand-icon">K</div><div class="brand-text">KevinLI-0406<span>Personal Portal</span></div></a>
@@ -146,7 +146,12 @@
         <a class="nav-link" href="#skills">技能</a>
         <a class="nav-link" href="#projects">项目</a>
         <a class="nav-link" href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">GitHub</a>
-      <a class="cp-toggle-btn" href="Resources/index2077.html" title="切换到赛博朋克风格">CyberPunk!</a></nav>
+      <a class="cp-toggle-btn" href="Resources/index2077.html" title="切换到赛博朋克风格">CyberPunk!</a>
+      <div id="userProfile" style="display:none; align-items:center; gap:12px;">
+        <span id="currentNickname" style="color:var(--blue); font-weight:700; font-size:13px;"></span>
+        <a href="#" class="nav-link" onclick="logout(); return false;">退出登录</a>
+      </div>
+      </nav>
     </div>
   </header>
   <main>
@@ -260,12 +265,195 @@
   </main>
   <footer><div class="container">© 2026 KevinLI-0406 · Hosted by <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></div></footer>
 
+  <!-- 登录模态框 -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <h2 style="margin: 0 0 10px; font-size: 24px; color: var(--blue);">🔐 登录 Portal</h2>
+      <p style="color: var(--muted); margin-bottom: 24px; font-size: 14px;">请选择用户并输入密码以访问系统</p>
+      <div class="login-form">
+        <label style="display:block; text-align:left; color:var(--muted); font-size:12px; margin-bottom:6px; font-weight:600;">选择用户</label>
+        <select id="usernameInput" style="width: 100%; padding: 12px 36px 12px 12px; margin-bottom: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none; cursor: pointer;">
+          <option value="" disabled selected>正在加载用户列表…</option>
+        </select>
+        <label style="display:block; text-align:left; color:var(--muted); font-size:12px; margin-bottom:6px; font-weight:600;">密码</label>
+        <div class="password-wrapper">
+          <input type="password" id="passwordInput" placeholder="请输入密码" style="width: 100%; padding: 12px 42px 12px 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; outline: none;">
+          <button type="button" id="togglePassword" class="toggle-password" onclick="togglePwdVisibility()" aria-label="显示/隐藏密码">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2C4.5 2 1.7 4.1.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14s6.3-2.1 7.5-5c.2-.5.2-1 0-1.5C14.3 4.1 11.5 2 8 2zm0 10c-2.8 0-5.1-1.7-6-4 .9-2.3 3.2-4 6-4s5.1 1.7 6 4c-.9 2.3-3.2 4-6 4z"/>
+              <path d="M8 5.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM4.5 8a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/>
+            </svg>
+          </button>
+        </div>
+        <p id="loginError" style="color: #f85149; font-size: 13px; min-height: 20px;"></p>
+        <button class="button button-primary" onclick="handleLogin()" style="width: 100%; min-width: auto;">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      transition: opacity 0.3s;
+    }
+    body.logged-in .login-overlay { display: none; }
+    .login-box {
+      width: 100%; max-width: 360px; padding: 32px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;
+    }
+    .login-form input:focus, .login-form select:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(88,166,255,.2); }
+    .login-form select {
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+    .login-form select option { background: var(--bg); color: var(--text); padding: 8px; }
+    body.logged-out main { display: none; }
+    body.logged-out footer { display: none; }
+
+    /* 密码可视化切换按钮样式 */
+    .password-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .2s, background .2s;
+    }
+    .toggle-password:hover {
+      color: var(--text);
+      background: rgba(88,166,255,.12);
+    }
+    .toggle-password svg {
+      pointer-events: none;
+    }
+  </style>
+
     <script>
     var GITHUB_USERNAME = "KevinLI-0406";
     var GITHUB_REPO = "kevinli.github.io";
     var PROJECTS_DIR = "Projects";
     var PAGES_BASE = "https://" + GITHUB_USERNAME + ".github.io/" + GITHUB_REPO;
 
+    // ===== 登录相关逻辑 =====
+    var USERS_DB = null;
+
+    // 初始化登录状态
+    (function initLogin() {
+      var session = localStorage.getItem("portal_session");
+      if (session) {
+        var data = JSON.parse(session);
+        document.body.classList.remove("logged-out");
+        document.body.classList.add("logged-in");
+        document.getElementById("currentNickname").textContent = "欢迎, " + data.nickname;
+        document.getElementById("userProfile").style.display = "flex";
+      } else {
+        document.getElementById("userProfile").style.display = "none";
+      }
+    })();
+
+    // 获取用户列表（从 user.json）
+    async function fetchUsers() {
+      if (USERS_DB) return USERS_DB;
+      try {
+        var url = PAGES_BASE + "/user.json?v=" + Date.now();
+        var res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to load users");
+        USERS_DB = await res.json();
+        return USERS_DB;
+      } catch(e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    // 用 user.json 的数据填充用户名下拉框
+    async function populateUserDropdown() {
+      var users = await fetchUsers();
+      var select = document.getElementById('usernameInput');
+      if (!users || users.length === 0) {
+        select.innerHTML = '<option value="" disabled selected>暂无可用用户</option>';
+        document.getElementById('loginError').textContent = '无法加载用户列表，请检查网络连接。';
+        return;
+      }
+      var html = '<option value="" disabled selected>请选择用户…</option>';
+      for (var i = 0; i < users.length; i++) {
+        html += '<option value="' + users[i].username + '">' + users[i].username + '</option>';
+      }
+      select.innerHTML = html;
+    }
+
+    // 页面加载时填充下拉框
+    populateUserDropdown();
+
+    // 密码框回车登录
+    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    // 密码明文/密文切换
+    function togglePwdVisibility() {
+      var input = document.getElementById('passwordInput');
+      var icon = document.getElementById('eyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M.143 2.31a.75.75 0 011.047-.173l13.5 9.5a.75.75 0 01-.878 1.218L.312 3.355A.75.75 0 01.143 2.31z"/><path d="M6.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958a3.984 3.984 0 00-.497-1.07A4.098 4.098 0 008 6.25a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5zM8 12c-2.8 0-5.1-1.7-6-4a6.658 6.658 0 011.766-2.226L2.29 4.72A8.146 8.146 0 00.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14c1.162 0 2.24-.27 3.194-.74l-1.503-1.057A4.154 4.154 0 018 12.5V12zm4.71-3.39a3.984 3.984 0 01-.497 1.07 4.098 4.098 0 01-2.789 1.284c.17-.416.378-.81.618-1.176A5.508 5.508 0 008 5.5a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958a3.984 3.984 0 00-.497-1.07A4.098 4.098 0 008 6.25a3.988 3.988 0 00-2.789 1.284 3.984 3.984 0 00-.497 1.07l-1.362-.958c.17-.416.378-.81.618-1.176A5.508 5.508 0 016.068 4.5a4.197 4.197 0 013.863 0 5.508 5.508 0 012.1 1.966c.24.367.448.76.618 1.176l-1.362.958zM8 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/><path d="M15.5 7c-.2-.5-.2-1 0-1.5-.128.358-.336.696-.612 1.016l.612-.516z"/><path d="M13.234 5.774a8.146 8.146 0 011.266 1.726c.2.5.2 1 0 1.5C14.3 11.9 11.5 14 8 14c-.702 0-1.378-.1-2.02-.286l1.574-1.106c.144.028.292.042.446.042 2.8 0 5.1-1.7 6-4-.166-.39-.39-.756-.663-1.093l-.103-.083z"/><path d="M8 9.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>';
+      } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M8 2C4.5 2 1.7 4.1.5 7c-.2.5-.2 1 0 1.5C1.7 11.9 4.5 14 8 14s6.3-2.1 7.5-5c.2-.5.2-1 0-1.5C14.3 4.1 11.5 2 8 2zm0 10c-2.8 0-5.1-1.7-6-4 .9-2.3 3.2-4 6-4s5.1 1.7 6 4c-.9 2.3-3.2 4-6 4z"/><path d="M8 5.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM4.5 8a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/>';
+      }
+    }
+
+    async function handleLogin() {
+      var u = document.getElementById("usernameInput").value;
+      var p = document.getElementById("passwordInput").value;
+      document.getElementById("loginError").textContent = "";
+
+      if (!u) {
+        document.getElementById("loginError").textContent = "请先选择一个用户";
+        return;
+      }
+
+      var users = await fetchUsers();
+      if (!users) {
+        document.getElementById("loginError").textContent = "获取用户信息失败，请稍后重试。";
+        return;
+      }
+
+      var found = users.find(function(x) { return x.username === u && x.password === p; });
+      if (found) {
+        localStorage.setItem("portal_session", JSON.stringify({ username: found.username, nickname: found.nickname }));
+        document.body.classList.remove("logged-out");
+        document.body.classList.add("logged-in");
+        document.getElementById("currentNickname").textContent = "欢迎, " + found.nickname;
+        document.getElementById("userProfile").style.display = "flex";
+      } else {
+        document.getElementById("loginError").textContent = "密码错误，请重试";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("portal_session");
+      location.reload();
+    }
+
+    // ===== 项目加载逻辑（原有，保持不变）=====
     var CATEGORY_MAP = {
       "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
       "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
