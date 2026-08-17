@@ -238,6 +238,24 @@
   }
   .modal-box .field-group { margin-bottom: 4px; }
 
+  /* ========== 密码明文/密文切换按钮 ========== */
+  .pwd-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+    user-select: none;
+  }
+  .pwd-toggle-btn:hover { color: var(--accent-light); }
+
   /* ========== 按钮 ========== */
   .btn {
     padding: 10px 20px;
@@ -509,19 +527,25 @@
 
     <div class="field-group">
       <label class="field-label">选择用户</label>
-      <select id="loginUserSelect">
+      <select id="loginUserSelect" onchange="onLoginUserChange()">
         <option value="">-- 请选择用户 --</option>
       </select>
     </div>
 
     <div class="field-group">
       <label class="field-label">密码</label>
-      <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off">
+      <div style="position:relative;margin-bottom:12px;">
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+      </div>
     </div>
 
-    <div class="field-group">
-      <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（管理员上传/删除文件时需要）</span></label>
-      <input type="password" id="loginPat" placeholder="ghp_xxxx（可选，登录后也可补填）" autocomplete="off">
+    <div class="field-group" id="patFieldGroup" style="display:none;">
+      <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（必填，上传/删除文件时需要）</span></label>
+      <div style="position:relative;margin-bottom:12px;">
+        <input type="password" id="loginPat" placeholder="ghp_xxxx" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">👁️</button>
+      </div>
     </div>
 
     <div class="btn-row">
@@ -675,6 +699,39 @@ function guessMediaType(filename) {
   return 'unknown';
 }
 
+// ==================== 密码明文/密文切换 ====================
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+// ==================== 登录用户切换 → PAT 字段显隐 ====================
+function onLoginUserChange() {
+  const selectedUsername = document.getElementById('loginUserSelect').value;
+  const user = state.users.find(u => (u.username || u.name) === selectedUsername);
+  const patGroup = document.getElementById('patFieldGroup');
+
+  if (user && user.is_admin === true) {
+    // 管理员：显示 PAT 字段，必填
+    patGroup.style.display = '';
+  } else {
+    // 非管理员或未选择：隐藏 PAT 字段并清空
+    patGroup.style.display = 'none';
+    document.getElementById('loginPat').value = '';
+    // 重置 PAT 眼睛按钮
+    const patInput = document.getElementById('loginPat');
+    patInput.type = 'password';
+    const patToggle = patGroup.querySelector('.pwd-toggle-btn');
+    if (patToggle) patToggle.textContent = '👁️';
+  }
+}
+
 // ==================== 登录 / 登出 ====================
 function checkLoginStatus() {
   const username = localStorage.getItem('album_username');
@@ -712,7 +769,13 @@ function checkLoginStatus() {
 function openLoginModal() {
   // 清除之前的输入
   document.getElementById('loginPassword').value = '';
+  document.getElementById('loginPassword').type = 'password';
   document.getElementById('loginPat').value = '';
+  document.getElementById('loginPat').type = 'password';
+  // 重置眼睛按钮
+  document.querySelectorAll('.pwd-toggle-btn').forEach(btn => btn.textContent = '👁️');
+  // 隐藏 PAT 字段（默认无用户选中）
+  document.getElementById('patFieldGroup').style.display = 'none';
   document.getElementById('loginModal').classList.add('active');
 }
 function closeLoginModal() {
@@ -732,6 +795,12 @@ async function doLogin() {
 
   if (!user) {
     showToast('❌ 密码错误', 'error');
+    return;
+  }
+
+  // 管理员必须填写 PAT
+  if (user.is_admin === true && !pat) {
+    showToast('⚠️ 管理员必须填写 GitHub PAT', 'error');
     return;
   }
 
