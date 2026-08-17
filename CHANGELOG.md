@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-17 21:03 (UTC+8)
+- **修改文件**：`Projects/Shared Album.html`
+- **变更类型**：修复
+- **变更描述**：修复 8 个问题：1) 登录弹窗立即显示，不再等待 loadUsers() 完成；2) 重置按钮恢复 🔁 emoji；3) 填满格子选项添加 📐 emoji；4) manifest.json 双向同步（目录有manifest没有→添加，manifest有目录没有→移除），新增 writeManifest() 通用函数；5) 布局改回垂直排列（概览→筛选器→上传→网格）；6) 图片 URL 改用 jsdelivr CDN 加速加载；7) 新增格式筛选器（JPEG/PNG/GIF/WEBP等），动态提取文件扩展名；8) 灯箱切换动效 CSS 选择器从 .lightbox-media-content 修正为 .lightbox-content，滑动距离增大到 80px
+- **影响范围**：登录流程、manifest 同步、页面布局、图片加载速度、筛选功能、灯箱动效
+- **关联请求**：用户反馈 8 个问题（登录慢/emoji消失/manifest不一致/布局/加载慢/格式筛选/灯箱动效）
+
 ### 2024-01-15 14:30 (UTC+8)
 - **修改文件**：`Projects/Shared Album.html`
 - **变更类型**：修复
