@@ -453,7 +453,7 @@
       location.reload();
     }
 
-    // ===== 项目加载逻辑（原有，保持不变）=====
+    // ===== 项目加载逻辑 =====
     var CATEGORY_MAP = {
       "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
       "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
@@ -471,7 +471,30 @@
     var CAT_ZH = {"cat.fun":"趣味互动","cat.tool":"工具应用","cat.profile":"个人信息","cat.content":"内容展示","cat.nav":"导航工具","cat.data":"数据分析","cat.other":"其他"};
     var ICONS = {"cat.fun":"⚡","cat.tool":"🛠️","cat.profile":"👤","cat.content":"🚀","cat.nav":"🔗","cat.data":"📊"};
 
+    // ===== 外部项目配置文件 =====
+    var projectConfig = null;
+
+    async function fetchProjectConfig() {
+      try {
+        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/project-config.json?v=" + Date.now();
+        var resp = await fetch(url);
+        if (!resp.ok) return null;
+        projectConfig = await resp.json();
+        return projectConfig;
+      } catch(e) {
+        console.warn("project-config.json 加载失败，使用内置默认配置", e);
+        return null;
+      }
+    }
+
     function getCatKey(name) {
+      if (projectConfig && projectConfig.projects) {
+        for (var i = 0; i < projectConfig.projects.length; i++) {
+          var p = projectConfig.projects[i];
+          var pName = p.file.replace(/\.html?$/i, "");
+          if (pName === name) return p.category || "cat.other";
+        }
+      }
       var low = name.toLowerCase();
       for (var k in CATEGORY_MAP) { if (low.includes(k)) return CATEGORY_MAP[k]; }
       return "cat.other";
@@ -490,7 +513,7 @@
       var resp = await fetch(url);
       if (!resp.ok) {
         if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" 目录未找到');
-        throw new Error("GitHub API 错误 (" + resp.status + ")");
+        throw new Error("GitHub API Error (" + resp.status + ")");
       }
       var files = (await resp.json()).filter(function(f) {
         return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
@@ -521,8 +544,9 @@
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
         var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
+        var icon = it.customIcon || getIcon(it.name);
         html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
-        html += '<div class="project-icon">' + getIcon(it.name) + '</div>';
+        html += '<div class="project-icon">' + esc(icon) + '</div>';
         html += '<h3>' + esc(it.name) + '</h3>';
         html += '<p>点击打开此项目页面</p>';
         html += '<div class="project-meta">';
@@ -542,16 +566,31 @@
       var fb = document.getElementById("filterBar");
       fb.style.display = "flex";
       fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + (CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
+        cats.map(function(c) { return '<option value="' + c + '">' + esc(CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
       document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
     }
 
     (async function() {
       try {
+        await fetchProjectConfig();
+        if (projectConfig) {
+          if (projectConfig.defaults && projectConfig.defaults.categories) {
+            var dc = projectConfig.defaults.categories;
+            for (var k in dc) { CAT_ZH[k] = dc[k].label; ICONS[k] = dc[k].icon; }
+          }
+        }
         var files = await fetchProjectFiles();
         allItems = files.map(function(f) {
           var name = f.name.replace(/\.html?$/i, "");
-          return { file: f, name: name, catKey: getCatKey(name) };
+          var customIcon = null;
+          if (projectConfig && projectConfig.projects) {
+            for (var j = 0; j < projectConfig.projects.length; j++) {
+              var p = projectConfig.projects[j];
+              var pName = p.file.replace(/\.html?$/i, "");
+              if (pName === name) { customIcon = p.icon || null; break; }
+            }
+          }
+          return { file: f, name: name, catKey: getCatKey(name), customIcon: customIcon };
         });
         buildFilter();
         applyFilters();

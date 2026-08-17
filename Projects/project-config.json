@@ -1,0 +1,27 @@
+{
+  "_说明": "项目图标与分类配置文件。直接在 projects 数组中添加/修改项目。icon 支持任意 Emoji。",
+
+  "defaults": {
+    "icon": "📄",
+    "categories": {
+      "cat.fun":     { "label": "趣味互动", "icon": "⚡" },
+      "cat.tool":    { "label": "工具应用", "icon": "🛠️" },
+      "cat.profile": { "label": "个人信息", "icon": "👤" },
+      "cat.content": { "label": "内容展示", "icon": "🚀" },
+      "cat.nav":     { "label": "导航工具", "icon": "🔗" },
+      "cat.data":    { "label": "数据分析", "icon": "📊" },
+      "cat.photo":   { "label": "相册分享", "icon": "📷" },
+      "cat.sport":   { "label": "体育运动", "icon": "🏎️" },
+      "cat.other":   { "label": "其他",     "icon": "📄" }
+    }
+  },
+
+  "projects": [
+    { "file": "宝可梦图鉴.html",            "icon": "⚡", "category": "cat.fun" },
+    { "file": "奇怪的杰尼龟.html",          "icon": "🐢", "category": "cat.fun" },
+    { "file": "奇怪的小鸡毛.html",          "icon": "🐔", "category": "cat.fun" },
+    { "file": "F1数据大全.html",            "icon": "🏎️", "category": "cat.sport" },
+    { "file": "CherryStudio CSS 编辑器.html", "icon": "🎨", "category": "cat.tool" },
+    { "file": "Shared Album.html",          "icon": "📷", "category": "cat.photo" }
+  ]
+}
