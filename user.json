@@ -2,6 +2,9 @@
   { "username": "Kevin", 
     "password": "Liyixing980406", 
     "nickname": "李奕兴" },
+    { "username": "Test", 
+    "password": "test001", 
+    "nickname": "访客用户" },
   { "username": "Kira",
     "password": "skg2026", 
     "nickname": "沈凯歌（李奕兴的老婆）" }
