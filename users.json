@@ -1,0 +1,17 @@
+[
+  {
+    "username": "kevin",
+    "nickname": "李奕兴 (管理员)",
+    "password": "123456"
+  },
+  {
+    "username": "guest",
+    "nickname": "访客",
+    "password": "888888"
+  },
+  {
+    "username": "kevinli",
+    "nickname": "Kevin Portal",
+    "password": "20240604"
+  }
+]
