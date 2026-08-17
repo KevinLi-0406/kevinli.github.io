@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📸 共享相册</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* ========== 全局 & 暗色主题 ========== */
+  :root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-card: #222639;
+    --bg-hover: #2a2f45;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --text-primary: #e8e8f0;
+    --text-secondary: #9a9ab0;
+    --border: #2d3150;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f39c12;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ========== 滚动条 ========== */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ========== 加载动画 ========== */
+  .loader {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ========== 瀑布流网格 ========== */
+  .masonry-grid {
+    columns: 4;
+    column-gap: 16px;
+    padding: 0 16px;
+  }
+  @media (max-width: 1280px) { .masonry-grid { columns: 3; } }
+  @media (max-width: 900px) { .masonry-grid { columns: 2; } }
+  @media (max-width: 560px) { .masonry-grid { columns: 1; } }
+
+  .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    transition: transform 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .masonry-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(108,92,231,0.25);
+  }
+  .masonry-item img, .masonry-item video {
+    width: 100%;
+    display: block;
+    transition: opacity 0.3s;
+  }
+  .masonry-item .overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding: 40px 12px 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .masonry-item:hover .overlay { opacity: 1; }
+  .masonry-item .file-type-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .masonry-item .delete-btn {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(231,76,60,0.85);
+    backdrop-filter: blur(6px);
+    border: none; color: white;
+    width: 30px; height: 30px;
+    border-radius: 50%; cursor: pointer;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .masonry-item:hover .delete-btn { opacity: 1; }
+
+  /* ========== 灯箱 ========== */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.95);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox-content {
+    max-width: 92vw; max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none; color: white;
+    font-size: 32px; cursor: pointer; z-index: 10000;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.1); }
+  .lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.1); border: none; color: white;
+    width: 50px; height: 50px; border-radius: 50%;
+    font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+  .lightbox-nav.prev { left: 20px; }
+  .lightbox-nav.next { right: 20px; }
+  .lightbox-info {
+    text-align: center; margin-top: 16px;
+    color: var(--text-secondary); font-size: 14px;
+  }
+  .lightbox-info strong { color: var(--text-primary); }
+
+  /* ========== 上传区域 ========== */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: pointer;
+    background: var(--bg-secondary);
+  }
+  .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(108,92,231,0.08);
+  }
+  .drop-zone-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ========== 筛选面板 ========== */
+  .filter-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .filter-panel select, .filter-panel input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-panel select:focus, .filter-panel input:focus {
+    border-color: var(--accent);
+  }
+  .filter-panel label {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ========== 登录弹窗 ========== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 8000;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%; max-width: 440px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .modal-box h2 {
+    font-size: 22px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal-box p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+  .modal-box input, .modal-box select {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .modal-box input:focus, .modal-box select:focus { border-color: var(--accent); }
+  .modal-box .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+
+  /* ========== 按钮 ========== */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-light); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ========== Toast 通知 ========== */
+  .toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
+    min-width: 280px;
+  }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.info { border-left: 4px solid var(--accent); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ========== 进度条 ========== */
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  /* ========== 空状态 ========== */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+  }
+  .empty-state .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-state h3 { font-size: 20px; color: var(--text-primary); margin-bottom: 8px; }
+
+  /* ========== 统计卡片 ========== */
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    flex: 1; min-width: 140px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: var(--accent-light); }
+  .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ========== 文件预览列表（上传前） ========== */
+  .upload-preview-list {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 16px;
+  }
+  .upload-preview-item {
+    width: 100px; height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+  .upload-preview-item img, .upload-preview-item video {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .upload-preview-item .remove-btn {
+    position: absolute; top: 2px; right: 2px;
+    background: rgba(231,76,60,0.9); border: none;
+    color: white; width: 20px; height: 20px;
+    border-radius: 50%; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 640px) {
+    .filter-panel { flex-direction: column; align-items: stretch; }
+    .filter-panel > div { width: 100%; }
+    .masonry-grid { column-gap: 10px; padding: 0 10px; }
+    .masonry-item { margin-bottom: 10px; }
+    .lightbox-nav { width: 40px; height: 40px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Toast 容器 ==================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ==================== 顶部导航 ==================== -->
+<header class="border-b border-[var(--border)]" style="background:var(--bg-secondary);">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span style="font-size:28px;">📸</span>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;">共享相册</h1>
+        <p style="font-size:12px;color:var(--text-secondary);">Shared Album on GitHub</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="modeBadge" class="text-xs px-3 py-1 rounded-full font-semibold"
+            style="background:rgba(108,92,231,0.2);color:var(--accent-light);">👁️ 游客模式</span>
+      <button id="adminBtn" class="btn btn-primary btn-sm" onclick="openLoginModal()">🔐 管理员登录</button>
+      <button id="logoutBtn" class="btn btn-secondary btn-sm hidden" onclick="logout()">退出</button>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 统计栏 ==================== -->
+<div class="max-w-7xl mx-auto px-4 mt-6">
+  <div class="flex gap-4 flex-wrap" id="statsBar">
+    <div class="stat-card">
+      <div class="num" id="statTotal">0</div>
+      <div class="label">总文件</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statImages">0</div>
+      <div class="label">图片</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statVideos">0</div>
+      <div class="label">视频</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statUsers">0</div>
+      <div class="label">上传用户</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 筛选 & 排序栏 ==================== -->
+<div class="max-w-7xl mx-auto px-4 mt-4">
+  <div class="filter-panel">
+    <div>
+      <label class="block mb-1">排序</label>
+      <select id="sortSelect" onchange="renderAlbum()">
+        <option value="time-desc">🕐 最新优先</option>
+        <option value="time-asc">🕐 最早优先</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">上传用户</label>
+      <select id="userFilter" onchange="renderAlbum()">
+        <option value="">全部用户</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">开始日期</label>
+      <input type="date" id="dateFrom" onchange="renderAlbum()">
+    </div>
+    <div>
+      <label class="block mb-1">结束日期</label>
+      <input type="date" id="dateTo" onchange="renderAlbum()">
+    </div>
+    <div>
+      <label class="block mb-1">类型</label>
+      <select id="typeFilter" onchange="renderAlbum()">
+        <option value="">全部</option>
+        <option value="image">🖼️ 图片</option>
+        <option value="video">🎬 视频</option>
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button class="btn btn-secondary btn-sm" onclick="clearFilters()">🔄 重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 上传面板（管理员） ==================== -->
+<div id="uploadPanel" class="max-w-7xl mx-auto px-4 mt-6 hidden">
+  <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:24px;">
+    <h2 style="font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
+    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">文件将上传至 <code style="background:var(--bg-card);padding:2px 8px;border-radius:4px;">Resources/Media/</code> · 单文件上限 20MB</p>
+
+    <!-- 选择上传用户 -->
+    <div class="mb-4">
+      <label style="color:var(--text-secondary);font-size:13px;font-weight:600;display:block;margin-bottom:6px;">选择上传者</label>
+      <select id="uploadUserSelect" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:10px 14px;border-radius:10px;font-size:14px;width:100%;max-width:300px;outline:none;">
+      </select>
+    </div>
+
+    <!-- 拖拽区域 -->
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-zone-icon">📁</div>
+      <p style="font-size:16px;font-weight:600;margin-bottom:4px;">拖拽文件到这里，或点击选择</p>
+      <p style="font-size:13px;color:var(--text-secondary);">支持 JPG / PNG / GIF / WEBP / MP4 / WEBM / MOV</p>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(this.files)">
+    </div>
+
+    <!-- 文件预览 -->
+    <div id="uploadPreview" class="upload-preview-list hidden"></div>
+
+    <!-- 上传进度 -->
+    <div id="uploadProgress" class="hidden mt-4">
+      <div class="flex items-center justify-between mb-1">
+        <span style="font-size:13px;color:var(--text-secondary);" id="progressText">上传中...</span>
+        <span style="font-size:13px;color:var(--accent-light);" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- 上传按钮 -->
+    <div class="mt-4">
+      <button id="uploadBtn" class="btn btn-primary" onclick="uploadFiles()" disabled>🚀 开始上传</button>
+      <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 相册网格 ==================== -->
+<main class="max-w-7xl mx-auto px-4 mt-6 pb-20">
+  <div id="loadingState" class="flex flex-col items-center justify-center py-32">
+    <div class="loader mb-4"></div>
+    <p style="color:var(--text-secondary);font-size:14px;">正在加载相册...</p>
+  </div>
+  <div id="albumGrid" class="masonry-grid hidden"></div>
+  <div id="emptyState" class="empty-state hidden">
+    <div class="icon">📭</div>
+    <h3>相册是空的</h3>
+    <p>还没有人上传文件，快来上传第一张照片吧！</p>
+  </div>
+  <div id="noResultState" class="empty-state hidden">
+    <div class="icon">🔍</div>
+    <h3>没有找到匹配的文件</h3>
+    <p>试试调整筛选条件</p>
+  </div>
+</main>
+
+<!-- ==================== 灯箱 ==================== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">‹</button>
+  <button class="lightbox-nav next" onclick="navigateLightbox(1)">›</button>
+  <div id="lightboxMedia"></div>
+  <div class="lightbox-info" id="lightboxInfo"></div>
+</div>
+
+<!-- ==================== 登录弹窗 ==================== -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <h2>🔐 管理员登录</h2>
+    <p>输入 GitHub Personal Access Token (PAT) 以启用上传功能。<br>Token 仅存储在本地浏览器中。</p>
+    <input type="password" id="loginPat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <select id="loginUserSelect">
+      <option value="">-- 选择身份 --</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1;" onclick="doLogin()">登录</button>
+      <button class="btn btn-secondary" onclick="closeLoginModal()">取消</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-secondary);margin-top:12px;">
+      ⚠️ PAT 需要 <code style="background:var(--bg-card);padding:1px 6px;border-radius:3px;">repo</code> 权限 · 不要分享给他人
+    </p>
+  </div>
+</div>
+
+<!-- ==================== 删除确认弹窗 ==================== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h2>🗑️ 确认删除</h2>
+    <p>确定要删除 <strong id="deleteFileName"></strong> 吗？此操作不可恢复。</p>
+    <div class="btn-row">
+      <button class="btn btn-danger" style="flex:1;" onclick="confirmDelete()">确认删除</button>
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ==================== 配置 ====================
+const CONFIG = {
+  OWNER: 'KevinLi-0406',
+  REPO: 'kevinli.github.io',
+  BRANCH: 'main',
+  MEDIA_PATH: 'Resources/Media',
+  MANIFEST_PATH: 'Resources/Media/manifest.json',
+  USER_JSON: 'user.json',
+  MAX_FILE_SIZE: 20 * 1024 * 1024, // 20MB
+};
+
+// ==================== 全局状态 ====================
+let state = {
+  isAdministrator: false,
+  loginPat: '',
+  currentUser: null,        // 当前登录的管理员用户
+  users: [],                // user.json 中的用户列表
+  mediaFiles: [],           // manifest.json 中的文件列表
+  pendingFiles: [],         // 待上传的文件列表
+  lightboxIndex: -1,        // 灯箱当前索引
+  filteredFiles: [],        // 筛选后的文件列表
+  deletingFile: null,       // 待删除的文件
+};
+
+// ==================== 初始化 ====================
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadUsers();
+  checkLoginStatus();
+  await loadManifest();
+  setupDropZone();
+  renderUserFilters();
+});
+
+// ==================== 加载 user.json ====================
+async function loadUsers() {
+  try {
+    const resp = await fetch(`https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.USER_JSON}`);
+    if (!resp.ok) throw new Error('Failed to load user.json');
+    const data = await resp.json();
+    state.users = Array.isArray(data) ? data : data.users || [];
+
+    // 填充登录弹窗的用户选择
+    const loginSelect = document.getElementById('loginUserSelect');
+    const uploadSelect = document.getElementById('uploadUserSelect');
+    state.users.forEach(u => {
+      const name = u.nickname || u.username || u.name || 'Unknown';
+      const val = u.username || u;
+      loginSelect.innerHTML += `<option value="${val}">${name}</option>`;
+      uploadSelect.innerHTML += `<option value="${val}">${name}</option>`;
+    });
+  } catch (e) {
+    console.warn('加载 user.json 失败，使用备用方式:', e);
+    // 如果 user.json 加载失败，创建一个默认用户
+    state.users = [{ username: 'anonymous', nickname: '匿名' }];
+    document.getElementById('loginUserSelect').innerHTML = '<option value="anonymous">匿名</option>';
+    document.getElementById('uploadUserSelect').innerHTML = '<option value="anonymous">匿名</option>';
+  }
+}
+
+// ==================== 加载 manifest.json ====================
+async function loadManifest() {
+  showLoading(true);
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.MANIFEST_PATH}`;
+    const resp = await fetch(rawUrl);
+    if (resp.ok) {
+      state.mediaFiles = await resp.json();
+    } else {
+      // manifest.json 不存在，尝试通过 GitHub API 扫描目录
+      state.mediaFiles = await scanMediaDirectory();
+    }
+  } catch (e) {
+    console.warn('加载 manifest.json 失败，尝试扫描目录:', e);
+    state.mediaFiles = await scanMediaDirectory();
+  }
+  showLoading(false);
+  renderAlbum();
+}
+
+// ==================== 扫描 Media 目录（备用） ====================
+async function scanMediaDirectory() {
+  const token = state.loginPat ? `token ${state.loginPat}` : '';
+  const headers = token ? { Authorization: token } : {};
+
+  try {
+    const api = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MEDIA_PATH}?ref=${CONFIG.BRANCH}`;
+    const resp = await fetch(api, { headers });
+    if (!resp.ok) return [];
+    const items = await resp.json();
+    const files = [];
+    const ignoreFiles = ['.gitkeep', 'manifest.json'];
+    for (const item of items) {
+      if (ignoreFiles.includes(item.name)) continue;
+      files.push({
+        filename: item.name,
+        path: item.path,
+        download_url: item.download_url,
+        type: guessMediaType(item.name),
+        size: item.size,
+        uploader: 'unknown',
+        uploaderNickname: '未知',
+        uploadedAt: item.commit ? item.commit.author.date : new Date().toISOString(),
+        sha: item.sha,
+        // 通过 GitHub API 获取的 URL（需要认证）
+        github_url: item.html_url,
+      });
+    }
+    return files;
+  } catch (e) {
+    console.error('扫描目录失败:', e);
+    return [];
+  }
+}
+
+function guessMediaType(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  const imageExts = ['jpg','jpeg','png','gif','webp','bmp','svg','ico','tiff','avif'];
+  const videoExts = ['mp4','webm','mov','avi','mkv','m4v','ogv'];
+  if (imageExts.includes(ext)) return 'image';
+  if (videoExts.includes(ext)) return 'video';
+  return 'unknown';
+}
+
+// ==================== 登录 / 登出 ====================
+function checkLoginStatus() {
+  const pat = localStorage.getItem('album_pat');
+  const user = localStorage.getItem('album_user');
+  if (pat && user) {
+    state.loginPat = pat;
+    state.currentUser = JSON.parse(user);
+    state.isAdministrator = true;
+    updateUIForAdmin();
+  }
+}
+
+function openLoginModal() {
+  document.getElementById('loginModal').classList.add('active');
+}
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('active');
+}
+
+async function doLogin() {
+  const pat = document.getElementById('loginPat').value.trim();
+  const username = document.getElementById('loginUserSelect').value;
+  if (!pat) { showToast('请输入 PAT', 'error'); return; }
+  if (!username) { showToast('请选择用户身份', 'error'); return; }
+
+  // 验证 PAT 是否有效
+  try {
+    const resp = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `token ${pat}` }
+    });
+    if (!resp.ok) throw new Error('PAT 无效');
+  } catch (e) {
+    showToast('PAT 验证失败，请检查后重试', 'error');
+    return;
+  }
+
+  // 保存登录状态
+  state.loginPat = pat;
+  state.currentUser = { username, nickname: state.users.find(u => (u.username||u)===username)?.nickname || username };
+  state.isAdministrator = true;
+  localStorage.setItem('album_pat', pat);
+  localStorage.setItem('album_user', JSON.stringify(state.currentUser));
+
+  closeLoginModal();
+  updateUIForAdmin();
+  showToast(`👋 欢迎回来, ${state.currentUser.nickname}！`, 'success');
+}
+
+function logout() {
+  state.isAdministrator = false;
+  state.loginPat = '';
+  state.currentUser = null;
+  localStorage.removeItem('album_pat');
+  localStorage.removeItem('album_user');
+  updateUIForVisitor();
+  showToast('已退出管理员模式', 'info');
+}
+
+function updateUIForAdmin() {
+  document.getElementById('modeBadge').textContent = `🔑 ${state.currentUser?.nickname || '管理员'}`;
+  document.getElementById('modeBadge').style.background = 'rgba(46,204,113,0.2)';
+  document.getElementById('modeBadge').style.color = '#2ecc71';
+  document.getElementById('adminBtn').classList.add('hidden');
+  document.getElementById('logoutBtn').classList.remove('hidden');
+  document.getElementById('uploadPanel').classList.remove('hidden');
+}
+
+function updateUIForVisitor() {
+  document.getElementById('modeBadge').textContent = '👁️ 游客模式';
+  document.getElementById('modeBadge').style.background = 'rgba(108,92,231,0.2)';
+  document.getElementById('modeBadge').style.color = 'var(--accent-light)';
+  document.getElementById('adminBtn').classList.remove('hidden');
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('uploadPanel').classList.add('hidden');
+}
+
+// ==================== 拖拽上传 ====================
+function setupDropZone() {
+  const dz = document.getElementById('dropZone');
+  ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('drag-over'); }));
+  ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('drag-over'); }));
+  dz.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    handleFileSelect(files);
+  });
+}
+
+function handleFileSelect(files) {
+  if (!state.isAdministrator) {
+    showToast('请先登录为管理员才能上传', 'error');
+    return;
+  }
+  const preview = document.getElementById('uploadPreview');
+  preview.classList.remove('hidden');
+  preview.innerHTML = '';
+
+  state.pendingFiles = [];
+  for (const file of files) {
+    if (file.size > CONFIG.MAX_FILE_SIZE) {
+      showToast(`⚠️ ${file.name} 超过 20MB 限制，已跳过`, 'error');
+      continue;
+    }
+    const mediaType = guessMediaType(file.name);
+    if (mediaType === 'unknown') {
+      showToast(`⚠️ ${file.name} 格式不支持`, 'error');
+      continue;
+    }
+
+    // 避免重复文件名
+    const uniqueName = generateUniqueFilename(file.name);
+    state.pendingFiles.push({
+      file,
+      filename: uniqueName,
+      mediaType,
+    });
+
+    // 创建预览
+    const item = document.createElement('div');
+    item.className = 'upload-preview-item';
+    if (mediaType === 'image') {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.onload = () => URL.revokeObjectURL(img.src);
+      item.appendChild(img);
+    } else {
+      const vid = document.createElement('video');
+      vid.src = URL.createObjectURL(file);
+      vid.onloadeddata = () => URL.revokeObjectURL(vid.src);
+      vid.muted = true;
+      item.appendChild(vid);
+    }
+    const rm = document.createElement('button');
+    rm.className = 'remove-btn';
+    rm.textContent = '✕';
+    rm.onclick = () => {
+      state.pendingFiles = state.pendingFiles.filter(f => f.file !== file);
+      item.remove();
+      updateUploadBtn();
+    };
+    item.appendChild(rm);
+    preview.appendChild(item);
+  }
+
+  updateUploadBtn();
+}
+
+function generateUniqueFilename(originalName) {
+  const ext = originalName.split('.').pop();
+  const base = originalName.replace(/\.[^.]+$/, '');
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 6);
+  return `${base}_${timestamp}_${random}.${ext}`;
+}
+
+function updateUploadBtn() {
+  document.getElementById('uploadBtn').disabled = state.pendingFiles.length === 0;
+}
+
+function clearUpload() {
+  state.pendingFiles = [];
+  document.getElementById('uploadPreview').classList.add('hidden');
+  document.getElementById('uploadPreview').innerHTML = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadProgress').classList.add('hidden');
+  updateUploadBtn();
+}
+
+// ==================== 上传文件到 GitHub ====================
+async function uploadFiles() {
+  if (state.pendingFiles.length === 0) return;
+  const uploader = document.getElementById('uploadUserSelect').value;
+  const uploaderInfo = state.users.find(u => (u.username || u) === uploader) || { username: uploader, nickname: uploader };
+
+  const progressEl = document.getElementById('uploadProgress');
+  progressEl.classList.remove('hidden');
+  document.getElementById('uploadBtn').disabled = true;
+
+  let success = 0;
+  let failed = 0;
+
+  for (let i = 0; i < state.pendingFiles.length; i++) {
+    const pf = state.pendingFiles[i];
+    const pct = Math.round(((i) / state.pendingFiles.length) * 100);
+    document.getElementById('progressText').textContent = `上传中 (${i + 1}/${state.pendingFiles.length}): ${pf.filename}`;
+    document.getElementById('progressPercent').textContent = `${pct}%`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+
+    try {
+      await uploadSingleFile(pf, uploaderInfo);
+      success++;
+    } catch (e) {
+      console.error(`上传 ${pf.filename} 失败:`, e);
+      failed++;
+      showToast(`❌ ${pf.filename} 上传失败: ${e.message}`, 'error');
+    }
+  }
+
+  document.getElementById('progressText').textContent = `上传完成！成功 ${success}，失败 ${failed}`;
+  document.getElementById('progressPercent').textContent = '100%';
+  document.getElementById('progressFill').style.width = '100%';
+
+  clearUpload();
+  await loadManifest(); // 刷新相册
+  if (failed === 0) {
+    showToast(`🎉 成功上传 ${success} 个文件！`, 'success');
+  } else {
+    showToast(`⚠️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
+  }
+}
+
+async function uploadSingleFile(fileInfo, uploaderInfo) {
+  const { file, filename, mediaType } = fileInfo;
+
+  // 1. 将文件转为 base64
+  const base64 = await fileToBase64(file);
+
+  // 2. 上传文件到 GitHub
+  const fileResp = await fetch(
+    `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MEDIA_PATH}/${filename}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${state.loginPat}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `[Album] Upload ${filename} by ${uploaderInfo.nickname}`,
+        content: base64,
+        branch: CONFIG.BRANCH,
+      }),
+    }
+  );
+
+  if (!fileResp.ok) {
+    const err = await fileResp.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${fileResp.status}`);
+  }
+
+  // 3. 更新 manifest.json
+  await updateManifest({
+    filename,
+    uploader: uploaderInfo.username || uploaderInfo,
+    uploaderNickname: uploaderInfo.nickname || uploaderInfo.username || uploaderInfo,
+    uploadedAt: new Date().toISOString(),
+    type: mediaType === 'image' ? 'image' : 'video',
+    size: file.size,
+    path: `${CONFIG.MEDIA_PATH}/${filename}`,
+    mediaType,
+  });
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // 去掉 data URL 前缀
+      const b64 = reader.result.split(',')[1];
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ==================== 管理 manifest.json ====================
+async function updateManifest(newEntry) {
+  // 1. 获取当前 manifest
+  let manifest = [];
+  try {
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`;
+    const resp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat}` } });
+    if (resp.ok) {
+      const data = await resp.json();
+      manifest = JSON.parse(atob(data.content.replace(/\s/g, '')));
+    }
+  } catch (e) {
+    console.warn('读取 manifest.json 失败，创建新文件:', e);
+  }
+
+  // 2. 添加新条目
+  manifest.push(newEntry);
+
+  // 3. 写回
+  const content = btoa(JSON.stringify(manifest, null, 2));
+  const sha = manifest.length > 0 ? await getManifestSha() : null;
+
+  const putResp = await fetch(
+    `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${state.loginPat}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `[Album] Update manifest for ${newEntry.filename}`,
+        content,
+        sha: sha || undefined,
+        branch: CONFIG.BRANCH,
+      }),
+    }
+  );
+
+  if (!putResp.ok) {
+    const err = await putResp.json().catch(() => ({}));
+    throw new Error(err.message || `manifest update failed: HTTP ${putResp.status}`);
+  }
+}
+
+async function getManifestSha() {
+  try {
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`;
+    const resp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat}` } });
+    if (resp.ok) {
+      const data = await resp.json();
+      return data.sha;
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+// ==================== 删除文件 ====================
+async function deleteFile(item) {
+  if (!state.isAdministrator) {
+    showToast('只有管理员可以删除文件', 'error');
+    return;
+  }
+  state.deletingFile = item;
+  document.getElementById('deleteFileName').textContent = item.filename;
+  document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('active');
+  state.deletingFile = null;
+}
+
+async function confirmDelete() {
+  const item = state.deletingFile;
+  if (!item) return;
+
+  try {
+    // 1. 获取文件 SHA
+    const apiPath = item.path || `${CONFIG.MEDIA_PATH}/${item.filename}`;
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}?ref=${CONFIG.BRANCH}`;
+    const fileResp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat}` } });
+
+    if (!fileResp.ok) throw new Error(`无法获取文件信息: ${fileResp.status}`);
+    const fileData = await fileResp.json();
+
+    // 2. 删除文件
+    const delResp = await fetch(
+      `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `token ${state.loginPat}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `[Album] Delete ${item.filename}`,
+          sha: fileData.sha,
+          branch: CONFIG.BRANCH,
+        }),
+      }
+    );
+
+    if (!delResp.ok) throw new Error('删除失败');
+
+    // 3. 更新 manifest
+    let manifest = state.mediaFiles.filter(f => f.filename !== item.filename);
+    const content = btoa(JSON.stringify(manifest, null, 2));
+    let manifestSha = null;
+    try {
+      const mResp = await fetch(
+        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}?ref=${CONFIG.BRANCH}`,
+        { headers: { Authorization: `token ${state.loginPat}` } }
+      );
+      if (mResp.ok) manifestSha = (await mResp.json()).sha;
+    } catch (e) { /* manifest may not exist yet */ }
+
+    if (manifestSha) {
+      await fetch(
+        `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MANIFEST_PATH}`,
+        {
+          method: 'PUT',
+          headers: { Authorization: `token ${state.loginPat}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `[Album] Remove ${item.filename} from manifest`, content, sha: manifestSha, branch: CONFIG.BRANCH }),
+        }
+      );
+    }
+
+    // 4. 刷新
+    closeDeleteModal();
+    await loadManifest();
+    showToast(`🗑️ 已删除 ${item.filename}`, 'success');
+  } catch (e) {
+    closeDeleteModal();
+    showToast(`删除失败: ${e.message}`, 'error');
+  }
+}
+
+// ==================== 渲染相册 ====================
+function renderUserFilters() {
+  const select = document.getElementById('userFilter');
+  // 保留第一个"全部用户"选项
+  select.innerHTML = '<option value="">全部用户</option>';
+
+  // 从已上传的文件中提取出现的上传者
+  const uploaders = new Map();
+  state.mediaFiles.forEach(f => {
+    const nick = f.uploaderNickname || f.uploader || '未知';
+    const key = f.uploader || 'unknown';
+    uploaders.set(key, nick);
+  });
+
+  // 也加入 user.json 中的用户
+  state.users.forEach(u => {
+    const name = u.nickname || u.username || u.name || 'Unknown';
+    const key = u.username || u;
+    if (!uploaders.has(key)) uploaders.set(key, name);
+  });
+
+  uploaders.forEach((nick, key) => {
+    select.innerHTML += `<option value="${key}">${nick}</option>`;
+  });
+}
+
+function renderAlbum() {
+  const sort = document.getElementById('sortSelect').value;
+  const userFilter = document.getElementById('userFilter').value;
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  const typeFilter = document.getElementById('typeFilter').value;
+
+  // 筛选
+  let files = [...state.mediaFiles];
+
+  if (userFilter) {
+    files = files.filter(f => (f.uploader || '') === userFilter);
+  }
+  if (dateFrom) {
+    files = files.filter(f => new Date(f.uploadedAt) >= new Date(dateFrom));
+  }
+  if (dateTo) {
+    const end = new Date(dateTo);
+    end.setHours(23, 59, 59, 999);
+    files = files.filter(f => new Date(f.uploadedAt) <= end);
+  }
+  if (typeFilter) {
+    files = files.filter(f => (f.mediaType || f.type) === typeFilter);
+  }
+
+  // 排序
+  files.sort((a, b) => {
+    const ta = new Date(a.uploadedAt).getTime();
+    const tb = new Date(b.uploadedAt).getTime();
+    return sort === 'time-asc' ? ta - tb : tb - ta;
+  });
+
+  state.filteredFiles = files;
+
+  // 更新统计
+  document.getElementById('statTotal').textContent = state.mediaFiles.length;
+  document.getElementById('statImages').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='image').length;
+  document.getElementById('statVideos').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='video').length;
+  const userSet = new Set(state.mediaFiles.map(f => f.uploader || 'unknown'));
+  document.getElementById('statUsers').textContent = userSet.size;
+
+  // 渲染网格
+  const grid = document.getElementById('albumGrid');
+  const empty = document.getElementById('emptyState');
+  const noResult = document.getElementById('noResultState');
+
+  if (state.mediaFiles.length === 0) {
+    grid.classList.add('hidden');
+    empty.classList.remove('hidden');
+    noResult.classList.add('hidden');
+    return;
+  }
+
+  if (files.length === 0) {
+    grid.classList.add('hidden');
+    empty.classList.add('hidden');
+    noResult.classList.remove('hidden');
+    return;
+  }
+
+  grid.classList.remove('hidden');
+  empty.classList.add('hidden');
+  noResult.classList.add('hidden');
+
+  grid.innerHTML = files.map((f, idx) => {
+    const url = getFileUrl(f);
+    const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
+    const isVideo = mediaType === 'video';
+    const icon = isVideo ? '🎬' : '🖼️';
+    const ext = f.filename.split('.').pop().toUpperCase();
+    const time = new Date(f.uploadedAt);
+    const timeStr = formatTime(time);
+    const uploader = f.uploaderNickname || f.uploader || '未知';
+    const sizeStr = formatFileSize(f.size);
+
+    return `
+      <div class="masonry-item" onclick="openLightbox(${idx})">
+        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除">🗑</button>` : ''}
+        <span class="file-type-badge">${icon} ${ext}</span>
+        ${isVideo
+          ? `<video src="${url}" muted preload="metadata"></video>`
+          : `<img src="${url}" alt="${f.filename}" loading="lazy">`
+        }
+        <div class="overlay">
+          <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.filename}</p>
+          <p style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+            👤 ${uploader} · 🕐 ${timeStr} · 📦 ${sizeStr}
+          </p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getFileUrl(f) {
+  if (f.download_url) return f.download_url;
+  return `https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.MEDIA_PATH}/${f.filename}`;
+}
+
+function clearFilters() {
+  document.getElementById('sortSelect').value = 'time-desc';
+  document.getElementById('userFilter').value = '';
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  document.getElementById('typeFilter').value = '';
+  renderAlbum();
+}
+
+// ==================== 灯箱 ====================
+function openLightbox(index) {
+  state.lightboxIndex = index;
+  updateLightboxContent();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+  // 停止视频播放
+  const media = document.getElementById('lightboxMedia');
+  if (media) media.innerHTML = '';
+  state.lightboxIndex = -1;
+}
+
+function navigateLightbox(direction) {
+  const len = state.filteredFiles.length;
+  if (len === 0) return;
+  state.lightboxIndex = (state.lightboxIndex + direction + len) % len;
+  updateLightboxContent();
+}
+
+function updateLightboxContent() {
+  const f = state.filteredFiles[state.lightboxIndex];
+  if (!f) return;
+
+  const url = getFileUrl(f);
+  const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
+  const container = document.getElementById('lightboxMedia');
+  const info = document.getElementById('lightboxInfo');
+
+  if (mediaType === 'video') {
+    container.innerHTML = `<video class="lightbox-content" controls autoplay src="${url}"></video>`;
+  } else {
+    container.innerHTML = `<img class="lightbox-content" src="${url}" alt="${f.filename}">`;
+  }
+
+  const time = new Date(f.uploadedAt);
+  info.innerHTML = `
+    <strong>${f.filename}</strong>
+    &nbsp;·&nbsp; 👤 ${f.uploaderNickname || f.uploader || '未知'}
+    &nbsp;·&nbsp; 🕐 ${formatTimeFull(time)}
+    &nbsp;·&nbsp; 📦 ${formatFileSize(f.size)}
+    &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
+  `;
+}
+
+// 键盘事件
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') navigateLightbox(-1);
+  if (e.key === 'ArrowRight') navigateLightbox(1);
+});
+
+// 点击灯箱背景关闭
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+
+// ==================== 工具函数 ====================
+function formatTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return `${Math.floor(diff/60000)} 分钟前`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)} 小时前`;
+  if (diff < 604800000) return `${Math.floor(diff/86400000)} 天前`;
+  return date.toLocaleDateString('zh-CN');
+}
+
+function formatTimeFull(date) {
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '未知';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function showLoading(show) {
+  document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    toast.style.transition = 'all 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+</script>
+
+</body>
+</html>
