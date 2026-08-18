@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 19:45 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修改
+- **变更描述**：将地图瓦片从 OpenStreetMap 更换为高德地图（https://webrd01.is.autonavi.com/appmaptile），解决国内用户访问 OpenStreetMap 不稳定的问题；移除 Nominatim 搜索功能（国内不可用），改为纯手动点击地图选点；导航功能从 Google Maps 改为高德地图；坐标输入框增加提示，支持从其他地图复制坐标粘贴
+- **影响范围**：地图显示、地点搜索、导航功能
+- **关联请求**：用户反馈"这个地图我好像访问不了，有没有别的地图接口"
+
 ### 2026-08-18 19:27 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修改
@@ -16,14 +23,14 @@ All notable changes to this project will be documented in this file.
 - **变更类型**：新增
 - **变更描述**：新增行程助手应用，支持记录想去的地方（餐厅、咖啡、景点、购物等），通过浏览器 Geolocation API 获取当前位置，使用 Haversine 公式计算距离并按远近排序，支持一键导航到 Google Maps，数据存储在 localStorage 中，完全响应式设计适配手机访问
 - **影响范围**：新增独立应用模块
-- **关联请求**：用户要求"做一个行程记录软件，把想去的地方餐厅全部输入进去，让AI读取我们现在的所在位置并且列出我们离哪里最近，要求手机访问的兼容性要好"
+- **关联请求**：用户要求"做一个行程记录软件，把想去的地方餐厅全部输入进去，让 AI 读取我们现在的所在位置并且列出我们离哪里最近，要求手机访问的兼容性要好"
 
 ### 2026-08-18 15:00 (UTC+8)
 - **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
 - **变更类型**：修复
 - **变更描述**：修复上传文件后上传者显示"未知"的 bug。根因：`loadManifest()` 双向同步逻辑在上传后重新扫描目录时，由于 GitHub API 缓存/延迟，将已上传文件误判为"新文件"，通过 `scanMediaDirectory()` 以 `uploader: 'unknown'` 重新添加并写回 manifest，覆盖了 `uploadFiles()` 设置的正确上传者信息。修复方案：在 `loadManifest()` 同步逻辑中添加去重检查（`updated.some()` 判断），若文件已存在于 manifest 中则跳过目录扫描的重复添加；同时修复 manifest.json 中 4 个被错误标记为 "unknown" 的条目（一起走、戳戳、擦擦头、躺躺），恢复为 Kevin/Kevin Li
 - **影响范围**：上传流程、manifest 同步逻辑、相册上传者显示
-- **关联请求**：用户反馈"登陆了kevin账号并且上传了图片，但是相册展示依然显示上传人是未知"
+- **关联请求**：用户反馈"登陆了 kevin 账号并且上传了图片，但是相册展示依然显示上传人是未知"
 
 ### 2026-08-18 14:43 (UTC+8)
 - **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
@@ -33,26 +40,26 @@ All notable changes to this project will be documented in this file.
 - **关联请求**：用户反馈"上传用户可选用户应和 admin 清单一致"、"上传用户应为当前登录用户"、"manifest 有两个上传者但页面只显示一个"
 
 ### 2026-08-18 14:13 (UTC+8)
-- **修改文件**：`Projects/F1数据大全.html`
+- **修改文件**：`Projects/F1 数据大全.html`
 - **变更类型**：修改
 - **变更描述**：全面重构 F1 数据大全页面，集成 `Resources/F1-images/` 下的本地图片资源：1) 车手档案卡片集成 22 位车手官方半身照（Drivers 文件夹）；2) 赛车与车队卡片集成 11 支车队赛车照片（Teams 文件夹）；3) 赛程日历集成 15 张真实赛道地图（Tracks 文件夹），无图片的赛道保留 SVG fallback；4) 更新车手数据为 2026 赛季 22 人阵容（新增 Audi、Cadillac、Racing Bulls 等车队）；5) 美化页面设计，增加 hover 动画、渐变背景、切角效果等视觉增强
 - **影响范围**：F1 数据大全页面的所有模块（赛程、积分榜、车手档案、赛车展示）
-- **关联请求**：用户要求"根据 F1-images 文件夹下的车手/车队/赛道/赛车图片，应用并美化 F1数据大全.html"
+- **关联请求**：用户要求"根据 F1-images 文件夹下的车手/车队/赛道/赛车图片，应用并美化 F1 数据大全.html"
 
 ### 2026-08-18 13:51 (UTC+8)
 - **修改文件**：`Resources/Media/manifest.json`
 - **变更类型**：删除
 - **变更描述**：从 manifest.json 中移除所有 27 个以 2026 开头的 png 文件条目（包括 alpine/astonmartin/audi/cadillac/ferrari/haas/mclaren/mercedes/racingbulls/redbull/williams 等车队的赛车图和车辆图），manifest 现仅保留 3 个 gif 文件
 - **影响范围**：共享相册的图片索引，相册中将不再显示这些 2026 png 文件
-- **关联请求**：用户要求"把 Resources/Media/ 路径下所有2026开头的png文件都删除"
+- **关联请求**：用户要求"把 Resources/Media/ 路径下所有 2026 开头的 png 文件都删除"
 - **备注**：由于 GitHub MCP 工具不支持文件删除操作，本次仅更新了 manifest.json 移除索引记录。实际的 png 二进制文件仍存在于仓库中，如需彻底删除请通过 GitHub 网页或 git 命令行操作
 
 ### 2024-01-15 21:03 (UTC+8)
 - **修改文件**：`Projects/Shared Album.html`
 - **变更类型**：修复
-- **变更描述**：修复 8 个问题：1) 登录弹窗立即显示，不再等待 loadUsers() 完成；2) 重置按钮恢复 🔁 emoji；3) 填满格子选项添加 📐 emoji；4) manifest.json 双向同步（目录有manifest没有→添加，manifest有目录没有→移除），新增 writeManifest() 通用函数；5) 布局改回垂直排列（概览→筛选器→上传→网格）；6) 图片 URL 改用 jsdelivr CDN 加速加载；7) 新增格式筛选器（JPEG/PNG/GIF/WEBP等），动态提取文件扩展名；8) 灯箱切换动效 CSS 选择器从 .lightbox-media-content 修正为 .lightbox-content，滑动距离增大到 80px
+- **变更描述**：修复 8 个问题：1) 登录弹窗立即显示，不再等待 loadUsers() 完成；2) 重置按钮恢复 🔁 emoji；3) 填满格子选项添加 📐 emoji；4) manifest.json 双向同步（目录有 manifest 没有→添加，manifest 有目录没有→移除），新增 writeManifest() 通用函数；5) 布局改回垂直排列（概览→筛选器→上传→网格）；6) 图片 URL 改用 jsdelivr CDN 加速加载；7) 新增格式筛选器（JPEG/PNG/GIF/WEBP 等），动态提取文件扩展名；8) 灯箱切换动效 CSS 选择器从 .lightbox-media-content 修正为 .lightbox-content，滑动距离增大到 80px
 - **影响范围**：登录流程、manifest 同步、页面布局、图片加载速度、筛选功能、灯箱动效
-- **关联请求**：用户反馈 8 个问题（登录慢/emoji消失/manifest不一致/布局/加载慢/格式筛选/灯箱动效）
+- **关联请求**：用户反馈 8 个问题（登录慢/emoji 消失/manifest 不一致/布局/加载慢/格式筛选/灯箱动效）
 
 ### 2024-01-15 14:30 (UTC+8)
 - **修改文件**：`Projects/Shared Album.html`
