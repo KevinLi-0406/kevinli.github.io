@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 15:00 (UTC+8)
+- **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
+- **变更类型**：修复
+- **变更描述**：修复上传文件后上传者显示"未知"的 bug。根因：`loadManifest()` 双向同步逻辑在上传后重新扫描目录时，由于 GitHub API 缓存/延迟，将已上传文件误判为"新文件"，通过 `scanMediaDirectory()` 以 `uploader: 'unknown'` 重新添加并写回 manifest，覆盖了 `uploadFiles()` 设置的正确上传者信息。修复方案：在 `loadManifest()` 同步逻辑中添加去重检查（`updated.some()` 判断），若文件已存在于 manifest 中则跳过目录扫描的重复添加；同时修复 manifest.json 中 4 个被错误标记为 "unknown" 的条目（一起走、戳戳、擦擦头、躺躺），恢复为 Kevin/Kevin Li
+- **影响范围**：上传流程、manifest 同步逻辑、相册上传者显示
+- **关联请求**：用户反馈"登陆了kevin账号并且上传了图片，但是相册展示依然显示上传人是未知"
+
 ### 2026-08-18 14:43 (UTC+8)
 - **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
 - **变更类型**：修复
