@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2X 工单快速访问</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .history h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+        }
+
+        .history-item .job-number {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-item .timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 B2X 工单快速访问</h1>
+        <p class="subtitle">输入工单号，一键自动登录并进入工单详情</p>
+
+        <div class="input-group">
+            <label for="jobNumber">工单号</label>
+            <input type="text" id="jobNumber" placeholder="请输入工单号" autocomplete="off">
+        </div>
+
+        <button id="launchBtn" onclick="launchJob()">🚀 启动自动访问</button>
+
+        <div id="status" class="status"></div>
+
+        <div class="history" id="historySection" style="display: none;">
+            <h3>📋 最近访问</h3>
+            <div class="history-list" id="historyList"></div>
+        </div>
+
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>在上方输入框输入工单号</li>
+                <li>点击"启动自动访问"按钮</li>
+                <li>系统会自动打开 Chrome 浏览器</li>
+                <li>自动登录 B2X 系统</li>
+                <li>自动导航到 Job List History</li>
+                <li>自动搜索并进入工单详情</li>
+            </ol>
+            <p style="margin-top: 10px; color: #999; font-size: 12px;">
+                提示：首次使用可能需要几秒钟启动浏览器
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 加载历史记录
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('jobHistory') || '[]');
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+
+            historySection.style.display = 'block';
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item" onclick="fillJobNumber('${item.jobNumber}')">
+                    <span class="job-number">${item.jobNumber}</span>
+                    <span class="timestamp">${new Date(item.timestamp).toLocaleString('zh-CN')}</span>
+                </div>
+            `).join('');
+        }
+
+        // 保存历史记录
+        function saveToHistory(jobNumber) {
+            let history = JSON.parse(localStorage.getItem('jobHistory') || '[]');
+
+            // 移除重复项
+            history = history.filter(item => item.jobNumber !== jobNumber);
+
+            // 添加到开头
+            history.unshift({
+                jobNumber: jobNumber,
+                timestamp: new Date().toISOString()
+            });
+
+            // 只保留最近 10 条
+            history = history.slice(0, 10);
+
+            localStorage.setItem('jobHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        // 填充工单号
+        function fillJobNumber(jobNumber) {
+            document.getElementById('jobNumber').value = jobNumber;
+            document.getElementById('jobNumber').focus();
+        }
+
+        // 显示状态
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        // 启动工单访问
+        async function launchJob() {
+            const jobNumber = document.getElementById('jobNumber').value.trim();
+
+            if (!jobNumber) {
+                showStatus('请输入工单号', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('launchBtn');
+            btn.disabled = true;
+            showStatus('正在启动自动访问...', 'loading');
+
+            // 保存到历史记录
+            saveToHistory(jobNumber);
+
+            try {
+                // 调用本地服务器
+                const response = await fetch(`http://localhost:8765/open_job?job=${encodeURIComponent(jobNumber)}`);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showStatus(`✓ ${result.message}，浏览器将自动打开`, 'success');
+                    document.getElementById('jobNumber').value = '';
+                } else {
+                    showStatus(`✗ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus('✗ 无法连接到服务器，请先启动 b2x_server.py', 'error');
+            }
+
+            btn.disabled = false;
+        }
+
+        // 回车键触发
+        document.getElementById('jobNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                launchJob();
+            }
+        });
+
+        // 页面加载时加载历史记录
+        loadHistory();
+
+        // 自动聚焦到输入框
+        document.getElementById('jobNumber').focus();
+    </script>
+</body>
+</html>
