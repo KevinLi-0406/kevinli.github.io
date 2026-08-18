@@ -23,5 +23,6 @@
     { "file": "F1数据大全.html",            "icon": "🏎️", "category": "cat.data" },
     { "file": "CherryStudio CSS 编辑器.html", "icon": "🎨", "category": "cat.tool" },
     { "file": "共享相册.html",          "icon": "📷", "category": "cat.photo" }
+    { "file": "B2X工单查询.html",            "icon": "🔎", "category": "cat.tool" }
   ]
 }
