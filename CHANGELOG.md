@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 19:27 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修改
+- **变更描述**：为行程助手添加地图选点功能：1) 集成 Leaflet.js + OpenStreetMap 地图，支持点击地图选择位置并自动填充坐标；2) 新增地点搜索功能（使用 Nominatim API），输入地点名称即可自动定位并填充地址；3) 搜索后自动移动地图到目标位置并添加标记；4) 坐标输入框改为只读，由地图选点或搜索自动填充；5) 优化移动端地图显示体验，地图高度自适应
+- **影响范围**：添加地点弹窗的交互方式，用户不再需要手动输入坐标
+- **关联请求**：用户反馈"添加地点能通过地图选吗？我作为用户我也不知道要去的地点的坐标"
+
 ### 2026-08-18 19:21 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：新增
