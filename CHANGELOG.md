@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 19:21 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：新增
+- **变更描述**：新增行程助手应用，支持记录想去的地方（餐厅、咖啡、景点、购物等），通过浏览器 Geolocation API 获取当前位置，使用 Haversine 公式计算距离并按远近排序，支持一键导航到 Google Maps，数据存储在 localStorage 中，完全响应式设计适配手机访问
+- **影响范围**：新增独立应用模块
+- **关联请求**：用户要求"做一个行程记录软件，把想去的地方餐厅全部输入进去，让AI读取我们现在的所在位置并且列出我们离哪里最近，要求手机访问的兼容性要好"
+
 ### 2026-08-18 15:00 (UTC+8)
 - **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
 - **变更类型**：修复
@@ -33,7 +40,7 @@ All notable changes to this project will be documented in this file.
 - **关联请求**：用户要求"把 Resources/Media/ 路径下所有2026开头的png文件都删除"
 - **备注**：由于 GitHub MCP 工具不支持文件删除操作，本次仅更新了 manifest.json 移除索引记录。实际的 png 二进制文件仍存在于仓库中，如需彻底删除请通过 GitHub 网页或 git 命令行操作
 
-### 2026-08-17 21:03 (UTC+8)
+### 2024-01-15 21:03 (UTC+8)
 - **修改文件**：`Projects/Shared Album.html`
 - **变更类型**：修复
 - **变更描述**：修复 8 个问题：1) 登录弹窗立即显示，不再等待 loadUsers() 完成；2) 重置按钮恢复 🔁 emoji；3) 填满格子选项添加 📐 emoji；4) manifest.json 双向同步（目录有manifest没有→添加，manifest有目录没有→移除），新增 writeManifest() 通用函数；5) 布局改回垂直排列（概览→筛选器→上传→网格）；6) 图片 URL 改用 jsdelivr CDN 加速加载；7) 新增格式筛选器（JPEG/PNG/GIF/WEBP等），动态提取文件扩展名；8) 灯箱切换动效 CSS 选择器从 .lightbox-media-content 修正为 .lightbox-content，滑动距离增大到 80px
