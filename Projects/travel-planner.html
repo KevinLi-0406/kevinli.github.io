@@ -41,6 +41,7 @@
             display: flex; align-items: center; gap: 6px;
             font-size: 12px; background: rgba(255,255,255,0.2);
             padding: 4px 10px; border-radius: 20px;
+            cursor: pointer;
         }
 
         /* ========== 主内容区 ========== */
@@ -78,7 +79,9 @@
             font-size: 18px;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
         }
+        .map-ctrl-btn:hover { transform: scale(1.1); }
 
         /* 地图搜索框 */
         .map-search-bar {
@@ -131,11 +134,13 @@
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
             font-size: 13px;
+            transition: background 0.2s;
         }
         .search-result-item:hover { background: #f8f9ff; }
         .search-result-item:last-child { border-bottom: none; }
         .search-result-item .sr-name { font-weight: 600; color: #333; }
         .search-result-item .sr-address { font-size: 11px; color: #999; margin-top: 2px; }
+        .search-result-item .sr-dist { font-size: 11px; color: #667eea; margin-top: 2px; }
 
         /* 交通方式筛选条 */
         .transport-bar {
@@ -180,11 +185,32 @@
             padding: 14px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             display: none;
-            max-height: 180px;
+            max-height: 250px;
             overflow-y: auto;
         }
         .route-panel.active { display: block; }
         .route-panel h4 { font-size: 14px; margin-bottom: 10px; color: #333; }
+
+        /* 路线图例 */
+        .route-legend {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+        .legend-color {
+            width: 16px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
         .route-option {
             display: flex;
             align-items: center;
@@ -194,12 +220,41 @@
             margin-bottom: 6px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 2px solid transparent;
         }
         .route-option:hover { background: #eef0ff; }
+        .route-option.selected { border-color: #667eea; }
         .route-option .ro-icon { font-size: 20px; margin-right: 10px; }
         .route-option .ro-info { flex: 1; }
         .route-option .ro-time { font-weight: 700; color: #667eea; font-size: 14px; }
         .route-option .ro-dist { font-size: 11px; color: #999; }
+        .route-option .ro-detail { font-size: 11px; color: #666; margin-top: 4px; }
+
+        /* 地铁换乘详情 */
+        .transit-detail {
+            background: #f0f4ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .transit-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .transit-step:last-child { border-bottom: none; }
+        .transit-line-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .transit-walk { color: #666; font-size: 11px; }
 
         /* ========== 标签页内容 ========== */
         .tab-content { display: none; }
@@ -250,6 +305,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 12px;
+            flex-wrap: wrap;
         }
         .sort-btn {
             padding: 6px 12px;
@@ -258,6 +314,7 @@
             background: white;
             font-size: 12px;
             cursor: pointer;
+            transition: all 0.2s;
         }
         .sort-btn.active { border-color: #667eea; color: #667eea; background: #f0f4ff; }
 
@@ -296,6 +353,13 @@
         }
         .pd-dist { font-size: 11px; color: #999; }
         .pd-note { font-size: 12px; color: #666; margin-top: 4px; }
+        .pd-times { 
+            display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;
+        }
+        .pd-time-item {
+            font-size: 11px; padding: 2px 6px;
+            background: #f5f5f5; border-radius: 4px; color: #666;
+        }
         .place-actions {
             display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
         }
@@ -304,10 +368,13 @@
             border: none; border-radius: 8px;
             font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
         }
+        .pa-btn:hover { transform: scale(1.1); }
         .pa-btn.edit { background: #e8f4fd; }
         .pa-btn.nav { background: #e8f5e9; }
         .pa-btn.del { background: #fee; }
+        .pa-btn.detail { background: #f0f4ff; }
 
         /* 添加按钮（浮动） */
         .fab-add {
@@ -324,7 +391,9 @@
             cursor: pointer;
             z-index: 50;
             display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
         }
+        .fab-add:hover { transform: scale(1.1); }
 
         /* ========== 方案页 ========== */
         .plans-page { padding: 12px; }
@@ -342,7 +411,7 @@
         .plan-card .pc-name { font-size: 16px; font-weight: 600; }
         .plan-card .pc-count { font-size: 12px; color: #999; }
         .plan-card .pc-places { font-size: 13px; color: #666; }
-        .plan-card .pc-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .plan-card .pc-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .plan-card .pc-actions button {
             padding: 6px 14px; border: none; border-radius: 8px;
             font-size: 12px; cursor: pointer;
@@ -376,6 +445,36 @@
         }
         .nav-item.active { color: #667eea; }
         .nav-item .nav-icon { font-size: 22px; }
+
+        /* ========== 可拖动底部面板 ========== */
+        .draggable-panel {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 90;
+            transition: transform 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .draggable-panel.collapsed {
+            transform: translateY(calc(100% - 50px));
+        }
+        .panel-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 12px auto;
+            cursor: grab;
+        }
+        .panel-handle:active { cursor: grabbing; }
+        .panel-content {
+            padding: 0 16px 16px;
+        }
 
         /* ========== 弹窗 ========== */
         .modal-overlay {
@@ -445,6 +544,75 @@
         .btn-cancel { background: #f0f0f0; color: #666; }
         .btn-confirm { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
 
+        /* POI 详情小窗 */
+        .poi-detail-popup {
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            right: 10px;
+            z-index: 15;
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: none;
+        }
+        .poi-detail-popup.active { display: block; }
+        .poi-detail-popup .pdp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .poi-detail-popup .pdp-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .poi-detail-popup .pdp-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 50%;
+            background: #f0f0f0;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .poi-detail-popup .pdp-address {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .poi-detail-popup .pdp-category {
+            font-size: 12px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        .poi-detail-popup .pdp-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .poi-detail-popup .pdp-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .pdp-btn-add {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .pdp-btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+
         /* 加载状态 */
         .loading-overlay {
             display: none;
@@ -503,6 +671,62 @@
         }
         .map-fullscreen .main-content { display: none; }
         .map-fullscreen .bottom-nav { z-index: 91; }
+        .map-fullscreen .draggable-panel { display: none; }
+
+        /* 标记动效 */
+        .marker-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 搜索结果标记 */
+        .search-marker {
+            background: #ff4444;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 2px 6px rgba(255,68,68,0.4);
+        }
+
+        /* 地点详情弹窗 */
+        .place-detail-modal .pdm-section {
+            margin-bottom: 16px;
+        }
+        .place-detail-modal .pdm-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .place-detail-modal .pdm-times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .place-detail-modal .pdm-time-card {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .place-detail-modal .pdm-time-card .ptc-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .place-detail-modal .pdm-time-card .ptc-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .place-detail-modal .pdm-time-card .ptc-dist {
+            font-size: 11px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -510,8 +734,8 @@
     <!-- 顶部栏 -->
     <div class="top-bar">
         <h1>🗺️ 城市漫游</h1>
-        <div class="location-badge" id="locationBadge">
-            <span>📍</span>
+        <div class="location-badge" id="locationBadge" onclick="openSetLocationModal()">
+            <span></span>
             <span id="locationText">定位中...</span>
         </div>
     </div>
@@ -532,22 +756,45 @@
 
             <!-- 地图控件 -->
             <div class="map-controls">
-                <button class="map-ctrl-btn" onclick="centerToMyLocation()" title="回到我的位置">📍</button>
+                <button class="map-ctrl-btn" onclick="centerToMyLocation()" title="回到我的位置"></button>
+                <button class="map-ctrl-btn" onclick="fitAllPlaces()" title="显示所有地点">️</button>
                 <button class="map-ctrl-btn" onclick="toggleMapFullscreen()" title="全屏地图">⛶</button>
                 <button class="map-ctrl-btn" onclick="resetMapView()" title="重置视图">🔄</button>
+            </div>
+
+            <!-- POI 详情小窗 -->
+            <div class="poi-detail-popup" id="poiDetailPopup">
+                <div class="pdp-header">
+                    <div>
+                        <div class="pdp-name" id="pdpName"></div>
+                        <div class="pdp-address" id="pdpAddress"></div>
+                        <div class="pdp-category" id="pdpCategory"></div>
+                    </div>
+                    <button class="pdp-close" onclick="closePoiDetail()">✕</button>
+                </div>
+                <div class="pdp-actions">
+                    <button class="pdp-btn-cancel" onclick="closePoiDetail()">关闭</button>
+                    <button class="pdp-btn-add" onclick="addPoiFromDetail()">➕ 添加到地点</button>
+                </div>
             </div>
 
             <!-- 交通方式筛选 -->
             <div class="transport-bar" id="transportBar" style="display:none;">
                 <button class="transport-btn active" data-mode="walking" onclick="filterByTransport('walking')">🚶 步行</button>
-                <button class="transport-btn" data-mode="riding" onclick="filterByTransport('riding')">🚲 骑行</button>
+                <button class="transport-btn" data-mode="riding" onclick="filterByTransport('riding')"> 骑行</button>
                 <button class="transport-btn" data-mode="driving" onclick="filterByTransport('driving')">🚗 打车</button>
-                <button class="transport-btn" data-mode="transit" onclick="filterByTransport('transit')"> 地铁</button>
+                <button class="transport-btn" data-mode="transit" onclick="filterByTransport('transit')">🚇 地铁</button>
             </div>
 
             <!-- 路线信息面板 -->
             <div class="route-panel" id="routePanel">
                 <h4 id="routePanelTitle">路线信息</h4>
+                <div class="route-legend" id="routeLegend">
+                    <div class="legend-item"><div class="legend-color" style="background:#4CAF50;"></div>步行</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#2196F3;"></div>骑行</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#FF9800;"></div>驾车</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#9C27B0;"></div>地铁</div>
+                </div>
                 <div id="routeOptions"></div>
             </div>
         </div>
@@ -560,18 +807,23 @@
                 </div>
                 <div class="category-scroll" id="categoryScroll">
                     <button class="cat-btn active" data-cat="all" onclick="setCategory('all')">全部</button>
-                    <button class="cat-btn" data-cat="park" onclick="setCategory('park')">🌳 公园</button>
-                    <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">️ 博物馆</button>
+                    <button class="cat-btn" data-cat="park" onclick="setCategory('park')"> 公园</button>
+                    <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">🏛️ 博物馆</button>
                     <button class="cat-btn" data-cat="food" onclick="setCategory('food')">🍽️ 美食</button>
                     <button class="cat-btn" data-cat="cafe" onclick="setCategory('cafe')">☕ 咖啡</button>
-                    <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">🛍️ 购物</button>
+                    <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">️ 购物</button>
                     <button class="cat-btn" data-cat="scenic" onclick="setCategory('scenic')">🎯 景点</button>
+                    <button class="cat-btn" data-cat="hotel" onclick="setCategory('hotel')">🏨 酒店</button>
+                    <button class="cat-btn" data-cat="transport" onclick="setCategory('transport')">🚉 交通</button>
                     <button class="cat-btn" data-cat="other" onclick="setCategory('other')">📌 其他</button>
                 </div>
                 <div class="sort-bar">
                     <button class="sort-btn active" data-sort="distance" onclick="setSort('distance')">📏 距离近</button>
-                    <button class="sort-btn" data-sort="time" onclick="setSort('time')">⏱️ 耗时短</button>
-                    <button class="sort-btn" data-sort="name" onclick="setSort('name')">🔤 名称</button>
+                    <button class="sort-btn" data-sort="walkTime" onclick="setSort('walkTime')">🚶 步行</button>
+                    <button class="sort-btn" data-sort="rideTime" onclick="setSort('rideTime')">🚲 骑行</button>
+                    <button class="sort-btn" data-sort="driveTime" onclick="setSort('driveTime')">🚗 驾车</button>
+                    <button class="sort-btn" data-sort="transitTime" onclick="setSort('transitTime')">🚇 地铁</button>
+                    <button class="sort-btn" data-sort="name" onclick="setSort('name')"> 名称</button>
                 </div>
                 <div id="placeListContainer"></div>
             </div>
@@ -582,7 +834,7 @@
             <div class="plans-page">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                     <h3 style="font-size:16px;">📋 我的方案</h3>
-                    <button onclick="openSavePlanModal()" style="padding:8px 16px;border:none;border-radius:10px;background:#667eea;color:white;font-size:13px;cursor:pointer;"> 保存当前方案</button>
+                    <button onclick="openSavePlanModal()" style="padding:8px 16px;border:none;border-radius:10px;background:#667eea;color:white;font-size:13px;cursor:pointer;">💾 保存当前方案</button>
                 </div>
                 <div id="planListContainer"></div>
             </div>
@@ -603,7 +855,7 @@
     <!-- 底部导航 -->
     <div class="bottom-nav">
         <button class="nav-item active" data-tab="places" onclick="switchTab('places')">
-            <span class="nav-icon"></span>
+            <span class="nav-icon">📍</span>
             <span>地点</span>
         </button>
         <button class="nav-item" data-tab="plans" onclick="switchTab('plans')">
@@ -611,7 +863,7 @@
             <span>方案</span>
         </button>
         <button class="nav-item" data-tab="map" onclick="switchTab('map')">
-            <span class="nav-icon">🗺️</span>
+            <span class="nav-icon">️</span>
             <span>地图</span>
         </button>
     </div>
@@ -631,11 +883,13 @@
                     <label>分类</label>
                     <select id="fCategory">
                         <option value="park">🌳 公园</option>
-                        <option value="museum">🏛️ 博物馆</option>
-                        <option value="food">️ 美食</option>
+                        <option value="museum">️ 博物馆</option>
+                        <option value="food">🍽️ 美食</option>
                         <option value="cafe">☕ 咖啡</option>
                         <option value="shopping">🛍️ 购物</option>
                         <option value="scenic">🎯 景点</option>
+                        <option value="hotel"> 酒店</option>
+                        <option value="transport">🚉 交通</option>
                         <option value="other">📌 其他</option>
                     </select>
                 </div>
@@ -675,6 +929,44 @@
         </div>
     </div>
 
+    <!-- 设置当前位置弹窗 -->
+    <div class="modal-overlay" id="setLocationModal">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-title">设置当前位置</div>
+            <div class="form-group">
+                <label>方式一：自动定位</label>
+                <button onclick="autoLocate(); closeSetLocationModal();" style="width:100%;padding:12px;border:none;border-radius:10px;background:#667eea;color:white;font-size:14px;cursor:pointer;">📍 重新定位</button>
+            </div>
+            <div class="form-group">
+                <label>方式二：手动输入坐标</label>
+                <input type="text" id="manualLng" placeholder="经度 (例如: 116.397428)">
+                <input type="text" id="manualLat" placeholder="纬度 (例如: 39.90923)" style="margin-top:8px;">
+            </div>
+            <div class="form-group">
+                <label>方式三：在地图上点击</label>
+                <button onclick="enableMapClickForLocation()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#f0f4ff;color:#667eea;font-size:14px;cursor:pointer;">👆 点击地图选择</button>
+            </div>
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="closeSetLocationModal()">取消</button>
+                <button class="btn-confirm" onclick="confirmManualLocation()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 地点详情弹窗 -->
+    <div class="modal-overlay" id="placeDetailModal">
+        <div class="modal-sheet place-detail-modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="pdmTitle">地点详情</div>
+            <div id="pdmContent"></div>
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="closePlaceDetailModal()">关闭</button>
+                <button class="btn-confirm" id="pdmNavBtn" onclick="">导航</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 加载遮罩 -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
@@ -688,32 +980,48 @@
     // ============================================================
     //  全局状态
     // ============================================================
-    let map = null;              // 高德地图实例
-    let myPosition = null;       // {lng, lat} 用户当前位置
-    let places = [];             // 地点列表
-    let plans = [];              // 方案列表
-    let currentCategory = 'all'; // 当前分类筛选
-    let currentSort = 'distance';// 当前排序方式
-    let placeMarkers = {};       // {placeId: marker} 地图上的地点标记
-    let myMarker = null;         // 我的位置标记
-    let selectedPlaceId = null;  // 当前选中的地点ID（用于显示路线）
-    let currentTransport = 'walking'; // 当前交通方式
-    let drivingInstance = null;  // 驾车路线规划实例
-    let walkingInstance = null;  // 步行路线规划实例
-    let ridingInstance = null;   // 骑行路线规划实例
-    let transferInstance = null; // 公交路线规划实例
-    let geocoder = null;         // 地理编码实例
-    let placeSearch = null;      // 地点搜索实例
-    let autoComplete = null;     // 自动完成实例
+    let map = null;
+    let myPosition = null;
+    let places = [];
+    let plans = [];
+    let currentCategory = 'all';
+    let currentSort = 'distance';
+    let placeMarkers = {};
+    let myMarker = null;
+    let selectedPlaceId = null;
+    let currentTransport = 'walking';
+    let drivingInstance = null;
+    let walkingInstance = null;
+    let ridingInstance = null;
+    let transferInstance = null;
+    let geocoder = null;
+    let placeSearch = null;
+    let autoComplete = null;
+    let searchMarkers = [];
+    let currentPoiData = null;
+    let isMapClickForLocation = false;
+    let placeRouteCache = {};
 
-    // 分类图标映射
+    // 北京地铁线路颜色
+    const SUBWAY_COLORS = {
+        '1号线': '#C23A30', '2号线': '#004B87', '4号线': '#007A33',
+        '5号线': '#A400A3', '6号线': '#CFB53B', '7号线': '#F47920',
+        '8号线': '#007B7F', '9号线': '#8DC23E', '10号线': '#009B77',
+        '13号线': '#FED500', '14号线': '#D4A574', '15号线': '#5E3B99',
+        '昌平线': '#E0B0FF', '亦庄线': '#C4007D', '房山线': '#F7941D',
+        'S1线': '#8B8B8B', '首都机场线': '#A6CCE2', '大兴机场线': '#C9182B'
+    };
+
+    // 分类图标映射（与高德POI分类对应）
     const CAT_ICONS = {
-        park: '🌳', museum: '🏛️', food: '️',
-        cafe: '☕', shopping: '🛍️', scenic: '', other: '📌'
+        park: '🌳', museum: '🏛️', food: '🍽️',
+        cafe: '☕', shopping: '🛍️', scenic: '',
+        hotel: '🏨', transport: '🚉', other: ''
     };
     const CAT_NAMES = {
         park: '公园', museum: '博物馆', food: '美食',
-        cafe: '咖啡', shopping: '购物', scenic: '景点', other: '其他'
+        cafe: '咖啡', shopping: '购物', scenic: '景点',
+        hotel: '酒店', transport: '交通', other: '其他'
     };
 
     // ============================================================
@@ -729,7 +1037,6 @@
         setupMapSearch();
     });
 
-    // 从 localStorage 加载数据
     function loadData() {
         try {
             places = JSON.parse(localStorage.getItem('tp_places') || '[]');
@@ -739,7 +1046,6 @@
         }
     }
 
-    // 保存数据到 localStorage
     function saveData() {
         localStorage.setItem('tp_places', JSON.stringify(places));
         localStorage.setItem('tp_plans', JSON.stringify(plans));
@@ -751,30 +1057,28 @@
     function initMap() {
         map = new AMap.Map('map', {
             zoom: 13,
-            center: [116.397428, 39.90923], // 默认北京
+            center: [116.397428, 39.90923],
             mapStyle: 'amap://styles/normal'
         });
 
-        // 初始化插件
         geocoder = new AMap.Geocoder({});
-        placeSearch = new AMap.PlaceSearch({ pageSize: 10 });
+        placeSearch = new AMap.PlaceSearch({ pageSize: 20 });
         autoComplete = new AMap.AutoComplete({});
 
-        // 路线规划实例
         drivingInstance = new AMap.Driving({ map: map, autoFitView: false });
         walkingInstance = new AMap.Walking({ map: map, autoFitView: false });
         ridingInstance = new AMap.Riding({ map: map, autoFitView: false });
         transferInstance = new AMap.Transfer({ map: map, autoFitView: false, city: '北京' });
 
-        // 地图点击事件 - 用于添加地点
+        // 地图点击事件
         map.on('click', (e) => {
-            // 如果点击的是已有标记，不处理
-            if (e.lnglat) {
-                handleMapClick(e.lnglat.getLng(), e.lnglat.getLat());
+            if (isMapClickForLocation) {
+                setMyPositionFromMap(e.lnglat.getLng(), e.lnglat.getLat());
+                return;
             }
+            handleMapClick(e.lnglat.getLng(), e.lnglat.getLat());
         });
 
-        // 地图加载完成后，如果有地点就渲染标记
         map.on('complete', () => {
             renderPlaceMarkers();
         });
@@ -810,16 +1114,12 @@
             } else {
                 document.getElementById('locationText').textContent = '定位失败';
                 showToast('️ 定位失败，请检查权限');
-                console.error('定位失败:', result);
             }
         });
     }
 
-    // 添加我的位置标记
     function addMyMarker() {
-        if (myMarker) {
-            map.remove(myMarker);
-        }
+        if (myMarker) map.remove(myMarker);
         myMarker = new AMap.Marker({
             position: [myPosition.lng, myPosition.lat],
             content: '<div style="width:20px;height:20px;background:#667eea;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
@@ -829,7 +1129,6 @@
         myMarker.setMap(map);
     }
 
-    // 回到我的位置
     function centerToMyLocation() {
         if (myPosition) {
             map.setCenter([myPosition.lng, myPosition.lat]);
@@ -838,6 +1137,51 @@
         } else {
             autoLocate();
         }
+    }
+
+    // ============================================================
+    //  设置当前位置
+    // ============================================================
+    function openSetLocationModal() {
+        document.getElementById('setLocationModal').classList.add('active');
+    }
+
+    function closeSetLocationModal() {
+        document.getElementById('setLocationModal').classList.remove('active');
+    }
+
+    function confirmManualLocation() {
+        const lng = parseFloat(document.getElementById('manualLng').value);
+        const lat = parseFloat(document.getElementById('manualLat').value);
+        if (isNaN(lng) || isNaN(lat)) {
+            showToast('请输入有效的坐标');
+            return;
+        }
+        setMyPosition(lng, lat);
+        closeSetLocationModal();
+    }
+
+    function enableMapClickForLocation() {
+        isMapClickForLocation = true;
+        closeSetLocationModal();
+        showToast('👆 请点击地图选择位置');
+    }
+
+    function setMyPositionFromMap(lng, lat) {
+        isMapClickForLocation = false;
+        setMyPosition(lng, lat);
+        showToast(' 位置已设置');
+    }
+
+    function setMyPosition(lng, lat) {
+        myPosition = { lng, lat };
+        document.getElementById('locationText').textContent = '已设置';
+        map.setCenter([lng, lat]);
+        map.setZoom(14);
+        addMyMarker();
+        renderPlaceMarkers();
+        renderPlaceList();
+        renderMapPlaceList();
     }
 
     // ============================================================
@@ -861,11 +1205,69 @@
             return;
         }
 
-        // 否则打开添加弹窗，自动填充坐标
+        // 检查是否点击了搜索结果标记
+        let clickedSearch = null;
+        for (let sm of searchMarkers) {
+            const pos = sm.getPosition();
+            const dist = Math.sqrt(Math.pow(pos.getLng() - lng, 2) + Math.pow(pos.getLat() - lat, 2));
+            if (dist < 0.001) {
+                clickedSearch = sm._poiData;
+                break;
+            }
+        }
+
+        if (clickedSearch) {
+            showPoiDetail(clickedSearch);
+            return;
+        }
+
+        // 否则打开添加弹窗
         openAddModalWithCoords(lng, lat);
     }
 
-    // 用坐标打开添加弹窗
+    // ============================================================
+    //  POI 详情小窗
+    // ============================================================
+    function showPoiDetail(poi) {
+        currentPoiData = poi;
+        document.getElementById('pdpName').textContent = poi.name;
+        document.getElementById('pdpAddress').textContent = poi.address || '';
+        document.getElementById('pdpCategory').textContent = poi.type || '其他';
+        document.getElementById('poiDetailPopup').classList.add('active');
+
+        // 移动地图到POI位置
+        if (poi.location) {
+            map.setCenter([poi.location.getLng(), poi.location.getLat()]);
+            map.setZoom(16);
+        }
+    }
+
+    function closePoiDetail() {
+        document.getElementById('poiDetailPopup').classList.remove('active');
+        currentPoiData = null;
+    }
+
+    function addPoiFromDetail() {
+        if (!currentPoiData) return;
+        const poi = currentPoiData;
+        const lng = poi.location ? poi.location.getLng() : null;
+        const lat = poi.location ? poi.location.getLat() : null;
+
+        document.getElementById('editPlaceId').value = '';
+        document.getElementById('addModalTitle').textContent = '添加地点';
+        document.getElementById('fName').value = poi.name;
+        document.getElementById('fAddress').value = poi.address || '';
+        document.getElementById('fNote').value = '';
+        document.getElementById('fCoords').value = (lng && lat) ? `${lng.toFixed(6)}, ${lat.toFixed(6)}` : '';
+
+        autoDetectCategory(poi.address || '', poi);
+        closePoiDetail();
+        document.getElementById('addModal').classList.add('active');
+    }
+
+    // ============================================================
+    //  用坐标打开添加弹窗
+    // ============================================================
     function openAddModalWithCoords(lng, lat) {
         document.getElementById('editPlaceId').value = '';
         document.getElementById('addModalTitle').textContent = '添加地点';
@@ -875,23 +1277,22 @@
         document.getElementById('fNote').value = '';
         document.getElementById('fCoords').value = `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
 
-        // 逆地理编码获取地址
         showLoading('正在获取地址...');
         geocoder.getAddress([lng, lat], (status, result) => {
             hideLoading();
             if (status === 'complete' && result.regeocode) {
                 document.getElementById('fAddress').value = result.regeocode.formattedAddress;
-                // 自动识别分类
-                const address = result.regeocode.formattedAddress;
                 const poi = result.regeocode.pois && result.regeocode.pois[0];
-                autoDetectCategory(address, poi);
+                autoDetectCategory(result.regeocode.formattedAddress, poi);
+                if (poi && poi.name) {
+                    document.getElementById('fName').value = poi.name;
+                }
             }
         });
 
         document.getElementById('addModal').classList.add('active');
     }
 
-    // 自动识别分类
     function autoDetectCategory(address, poi) {
         const text = (address + ' ' + (poi ? poi.name : '') + ' ' + (poi ? poi.type : '')).toLowerCase();
         if (text.includes('公园') || text.includes('绿地') || text.includes('广场')) {
@@ -906,8 +1307,11 @@
             document.getElementById('fCategory').value = 'shopping';
         } else if (text.includes('景区') || text.includes('景点') || text.includes('旅游')) {
             document.getElementById('fCategory').value = 'scenic';
+        } else if (text.includes('酒店') || text.includes('宾馆') || text.includes('住宿')) {
+            document.getElementById('fCategory').value = 'hotel';
+        } else if (text.includes('地铁') || text.includes('车站') || text.includes('机场')) {
+            document.getElementById('fCategory').value = 'transport';
         }
-        // 如果有POI名称，自动填充
         if (poi && poi.name) {
             document.getElementById('fName').value = poi.name;
         }
@@ -927,12 +1331,9 @@
                 document.getElementById('searchResults').classList.remove('active');
                 return;
             }
-            debounceTimer = setTimeout(() => {
-                doAutoComplete(keyword);
-            }, 300);
+            debounceTimer = setTimeout(() => doAutoComplete(keyword), 300);
         });
 
-        // 点击外部关闭搜索结果
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.map-search-bar') && !e.target.closest('.search-results')) {
                 document.getElementById('searchResults').classList.remove('active');
@@ -943,14 +1344,7 @@
     function doAutoComplete(keyword) {
         autoComplete.search(keyword, (status, result) => {
             if (status === 'complete' && result.tips && result.tips.length > 0) {
-                const container = document.getElementById('searchResults');
-                container.innerHTML = result.tips.map(tip => `
-                    <div class="search-result-item" onclick="selectSearchResult('${tip.name}', '${tip.district || ''}', ${tip.location ? tip.location.getLng() : 0}, ${tip.location ? tip.location.getLat() : 0})">
-                        <div class="sr-name">${tip.name}</div>
-                        <div class="sr-address">${tip.district || ''} ${tip.address || ''}</div>
-                    </div>
-                `).join('');
-                container.classList.add('active');
+                renderSearchResults(result.tips);
             } else {
                 document.getElementById('searchResults').classList.remove('active');
             }
@@ -965,42 +1359,96 @@
         placeSearch.search(keyword, (status, result) => {
             hideLoading();
             if (status === 'complete' && result.poiList && result.poiList.pois.length > 0) {
-                const pois = result.poiList.pois;
-                const container = document.getElementById('searchResults');
-                container.innerHTML = pois.map(poi => `
-                    <div class="search-result-item" onclick="selectSearchResult('${poi.name}', '${poi.address}', ${poi.location.getLng()}, ${poi.location.getLat()})">
-                        <div class="sr-name">${poi.name}</div>
-                        <div class="sr-address">${poi.address}</div>
-                    </div>
-                `).join('');
-                container.classList.add('active');
+                renderSearchResults(result.poiList.pois);
             } else {
                 showToast('未找到相关地点');
             }
         });
     }
 
-    function selectSearchResult(name, address, lng, lat) {
+    function renderSearchResults(pois) {
+        // 清除旧的搜索标记
+        clearSearchMarkers();
+
+        const container = document.getElementById('searchResults');
+        let html = '';
+
+        // 按距离排序
+        let sortedPois = pois.map(p => {
+            let dist = null;
+            if (myPosition && p.location) {
+                dist = calcDistance(myPosition.lat, myPosition.lng, p.location.getLat(), p.location.getLng());
+            }
+            return { ...p, _dist: dist };
+        });
+
+        if (myPosition) {
+            sortedPois.sort((a, b) => {
+                if (a._dist === null && b._dist === null) return 0;
+                if (a._dist === null) return 1;
+                if (b._dist === null) return -1;
+                return a._dist - b._dist;
+            });
+        }
+
+        sortedPois.forEach(poi => {
+            const lng = poi.location ? poi.location.getLng() : 0;
+            const lat = poi.location ? poi.location.getLat() : 0;
+            const distStr = poi._dist !== null ? formatDist(poi._dist) : '';
+
+            html += `
+                <div class="search-result-item" onclick="selectSearchResult(${lng}, ${lat})">
+                    <div class="sr-name">${poi.name}</div>
+                    <div class="sr-address">${poi.district || ''} ${poi.address || ''}</div>
+                    ${distStr ? `<div class="sr-dist">📍 ${distStr}</div>` : ''}
+                </div>
+            `;
+
+            // 在地图上添加红点标记
+            if (lng && lat) {
+                const marker = new AMap.Marker({
+                    position: [lng, lat],
+                    content: '<div class="search-marker marker-pulse"></div>',
+                    offset: new AMap.Pixel(-8, -8),
+                    zIndex: 80
+                });
+                marker._poiData = poi;
+                marker.setMap(map);
+                searchMarkers.push(marker);
+            }
+        });
+
+        container.innerHTML = html;
+        container.classList.add('active');
+
+        // 如果有标记，调整地图视野
+        if (searchMarkers.length > 0) {
+            map.setFitView(searchMarkers, false, [50, 50, 50, 50]);
+        }
+    }
+
+    function clearSearchMarkers() {
+        for (let sm of searchMarkers) {
+            map.remove(sm);
+        }
+        searchMarkers = [];
+    }
+
+    function selectSearchResult(lng, lat) {
         document.getElementById('searchResults').classList.remove('active');
-        document.getElementById('mapSearchInput').value = name;
 
-        if (lng && lat) {
-            map.setCenter([lng, lat]);
-            map.setZoom(16);
+        // 找到对应的POI数据
+        let poi = null;
+        for (let sm of searchMarkers) {
+            const pos = sm.getPosition();
+            if (Math.abs(pos.getLng() - lng) < 0.0001 && Math.abs(pos.getLat() - lat) < 0.0001) {
+                poi = sm._poiData;
+                break;
+            }
+        }
 
-            // 直接添加到地点列表
-            const coords = `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
-            document.getElementById('editPlaceId').value = '';
-            document.getElementById('addModalTitle').textContent = '添加地点';
-            document.getElementById('fName').value = name;
-            document.getElementById('fAddress').value = address;
-            document.getElementById('fNote').value = '';
-            document.getElementById('fCoords').value = coords;
-
-            // 自动分类
-            autoDetectCategory(address + ' ' + name, null);
-
-            document.getElementById('addModal').classList.add('active');
+        if (poi) {
+            showPoiDetail(poi);
         }
     }
 
@@ -1008,7 +1456,6 @@
     //  地点标记渲染
     // ============================================================
     function renderPlaceMarkers() {
-        // 清除旧标记
         for (let pid in placeMarkers) {
             map.remove(placeMarkers[pid]);
         }
@@ -1020,7 +1467,7 @@
             const icon = CAT_ICONS[place.category] || '📌';
             const marker = new AMap.Marker({
                 position: [place.lng, place.lat],
-                content: `<div style="background:white;border-radius:12px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:18px;cursor:pointer;white-space:nowrap;">${icon} ${place.name}</div>`,
+                content: `<div style="background:white;border-radius:12px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:18px;cursor:pointer;white-space:nowrap;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">${icon} ${place.name}</div>`,
                 offset: new AMap.Pixel(-10, -30),
                 zIndex: 50
             });
@@ -1044,7 +1491,6 @@
         document.getElementById('routePanel').classList.add('active');
         document.getElementById('routePanelTitle').textContent = `📍 ${place.name}`;
 
-        // 清除旧路线
         clearRoutes();
 
         if (!myPosition) {
@@ -1057,21 +1503,21 @@
 
         showLoading('规划路线中...');
 
-        // 同时规划四种交通方式
         let results = {};
         let completed = 0;
         const total = 4;
 
-        function onRouteDone(mode, time, distance) {
-            results[mode] = { time, distance };
+        function onRouteDone(mode, time, distance, detail) {
+            results[mode] = { time, distance, detail };
             completed++;
             if (completed === total) {
                 hideLoading();
+                placeRouteCache[place.id] = results;
                 renderRouteOptions(place, results);
+                renderPlaceList();
             }
         }
 
-        // 步行
         walkingInstance.search(from, to, (status, result) => {
             if (status === 'complete' && result.routes && result.routes[0]) {
                 const r = result.routes[0];
@@ -1081,7 +1527,6 @@
             }
         });
 
-        // 骑行
         ridingInstance.search(from, to, (status, result) => {
             if (status === 'complete' && result.routes && result.routes[0]) {
                 const r = result.routes[0];
@@ -1091,7 +1536,6 @@
             }
         });
 
-        // 驾车
         drivingInstance.search(from, to, (status, result) => {
             if (status === 'complete' && result.routes && result.routes[0]) {
                 const r = result.routes[0];
@@ -1101,42 +1545,93 @@
             }
         });
 
-        // 公交
         transferInstance.search(from, to, (status, result) => {
             if (status === 'complete' && result.plans && result.plans[0]) {
                 const p = result.plans[0];
-                onRouteDone('transit', Math.round(p.time / 60), (p.distance / 1000).toFixed(1));
+                const detail = extractTransitDetail(p);
+                onRouteDone('transit', Math.round(p.time / 60), (p.distance / 1000).toFixed(1), detail);
             } else {
                 onRouteDone('transit', null, null);
             }
         });
     }
 
+    function extractTransitDetail(plan) {
+        if (!plan.segments) return null;
+        const steps = [];
+        for (let seg of plan.segments) {
+            if (seg.transit) {
+                const line = seg.transit.lines && seg.transit.lines[0];
+                if (line) {
+                    steps.push({
+                        type: 'subway',
+                        line: line.name,
+                        color: SUBWAY_COLORS[line.name] || '#9C27B0',
+                        from: seg.transit.onstation,
+                        to: seg.transit.offstation,
+                        entry: seg.transit.onstop,
+                        exit: seg.transit.offstop
+                    });
+                }
+            } else if (seg.walk) {
+                steps.push({
+                    type: 'walk',
+                    distance: (seg.walk.distance / 1000).toFixed(1)
+                });
+            }
+        }
+        return steps;
+    }
+
     function renderRouteOptions(place, results) {
         const modes = [
-            { key: 'walking', icon: '🚶', name: '步行' },
-            { key: 'riding', icon: '🚲', name: '骑行' },
-            { key: 'driving', icon: '', name: '打车' },
-            { key: 'transit', icon: '🚇', name: '地铁/公交' }
+            { key: 'walking', icon: '🚶', name: '步行', color: '#4CAF50' },
+            { key: 'riding', icon: '🚲', name: '骑行', color: '#2196F3' },
+            { key: 'driving', icon: '🚗', name: '打车', color: '#FF9800' },
+            { key: 'transit', icon: '', name: '地铁', color: '#9C27B0' }
         ];
 
-        const html = modes.map(m => {
+        let html = '';
+        modes.forEach(m => {
             const r = results[m.key];
             const timeStr = r.time ? `${r.time}分钟` : '不可达';
             const distStr = r.distance ? `${r.distance}km` : '';
-            const isActive = m.key === currentTransport ? 'style="border:2px solid #667eea;"' : '';
-            return `
-                <div class="route-option" ${isActive} onclick="highlightRoute('${m.key}')">
+            const isSelected = m.key === currentTransport ? 'selected' : '';
+
+            html += `
+                <div class="route-option ${isSelected}" onclick="highlightRoute('${m.key}')">
                     <div class="ro-icon">${m.icon}</div>
                     <div class="ro-info">
                         <div class="ro-time">${timeStr}</div>
                         <div class="ro-dist">${distStr} · ${m.name}</div>
+                        ${r.detail && m.key === 'transit' ? renderTransitDetail(r.detail) : ''}
                     </div>
                 </div>
             `;
-        }).join('');
+        });
 
         document.getElementById('routeOptions').innerHTML = html;
+    }
+
+    function renderTransitDetail(steps) {
+        if (!steps || steps.length === 0) return '';
+        let html = '<div class="transit-detail">';
+        steps.forEach(step => {
+            if (step.type === 'subway') {
+                html += `
+                    <div class="transit-step">
+                        <span class="transit-line-badge" style="background:${step.color};">${step.line}</span>
+                        <span>${step.from} → ${step.to}</span>
+                    </div>
+                `;
+                if (step.entry) html += `<div class="transit-walk">入口: ${step.entry}</div>`;
+                if (step.exit) html += `<div class="transit-walk">出口: ${step.exit}</div>`;
+            } else if (step.type === 'walk') {
+                html += `<div class="transit-step"><span class="transit-walk">🚶 步行 ${step.distance}km</span></div>`;
+            }
+        });
+        html += '</div>';
+        return html;
     }
 
     function highlightRoute(mode) {
@@ -1144,7 +1639,6 @@
         document.querySelectorAll('.transport-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
-        // 重新显示路线
         if (selectedPlaceId) {
             const place = places.find(p => p.id === selectedPlaceId);
             if (place) showPlaceRoute(place);
@@ -1174,11 +1668,25 @@
         clearRoutes();
         document.getElementById('routePanel').classList.remove('active');
         document.getElementById('transportBar').style.display = 'none';
+        closePoiDetail();
         if (myPosition) {
             map.setCenter([myPosition.lng, myPosition.lat]);
             map.setZoom(14);
         }
         showToast('🔄 视图已重置');
+    }
+
+    // ============================================================
+    //  显示所有地点
+    // ============================================================
+    function fitAllPlaces() {
+        const markers = Object.values(placeMarkers);
+        if (markers.length === 0) {
+            showToast('还没有添加地点');
+            return;
+        }
+        map.setFitView(markers, false, [50, 50, 50, 50]);
+        showToast('👁️ 已显示所有地点');
     }
 
     // ============================================================
@@ -1197,30 +1705,61 @@
         // 计算距离和耗时
         filtered = filtered.map(p => {
             let dist = null;
-            let walkTime = null;
+            let walkTime = null, rideTime = null, driveTime = null, transitTime = null;
+
             if (myPosition && p.lng && p.lat) {
                 dist = calcDistance(myPosition.lat, myPosition.lng, p.lat, p.lng);
-                walkTime = Math.round(dist / 5 * 60); // 步行约5km/h
+                walkTime = Math.round(dist / 5 * 60);
+                rideTime = Math.round(dist / 15 * 60);
+                driveTime = Math.round(dist / 40 * 60);
+                transitTime = Math.round(dist / 25 * 60 + 10);
             }
-            return { ...p, distance: dist, walkTime };
+
+            // 使用缓存的路线数据
+            const cached = placeRouteCache[p.id];
+            if (cached) {
+                if (cached.walking && cached.walking.time) walkTime = cached.walking.time;
+                if (cached.riding && cached.riding.time) rideTime = cached.riding.time;
+                if (cached.driving && cached.driving.time) driveTime = cached.driving.time;
+                if (cached.transit && cached.transit.time) transitTime = cached.transit.time;
+            }
+
+            return { ...p, distance: dist, walkTime, rideTime, driveTime, transitTime };
         });
 
         // 排序
         filtered.sort((a, b) => {
-            if (currentSort === 'distance') {
-                if (a.distance === null && b.distance === null) return 0;
-                if (a.distance === null) return 1;
-                if (b.distance === null) return -1;
-                return a.distance - b.distance;
-            } else if (currentSort === 'time') {
-                if (a.walkTime === null && b.walkTime === null) return 0;
-                if (a.walkTime === null) return 1;
-                if (b.walkTime === null) return -1;
-                return a.walkTime - b.walkTime;
-            } else if (currentSort === 'name') {
-                return a.name.localeCompare(b.name, 'zh');
+            switch(currentSort) {
+                case 'distance':
+                    if (a.distance === null && b.distance === null) return 0;
+                    if (a.distance === null) return 1;
+                    if (b.distance === null) return -1;
+                    return a.distance - b.distance;
+                case 'walkTime':
+                    if (a.walkTime === null && b.walkTime === null) return 0;
+                    if (a.walkTime === null) return 1;
+                    if (b.walkTime === null) return -1;
+                    return a.walkTime - b.walkTime;
+                case 'rideTime':
+                    if (a.rideTime === null && b.rideTime === null) return 0;
+                    if (a.rideTime === null) return 1;
+                    if (b.rideTime === null) return -1;
+                    return a.rideTime - b.rideTime;
+                case 'driveTime':
+                    if (a.driveTime === null && b.driveTime === null) return 0;
+                    if (a.driveTime === null) return 1;
+                    if (b.driveTime === null) return -1;
+                    return a.driveTime - b.driveTime;
+                case 'transitTime':
+                    if (a.transitTime === null && b.transitTime === null) return 0;
+                    if (a.transitTime === null) return 1;
+                    if (b.transitTime === null) return -1;
+                    return a.transitTime - b.transitTime;
+                case 'name':
+                    return a.name.localeCompare(b.name, 'zh');
+                default:
+                    return 0;
             }
-            return 0;
         });
 
         if (filtered.length === 0) {
@@ -1234,7 +1773,7 @@
             return;
         }
 
-        container.innerHTML = filtered.map((p, i) => `
+        container.innerHTML = filtered.map(p => `
             <div class="place-card">
                 <div class="place-avatar">${CAT_ICONS[p.category] || '📌'}</div>
                 <div class="place-detail">
@@ -1242,12 +1781,18 @@
                     <div class="pd-meta">
                         <span class="pd-tag">${CAT_NAMES[p.category] || '其他'}</span>
                         ${p.distance !== null ? `<span class="pd-dist">📍 ${formatDist(p.distance)}</span>` : ''}
-                        ${p.walkTime !== null ? `<span class="pd-dist">🚶 ${p.walkTime}分钟</span>` : ''}
+                    </div>
+                    <div class="pd-times">
+                        ${p.walkTime !== null ? `<span class="pd-time-item">🚶${p.walkTime}分</span>` : ''}
+                        ${p.rideTime !== null ? `<span class="pd-time-item">🚲${p.rideTime}分</span>` : ''}
+                        ${p.driveTime !== null ? `<span class="pd-time-item">🚗${p.driveTime}分</span>` : ''}
+                        ${p.transitTime !== null ? `<span class="pd-time-item">${p.transitTime}分</span>` : ''}
                     </div>
                     ${p.address ? `<div class="pd-note">📌 ${p.address}</div>` : ''}
                     ${p.note ? `<div class="pd-note">💬 ${p.note}</div>` : ''}
                 </div>
                 <div class="place-actions">
+                    <button class="pa-btn detail" onclick="showPlaceDetail(${p.id})" title="详情"></button>
                     <button class="pa-btn edit" onclick="editPlace(${p.id})" title="编辑">✏️</button>
                     <button class="pa-btn nav" onclick="navToPlace(${p.id})" title="导航"></button>
                     <button class="pa-btn del" onclick="deletePlace(${p.id})" title="删除">🗑️</button>
@@ -1256,11 +1801,85 @@
         `).join('');
     }
 
-    // 地图模式下的地点列表
+    // ============================================================
+    //  地点详情
+    // ============================================================
+    function showPlaceDetail(id) {
+        const place = places.find(p => p.id === id);
+        if (!place) return;
+
+        document.getElementById('pdmTitle').textContent = place.name;
+
+        const cached = placeRouteCache[place.id];
+        let walkTime = null, rideTime = null, driveTime = null, transitTime = null;
+        let walkDist = null, rideDist = null, driveDist = null, transitDist = null;
+
+        if (cached) {
+            if (cached.walking) { walkTime = cached.walking.time; walkDist = cached.walking.distance; }
+            if (cached.riding) { rideTime = cached.riding.time; rideDist = cached.riding.distance; }
+            if (cached.driving) { driveTime = cached.driving.time; driveDist = cached.driving.distance; }
+            if (cached.transit) { transitTime = cached.transit.time; transitDist = cached.transit.distance; }
+        }
+
+        let html = `
+            <div class="pdm-section">
+                <div class="pdm-section-title">基本信息</div>
+                <p style="font-size:14px;color:#333;">${CAT_ICONS[place.category] || '📌'} ${CAT_NAMES[place.category] || '其他'}</p>
+                ${place.address ? `<p style="font-size:13px;color:#666;margin-top:4px;"> ${place.address}</p>` : ''}
+                ${place.note ? `<p style="font-size:13px;color:#666;margin-top:4px;">💬 ${place.note}</p>` : ''}
+            </div>
+            <div class="pdm-section">
+                <div class="pdm-section-title">交通方式</div>
+                <div class="pdm-times-grid">
+                    <div class="pdm-time-card">
+                        <div class="ptc-icon">🚶</div>
+                        <div class="ptc-time">${walkTime ? walkTime + '分钟' : '不可达'}</div>
+                        <div class="ptc-dist">${walkDist ? walkDist + 'km' : ''}</div>
+                    </div>
+                    <div class="pdm-time-card">
+                        <div class="ptc-icon"></div>
+                        <div class="ptc-time">${rideTime ? rideTime + '分钟' : '不可达'}</div>
+                        <div class="ptc-dist">${rideDist ? rideDist + 'km' : ''}</div>
+                    </div>
+                    <div class="pdm-time-card">
+                        <div class="ptc-icon">🚗</div>
+                        <div class="ptc-time">${driveTime ? driveTime + '分钟' : '不可达'}</div>
+                        <div class="ptc-dist">${driveDist ? driveDist + 'km' : ''}</div>
+                    </div>
+                    <div class="pdm-time-card">
+                        <div class="ptc-icon"></div>
+                        <div class="ptc-time">${transitTime ? transitTime + '分钟' : '不可达'}</div>
+                        <div class="ptc-dist">${transitDist ? transitDist + 'km' : ''}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (cached && cached.transit && cached.transit.detail) {
+            html += `
+                <div class="pdm-section">
+                    <div class="pdm-section-title">地铁路线详情</div>
+                    ${renderTransitDetail(cached.transit.detail)}
+                </div>
+            `;
+        }
+
+        document.getElementById('pdmContent').innerHTML = html;
+        document.getElementById('pdmNavBtn').onclick = () => { navToPlace(id); closePlaceDetailModal(); };
+        document.getElementById('placeDetailModal').classList.add('active');
+    }
+
+    function closePlaceDetailModal() {
+        document.getElementById('placeDetailModal').classList.remove('active');
+    }
+
+    // ============================================================
+    //  地图模式下的地点列表
+    // ============================================================
     function renderMapPlaceList() {
         const container = document.getElementById('mapPlaceList');
         if (places.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="es-icon">️</div><p>添加地点后会在地图上显示</p></div>';
+            container.innerHTML = '<div class="empty-state"><div class="es-icon">🗺️</div><p>添加地点后会在地图上显示</p></div>';
             return;
         }
 
@@ -1294,14 +1913,12 @@
         `).join('');
     }
 
-    // 聚焦到某个地点
     function focusOnPlace(id) {
         const place = places.find(p => p.id === id);
         if (!place) return;
         map.setCenter([place.lng, place.lat]);
         map.setZoom(16);
         showPlaceRoute(place);
-        // 切换到地图区域
         document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -1348,14 +1965,12 @@
         };
 
         if (editId) {
-            // 编辑模式
             const idx = places.findIndex(p => p.id === parseInt(editId));
             if (idx !== -1) {
                 places[idx] = { ...places[idx], ...placeData };
                 showToast('✅ 地点已更新');
             }
         } else {
-            // 新增模式
             placeData.id = Date.now();
             placeData.createdAt = new Date().toISOString();
             places.push(placeData);
@@ -1387,11 +2002,12 @@
     function deletePlace(id) {
         if (!confirm('确定要删除这个地点吗？')) return;
         places = places.filter(p => p.id !== id);
+        delete placeRouteCache[id];
         saveData();
         renderPlaceMarkers();
         renderPlaceList();
         renderMapPlaceList();
-        showToast('️ 地点已删除');
+        showToast('🗑️ 地点已删除');
     }
 
     function navToPlace(id) {
@@ -1400,8 +2016,9 @@
             showToast('该地点没有坐标信息');
             return;
         }
-        // 打开高德地图导航
-        const url = `https://www.amap.com/dir?to=${place.lng},${place.lat}&type=walk`;
+        const fromLng = myPosition ? myPosition.lng : '';
+        const fromLat = myPosition ? myPosition.lat : '';
+        const url = `https://www.amap.com/dir?from=${fromLng},${fromLat}&to=${place.lng},${place.lat}&type=walk`;
         window.open(url, '_blank');
     }
 
@@ -1429,6 +2046,7 @@
             id: Date.now(),
             name: name,
             placeIds: places.map(p => p.id),
+            placesSnapshot: JSON.parse(JSON.stringify(places)),
             createdAt: new Date().toISOString()
         };
 
@@ -1437,6 +2055,14 @@
         renderPlanList();
         closeSavePlanModal();
         showToast('✅ 方案已保存');
+
+        // 清空当前地点列表
+        places = [];
+        placeRouteCache = {};
+        saveData();
+        renderPlaceMarkers();
+        renderPlaceList();
+        renderMapPlaceList();
     }
 
     function renderPlanList() {
@@ -1447,17 +2073,18 @@
         }
 
         container.innerHTML = plans.map(plan => {
-            const planPlaces = plan.placeIds.map(id => places.find(p => p.id === id)).filter(Boolean);
+            const planPlaces = plan.placesSnapshot || plan.placeIds.map(id => places.find(p => p.id === id)).filter(Boolean);
             return `
                 <div class="plan-card">
                     <div class="pc-header">
                         <div class="pc-name">📋 ${plan.name}</div>
                         <div class="pc-count">${planPlaces.length} 个地点</div>
                     </div>
-                    <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || '📌'} ${p.name}`).join('、')}</div>
+                    <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || ''} ${p.name}`).join('、')}</div>
                     <div class="pc-actions">
                         <button style="background:#e8f4fd;color:#1976d2;" onclick="loadPlan(${plan.id})">📂 加载</button>
-                        <button style="background:#e8f5e9;color:#388e3c;" onclick="renamePlan(${plan.id})">️ 重命名</button>
+                        <button style="background:#e8f5e9;color:#388e3c;" onclick="editPlan(${plan.id})">✏️ 编辑</button>
+                        <button style="background:#fff3e0;color:#f57c00;" onclick="renamePlan(${plan.id})">️ 重命名</button>
                         <button style="background:#fee;color:#e74c3c;" onclick="deletePlan(${plan.id})">🗑️ 删除</button>
                     </div>
                 </div>
@@ -1468,15 +2095,23 @@
     function loadPlan(id) {
         const plan = plans.find(p => p.id === id);
         if (!plan) return;
-        // 加载方案中的地点
-        const planPlaces = plan.placeIds.map(pid => places.find(p => p.id === pid)).filter(Boolean);
+        const planPlaces = plan.placesSnapshot || [];
         if (planPlaces.length === 0) {
-            showToast('方案中的地点已被删除');
+            showToast('方案中没有地点');
             return;
         }
-        // 在地图上显示这些地点
-        map.setFitView(planPlaces.map(p => placeMarkers[p.id]).filter(Boolean));
+        places = JSON.parse(JSON.stringify(planPlaces));
+        saveData();
+        renderPlaceMarkers();
+        renderPlaceList();
+        renderMapPlaceList();
         showToast(`📂 已加载方案"${plan.name}"`);
+    }
+
+    function editPlan(id) {
+        loadPlan(id);
+        switchTab('places');
+        showToast('✏️ 已加载方案，可以编辑');
     }
 
     function renamePlan(id) {
@@ -1496,7 +2131,7 @@
         plans = plans.filter(p => p.id !== id);
         saveData();
         renderPlanList();
-        showToast('🗑️ 方案已删除');
+        showToast('️ 方案已删除');
     }
 
     // ============================================================
@@ -1509,10 +2144,8 @@
         document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
         document.querySelector(`.nav-item[data-tab="${tab}"]`).classList.add('active');
 
-        // 控制浮动按钮显示
         document.getElementById('fabAdd').style.display = tab === 'places' ? 'flex' : 'none';
 
-        // 如果是地图标签，显示交通筛选
         if (tab === 'map') {
             document.getElementById('transportBar').style.display = places.length > 0 ? 'flex' : 'none';
         } else {
@@ -1520,15 +2153,11 @@
             document.getElementById('routePanel').classList.remove('active');
         }
 
-        // 重新渲染
         if (tab === 'places') renderPlaceList();
         if (tab === 'plans') renderPlanList();
         if (tab === 'map') renderMapPlaceList();
     }
 
-    // ============================================================
-    //  分类和排序
-    // ============================================================
     function setCategory(cat) {
         currentCategory = cat;
         document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -1592,6 +2221,12 @@
     });
     document.getElementById('savePlanModal').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeSavePlanModal();
+    });
+    document.getElementById('setLocationModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeSetLocationModal();
+    });
+    document.getElementById('placeDetailModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closePlaceDetailModal();
     });
     </script>
 </body>
