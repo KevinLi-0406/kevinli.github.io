@@ -222,7 +222,7 @@
     padding: 60px 60px 140px;
   }
 
-  /* 【修复8】灯箱内容元素样式 + 幻灯片动效 */
+  /* 灯箱内容元素样式 + 幻灯片动效 */
   .lightbox-content {
     max-width: 90vw;
     max-height: calc(100vh - 200px);
@@ -233,7 +233,7 @@
   }
   .lightbox-content:active { cursor: grabbing; }
 
-  /* 幻灯片切换动效 - 修复选择器从 .lightbox-media-content 改为 .lightbox-content */
+  /* 幻灯片切换动效 */
   .lightbox-content.slide-left {
     animation: slideInLeft 0.35s ease-out;
   }
@@ -532,6 +532,27 @@
     padding: 20px;
   }
 
+  /* 上传者信息条 */
+  .uploader-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .uploader-info-bar .uploader-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: white; font-weight: 700;
+  }
+
   @media (max-width: 640px) {
     .filter-panel { flex-direction: column; align-items: stretch; }
     .filter-panel > div { width: 100%; }
@@ -563,7 +584,7 @@
   </div>
 </header>
 
-<!-- ==================== 【修复5】主内容区：垂直排列 概览→筛选器→上传→网格 ==================== -->
+<!-- ==================== 主内容区：垂直排列 概览→筛选器→上传→网格 ==================== -->
 <div class="max-w-[1400px] mx-auto px-4 mt-3">
   <!-- 统计栏（概览） -->
   <div class="flex gap-4 flex-wrap mb-4" id="statsBar">
@@ -616,7 +637,7 @@
         <option value="video">🎬 视频</option>
       </select>
     </div>
-    <!-- 【修复7】新增格式筛选器 -->
+    <!-- 格式筛选器 -->
     <div>
       <label class="block mb-1">格式</label>
       <select id="formatFilter" onchange="renderAlbum()">
@@ -641,10 +662,12 @@
   <div id="uploadPanel" class="hidden mb-4 upload-panel-full">
     <h2 style="font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
     <p style="color:var(--text-secondary);font-size:12px;margin-bottom:12px;">单文件上限 20MB</p>
-    <div class="mb-3">
-      <label style="color:var(--text-secondary);font-size:12px;font-weight:600;display:block;margin-bottom:4px;">选择上传者</label>
-      <select id="uploadUserSelect" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:13px;width:100%;outline:none;">
-      </select>
+    <!-- 【修复1+2】上传者信息条：显示当前登录用户，不再使用下拉选择 -->
+    <div class="uploader-info-bar" id="uploaderInfoBar">
+      <div class="uploader-avatar" id="uploaderAvatar">?</div>
+      <span>上传者：</span>
+      <strong id="uploaderName">—</strong>
+      <span style="color:var(--text-secondary);font-size:11px;">（当前登录用户）</span>
     </div>
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="padding:24px 16px;">
       <div class="drop-zone-icon" style="font-size:32px;margin-bottom:8px;">📁</div>
@@ -776,7 +799,7 @@ let state = {
   displayMode: 'cover',
 };
 
-// ==================== 【修复1】初始化：立即显示登录弹窗，后台加载用户 ====================
+// ==================== 初始化：立即显示登录弹窗，后台加载用户 ====================
 document.addEventListener('DOMContentLoaded', async () => {
   setupDropZone();
   openLoginModal(); // 立即显示，不等 loadUsers
@@ -793,13 +816,7 @@ async function loadUsers() {
     state.users = Array.isArray(data) ? data : data.users || [];
     state.adminUsers = state.users.filter(u => u.is_admin === true);
 
-    const uploadSelect = document.getElementById('uploadUserSelect');
-    uploadSelect.innerHTML = '';
-    state.users.forEach(u => {
-      const username = u.username || u.name || 'Unknown';
-      uploadSelect.innerHTML += `<option value="${username}">${username}</option>`;
-    });
-
+    // 【修复1】登录下拉：显示所有用户
     const loginSelect = document.getElementById('loginUserSelect');
     loginSelect.innerHTML = '<option value="">-- 请选择用户 --</option>';
     state.users.forEach(u => {
@@ -813,11 +830,25 @@ async function loadUsers() {
     state.adminUsers = [];
     const loginSelect = document.getElementById('loginUserSelect');
     loginSelect.innerHTML = '<option value="" disabled>⚠️ 无法加载用户列表</option>';
-    document.getElementById('uploadUserSelect').innerHTML = '';
   }
 }
 
-// ==================== 【修复4】写入 manifest（通用函数，支持创建和更新） ====================
+// ==================== 【修复2】更新上传者信息条 ====================
+function updateUploaderInfo() {
+  const avatarEl = document.getElementById('uploaderAvatar');
+  const nameEl = document.getElementById('uploaderName');
+  if (state.currentUser && state.isAdministrator) {
+    const nickname = state.currentUser.nickname || state.currentUser.username;
+    const initial = nickname.charAt(0).toUpperCase();
+    avatarEl.textContent = initial;
+    nameEl.textContent = nickname;
+  } else {
+    avatarEl.textContent = '?';
+    nameEl.textContent = '—';
+  }
+}
+
+// ==================== 写入 manifest（通用函数，支持创建和更新） ====================
 async function writeManifest(manifest) {
   const contentStr = JSON.stringify(manifest, null, 2);
   const content = btoa(unescape(encodeURIComponent(contentStr)));
@@ -864,7 +895,7 @@ async function writeManifest(manifest) {
   }
 }
 
-// ==================== 【修复4】加载 manifest + 双向同步 ====================
+// ==================== 加载 manifest + 双向同步 ====================
 async function loadManifest() {
   showLoading(true);
   try {
@@ -1024,10 +1055,8 @@ function checkLoginStatus() {
       localStorage.removeItem('album_username');
       localStorage.removeItem('album_password');
       localStorage.removeItem('album_pat');
-      // 弹窗已经显示，不需要再打开
     }
   }
-  // 无凭证时弹窗已由 DOMContentLoaded 打开
 }
 
 function openLoginModal() {
@@ -1097,10 +1126,11 @@ function updateUIForAdmin() {
   document.getElementById('modeBadge').style.color = '#2ecc71';
   document.getElementById('logoutBtn').classList.remove('hidden');
   document.getElementById('uploadPanel').classList.remove('hidden');
+  updateUploaderInfo(); // 【修复2】更新上传者信息条
 }
 
 function updateUIForGuest() {
-  document.getElementById('modeBadge').textContent = ` ${state.currentUser?.username || '游客'}（游客）`;
+  document.getElementById('modeBadge').textContent = `👤 ${state.currentUser?.username || '游客'}（游客）`;
   document.getElementById('modeBadge').style.background = 'rgba(243,156,18,0.2)';
   document.getElementById('modeBadge').style.color = '#f39c12';
   document.getElementById('logoutBtn').classList.remove('hidden');
@@ -1179,12 +1209,15 @@ function clearUpload() {
   updateUploadBtn();
 }
 
-// ==================== 上传文件 ====================
+// ==================== 【修复2】上传文件：使用当前登录用户作为上传者 ====================
 async function uploadFiles() {
   if (state.pendingFiles.length === 0) return;
   if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。', 'error'); return; }
-  const uploader = document.getElementById('uploadUserSelect').value;
-  const uploaderInfo = state.users.find(u => (u.username || u.name) === uploader) || { username: uploader, nickname: uploader };
+  // 【修复2】始终使用当前登录用户作为上传者
+  const uploaderInfo = {
+    username: state.currentUser.username,
+    nickname: state.currentUser.nickname || state.currentUser.username,
+  };
 
   const progressEl = document.getElementById('uploadProgress');
   progressEl.classList.remove('hidden');
@@ -1261,8 +1294,8 @@ async function uploadSingleFile(fileInfo, uploaderInfo) {
 
   fileInfo._entry = {
     filename,
-    uploader: uploaderInfo.username || uploaderInfo,
-    uploaderNickname: uploaderInfo.nickname || uploaderInfo.username || uploaderInfo,
+    uploader: uploaderInfo.username,
+    uploaderNickname: uploaderInfo.nickname || uploaderInfo.username,
     uploadedAt: new Date().toISOString(),
     type: mediaType === 'image' ? 'image' : 'video',
     size: file.size,
@@ -1364,7 +1397,7 @@ function closeDeleteModal() {
   state.deletingFile = null;
 }
 
-// ==================== 【修复4】确认删除：删除文件 + 同步 manifest ====================
+// ==================== 确认删除：删除文件 + 同步 manifest ====================
 async function confirmDelete() {
   const item = state.deletingFile;
   if (!item) return;
@@ -1402,21 +1435,21 @@ async function confirmDelete() {
   }
 }
 
-// ==================== 渲染用户筛选器 ====================
+// ==================== 【修复3】渲染用户筛选器：使用 uploaderNickname 作为 key ====================
 function renderUserFilters() {
   const select = document.getElementById('userFilter');
   const currentValue = select.value;
   select.innerHTML = '<option value="">全部用户</option>';
   const uploaders = new Map();
+  // 从 manifest 中提取实际上传者（用 uploaderNickname 作为 key，避免 "unknown" 覆盖问题）
   state.mediaFiles.forEach(f => {
     const nick = f.uploaderNickname || f.uploader || '未知';
-    const key = f.uploader || 'unknown';
-    uploaders.set(key, nick);
+    uploaders.set(nick, nick);
   });
-  state.users.forEach(u => {
+  // 补充 admin 用户（即使还没上传过文件）
+  state.adminUsers.forEach(u => {
     const name = u.nickname || u.username || u.name || 'Unknown';
-    const key = u.username || u.name;
-    if (!uploaders.has(key)) uploaders.set(key, name);
+    if (!uploaders.has(name)) uploaders.set(name, name);
   });
   uploaders.forEach((nick, key) => {
     select.innerHTML += `<option value="${key}">${nick}</option>`;
@@ -1424,7 +1457,7 @@ function renderUserFilters() {
   select.value = currentValue;
 }
 
-// ==================== 【修复7】渲染格式筛选器 ====================
+// ==================== 渲染格式筛选器 ====================
 function renderFormatFilters() {
   const select = document.getElementById('formatFilter');
   const currentValue = select.value;
@@ -1453,11 +1486,11 @@ function renderAlbum() {
   const formatFilter = document.getElementById('formatFilter').value;
 
   let files = [...state.mediaFiles];
-  if (userFilter) files = files.filter(f => (f.uploader || '') === userFilter);
+  // 【修复3】筛选改为匹配 uploaderNickname
+  if (userFilter) files = files.filter(f => (f.uploaderNickname || f.uploader || '') === userFilter);
   if (dateFrom) files = files.filter(f => new Date(f.uploadedAt) >= new Date(dateFrom));
   if (dateTo) { const end = new Date(dateTo); end.setHours(23, 59, 59, 999); files = files.filter(f => new Date(f.uploadedAt) <= end); }
   if (typeFilter) files = files.filter(f => (f.mediaType || f.type) === typeFilter);
-  // 【修复7】格式筛选
   if (formatFilter) files = files.filter(f => f.filename.split('.').pop().toLowerCase() === formatFilter);
 
   files.sort((a, b) => {
@@ -1471,7 +1504,8 @@ function renderAlbum() {
   document.getElementById('statTotal').textContent = state.mediaFiles.length;
   document.getElementById('statImages').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='image').length;
   document.getElementById('statVideos').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='video').length;
-  const userSet = new Set(state.mediaFiles.map(f => f.uploader || 'unknown'));
+  // 【修复3】统计用户数改用 uploaderNickname
+  const userSet = new Set(state.mediaFiles.map(f => f.uploaderNickname || f.uploader || '未知'));
   document.getElementById('statUsers').textContent = userSet.size;
 
   const grid = document.getElementById('albumGrid');
@@ -1516,9 +1550,8 @@ function renderAlbum() {
   }).join('');
 }
 
-// ==================== 【修复6】使用 jsdelivr CDN 加速图片加载 ====================
+// ==================== 使用 jsdelivr CDN 加速图片加载 ====================
 function getFileUrl(f) {
-  // 优先使用 jsdelivr CDN（全球加速，国内也快）
   return `https://cdn.jsdelivr.net/gh/${CONFIG.OWNER}/${CONFIG.REPO}@${CONFIG.BRANCH}/${CONFIG.MEDIA_PATH}/${f.filename}`;
 }
 
@@ -1591,7 +1624,7 @@ function updateLightboxContent(direction) {
     container.innerHTML = `<img class="lightbox-content" src="${url}" alt="${f.filename}" style="transform:scale(${state.lightboxZoom})">`;
   }
 
-  // 【修复8】幻灯片切换动效
+  // 幻灯片切换动效
   const mediaEl = container.querySelector('.lightbox-content');
   if (mediaEl && direction !== undefined) {
     mediaEl.style.setProperty('--zoom', state.lightboxZoom);
