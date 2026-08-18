@@ -340,13 +340,33 @@
     "mediaType": "image"
   },
   {
-    "filename": "努力_msx8ri4n_bj8l.gif",
+    "filename": "åªå_msx8ri4n_bj8l.gif",
     "uploader": "Kira",
     "uploaderNickname": "Kira",
     "uploadedAt": "2026-08-17T13:00:23.423Z",
     "type": "image",
     "size": 65467,
-    "path": "Resources/Media/努力_msx8ri4n_bj8l.gif",
+    "path": "Resources/Media/åªå_msx8ri4n_bj8l.gif",
+    "mediaType": "image"
+  },
+  {
+    "filename": "嘿嘿_msy89uuu_kf1a.gif",
+    "uploader": "Kevin",
+    "uploaderNickname": "Kevin Li",
+    "uploadedAt": "2026-08-18T05:34:28.996Z",
+    "type": "image",
+    "size": 61568,
+    "path": "Resources/Media/嘿嘿_msy89uuu_kf1a.gif",
+    "mediaType": "image"
+  },
+  {
+    "filename": "啦啦啦_msy89uuv_6lzs.gif",
+    "uploader": "Kevin",
+    "uploaderNickname": "Kevin Li",
+    "uploadedAt": "2026-08-18T05:34:31.393Z",
+    "type": "image",
+    "size": 78311,
+    "path": "Resources/Media/啦啦啦_msy89uuv_6lzs.gif",
     "mediaType": "image"
   }
 ]
