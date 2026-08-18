@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 14:43 (UTC+8)
+- **修改文件**：`Projects/共享相册.html`、`Resources/Media/manifest.json`
+- **变更类型**：修复
+- **变更描述**：修复上传用户相关的 3 个问题：1) 上传面板移除下拉选择器，改为显示当前登录用户的信息条（头像首字母 + 昵称），上传者始终为当前登录用户；2) 用户筛选器改用 `uploaderNickname` 作为 Map key，修复所有文件 `uploader` 为 "unknown" 导致只显示一个用户的问题；3) 修复 manifest.json 中现有条目的 `uploader` 字段从 "unknown" 改为实际用户名（Kira/Kevin），`uploaderNickname` 改为对应昵称（Kira/Kevin Li）
+- **影响范围**：上传面板 UI、用户筛选器、统计卡片中的上传用户数、manifest 数据一致性
+- **关联请求**：用户反馈"上传用户可选用户应和 admin 清单一致"、"上传用户应为当前登录用户"、"manifest 有两个上传者但页面只显示一个"
+
 ### 2026-08-18 14:13 (UTC+8)
 - **修改文件**：`Projects/F1数据大全.html`
 - **变更类型**：修改
