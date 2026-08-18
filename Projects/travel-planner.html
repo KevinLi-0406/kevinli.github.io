@@ -410,40 +410,6 @@
             margin-bottom: 10px;
         }
 
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-box button {
-            padding: 10px 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .search-box button:hover {
-            background: #5568d3;
-        }
-
         .selected-location {
             background: #f0f4ff;
             padding: 12px;
@@ -460,6 +426,12 @@
             font-size: 13px;
             color: #667eea;
             font-weight: 600;
+        }
+
+        .coord-input-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
         }
 
         @media (max-width: 480px) {
@@ -532,9 +504,9 @@
             <div class="filter-tabs">
                 <button class="filter-tab active" onclick="filterPlaces('all')">全部</button>
                 <button class="filter-tab" onclick="filterPlaces('restaurant')">🍽️ 餐厅</button>
-                <button class="filter-tab" onclick="filterPlaces('cafe')"> 咖啡</button>
-                <button class="filter-tab" onclick="filterPlaces('attraction')"> 景点</button>
-                <button class="filter-tab" onclick="filterPlaces('shopping')">️ 购物</button>
+                <button class="filter-tab" onclick="filterPlaces('cafe')">☕ 咖啡</button>
+                <button class="filter-tab" onclick="filterPlaces('attraction')">🎯 景点</button>
+                <button class="filter-tab" onclick="filterPlaces('shopping')">🛍️ 购物</button>
                 <button class="filter-tab" onclick="filterPlaces('other')">📌 其他</button>
             </div>
         </div>
@@ -562,17 +534,11 @@
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
             
-            <!-- 搜索地点 -->
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索地点名称（如：星巴克、故宫）">
-                <button onclick="searchLocation()">🔍 搜索</button>
-            </div>
-            
             <!-- 地图选点 -->
             <div class="map-container">
                 <div id="map"></div>
             </div>
-            <div class="map-hint">💡 点击地图选择位置，或搜索地点名称</div>
+            <div class="map-hint"> 点击地图选择位置，长按可放大查看</div>
             
             <!-- 已选位置显示 -->
             <div class="selected-location" id="selectedLocation">
@@ -588,11 +554,11 @@
                 <div class="form-group">
                     <label>类型</label>
                     <select id="placeType">
-                        <option value="restaurant">🍽️ 餐厅</option>
+                        <option value="restaurant">️ 餐厅</option>
                         <option value="cafe">☕ 咖啡</option>
                         <option value="attraction">🎯 景点</option>
                         <option value="shopping">🛍️ 购物</option>
-                        <option value="other"> 其他</option>
+                        <option value="other">📌 其他</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -605,7 +571,8 @@
                 </div>
                 <div class="form-group">
                     <label>坐标（自动填充）</label>
-                    <input type="text" id="placeCoords" placeholder="点击地图或搜索后自动填充" readonly>
+                    <input type="text" id="placeCoords" placeholder="点击地图后自动填充" readonly>
+                    <div class="coord-input-hint">💡 提示：也可以在 Google/高德地图上复制坐标粘贴到这里</div>
                 </div>
                 <button type="submit" class="btn btn-primary">保存地点</button>
             </form>
@@ -628,7 +595,7 @@
             updateStats();
         });
 
-        // 初始化地图
+        // 初始化地图（使用高德地图瓦片）
         function initMap() {
             if (map) return;
             
@@ -637,8 +604,11 @@
             
             map = L.map('map').setView([center.lat, center.lng], 13);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+            // 使用高德地图瓦片（国内访问稳定）
+            L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+                attribution: '© 高德地图',
+                maxZoom: 18,
+                minZoom: 3
             }).addTo(map);
             
             // 点击地图选择位置
@@ -665,47 +635,12 @@
             } else {
                 marker = L.marker([lat, lng]).addTo(map);
             }
-            marker.bindPopup('📍 已选择位置').openPopup();
+            marker.bindPopup(' 已选择位置').openPopup();
             
             // 更新显示
             document.getElementById('placeCoords').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             document.getElementById('selectedCoords').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             document.getElementById('selectedLocation').classList.add('active');
-        }
-
-        // 搜索地点
-        async function searchLocation() {
-            const query = document.getElementById('searchInput').value.trim();
-            if (!query) {
-                alert('请输入搜索关键词');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
-                const data = await response.json();
-                
-                if (data.length > 0) {
-                    const result = data[0];
-                    const lat = parseFloat(result.lat);
-                    const lng = parseFloat(result.lon);
-                    
-                    // 移动地图到搜索结果
-                    map.setView([lat, lng], 16);
-                    selectLocation(lat, lng);
-                    
-                    // 自动填充地址和名称
-                    if (!document.getElementById('placeName').value) {
-                        document.getElementById('placeName').value = result.display_name.split(',')[0];
-                    }
-                    document.getElementById('placeAddress').value = result.display_name;
-                } else {
-                    alert('未找到相关地点，请尝试其他关键词');
-                }
-            } catch (error) {
-                console.error('搜索错误:', error);
-                alert('搜索失败，请检查网络连接');
-            }
         }
 
         // 获取当前位置
@@ -731,7 +666,7 @@
                         map.setView([currentLocation.lat, currentLocation.lng], 13);
                         L.marker([currentLocation.lat, currentLocation.lng])
                             .addTo(map)
-                            .bindPopup(' 我的位置')
+                            .bindPopup('📍 我的位置')
                             .openPopup();
                     }
                     
@@ -825,7 +760,7 @@
                         ${place.distance !== null ? `<div class="place-address" style="margin-top: 4px; color: #667eea; font-weight: 600;">📍 ${formatDistance(place.distance)}</div>` : ''}
                     </div>
                     <div class="place-actions">
-                        ${place.lat && place.lng ? `<button class="btn-navigate" onclick="navigateTo(${place.lat}, ${place.lng})" title="导航"></button>` : ''}
+                        ${place.lat && place.lng ? `<button class="btn-navigate" onclick="navigateTo(${place.lat}, ${place.lng})" title="导航">🧭</button>` : ''}
                         <button class="btn-delete" onclick="deletePlace(${place.id})" title="删除">🗑️</button>
                     </div>
                 </li>
@@ -835,13 +770,13 @@
         // 获取类型标签
         function getTypeLabel(type) {
             const labels = {
-                restaurant: '️ 餐厅',
+                restaurant: '🍽️ 餐厅',
                 cafe: '☕ 咖啡',
                 attraction: '🎯 景点',
                 shopping: '🛍️ 购物',
                 other: '📌 其他'
             };
-            return labels[type] || '📌 其他';
+            return labels[type] || ' 其他';
         }
 
         // 更新统计
@@ -929,7 +864,7 @@
             }
             
             if (!lat || !lng) {
-                alert('请在地图上点击选择位置，或搜索地点');
+                alert('请在地图上点击选择位置');
                 return;
             }
             
@@ -963,7 +898,8 @@
 
         // 导航到地点
         function navigateTo(lat, lng) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            // 优先使用高德地图（国内用户）
+            const url = `https://www.amap.com/dir?to=${lng},${lat}&type=walk`;
             window.open(url, '_blank');
         }
 
@@ -976,14 +912,6 @@
         document.getElementById('addModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 closeModal();
-            }
-        });
-
-        // 搜索框回车触发搜索
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchLocation();
             }
         });
     </script>
