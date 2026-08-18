@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 14:13 (UTC+8)
+- **修改文件**：`Projects/F1数据大全.html`
+- **变更类型**：修改
+- **变更描述**：全面重构 F1 数据大全页面，集成 `Resources/F1-images/` 下的本地图片资源：1) 车手档案卡片集成 22 位车手官方半身照（Drivers 文件夹）；2) 赛车与车队卡片集成 11 支车队赛车照片（Teams 文件夹）；3) 赛程日历集成 15 张真实赛道地图（Tracks 文件夹），无图片的赛道保留 SVG fallback；4) 更新车手数据为 2026 赛季 22 人阵容（新增 Audi、Cadillac、Racing Bulls 等车队）；5) 美化页面设计，增加 hover 动画、渐变背景、切角效果等视觉增强
+- **影响范围**：F1 数据大全页面的所有模块（赛程、积分榜、车手档案、赛车展示）
+- **关联请求**：用户要求"根据 F1-images 文件夹下的车手/车队/赛道/赛车图片，应用并美化 F1数据大全.html"
+
 ### 2026-08-18 13:51 (UTC+8)
 - **修改文件**：`Resources/Media/manifest.json`
 - **变更类型**：删除
