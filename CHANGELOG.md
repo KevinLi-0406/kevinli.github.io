@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-18 13:51 (UTC+8)
+- **修改文件**：`Resources/Media/manifest.json`
+- **变更类型**：删除
+- **变更描述**：从 manifest.json 中移除所有 27 个以 2026 开头的 png 文件条目（包括 alpine/astonmartin/audi/cadillac/ferrari/haas/mclaren/mercedes/racingbulls/redbull/williams 等车队的赛车图和车辆图），manifest 现仅保留 3 个 gif 文件
+- **影响范围**：共享相册的图片索引，相册中将不再显示这些 2026 png 文件
+- **关联请求**：用户要求"把 Resources/Media/ 路径下所有2026开头的png文件都删除"
+- **备注**：由于 GitHub MCP 工具不支持文件删除操作，本次仅更新了 manifest.json 移除索引记录。实际的 png 二进制文件仍存在于仓库中，如需彻底删除请通过 GitHub 网页或 git 命令行操作
+
 ### 2026-08-17 21:03 (UTC+8)
 - **修改文件**：`Projects/Shared Album.html`
 - **变更类型**：修复
