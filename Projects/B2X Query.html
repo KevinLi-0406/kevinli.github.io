@@ -26,7 +26,7 @@
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
 
@@ -118,9 +118,9 @@
             display: block;
         }
 
-        .status.loading {
-            background: #fff3cd;
-            color: #856404;
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
             display: block;
         }
 
@@ -135,17 +135,44 @@
 
         .instructions h3 {
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step h4 {
+            color: #333;
+            margin-bottom: 8px;
             font-size: 14px;
         }
 
-        .instructions ol {
-            margin-left: 20px;
-            line-height: 1.8;
+        .step p {
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
 
-        .instructions li {
-            margin-bottom: 5px;
+        .bookmarklet {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: move;
+        }
+
+        .bookmarklet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .history {
@@ -191,40 +218,78 @@
             font-size: 12px;
             color: #999;
         }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .warning h4 {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .warning ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎫 B2X 工单快速访问</h1>
-        <p class="subtitle">输入工单号，一键自动登录并进入工单详情</p>
+        <p class="subtitle">输入工单号，一键访问工单详情</p>
+
+        <div class="warning">
+            <h4>⚠️ 使用说明</h4>
+            <ul>
+                <li>本工具需要配合<strong>书签脚本</strong>使用</li>
+                <li>首次使用请完成下方<strong>步骤 1</strong> 的设置</li>
+                <li>设置完成后，每次只需<strong>步骤 2</strong> 即可访问工单</li>
+            </ul>
+        </div>
 
         <div class="input-group">
             <label for="jobNumber">工单号</label>
-            <input type="text" id="jobNumber" placeholder="请输入工单号" autocomplete="off">
+            <input type="text" id="jobNumber" placeholder="请输入工单号（如：B2XSGWY1120130）" autocomplete="off">
         </div>
 
-        <button id="launchBtn" onclick="launchJob()">🚀 启动自动访问</button>
+        <button onclick="generateBookmarklet()">📌 生成书签脚本</button>
 
         <div id="status" class="status"></div>
+
+        <div class="instructions">
+            <h3>📖 使用步骤</h3>
+
+            <div class="step">
+                <h4>步骤 1：首次设置（只需一次）</h4>
+                <p>1. 在上方输入任意工单号（如：TEST）</p>
+                <p>2. 点击"生成书签脚本"按钮</p>
+                <p>3. 将生成的蓝色按钮<strong>拖动到书签栏</strong></p>
+                <p>4. 设置完成！以后只需点击书签即可</p>
+            </div>
+
+            <div class="step">
+                <h4>步骤 2：日常使用（每次）</h4>
+                <p>1. 打开本页面，输入工单号</p>
+                <p>2. 点击书签栏中的"B2X 工单"书签</p>
+                <p>3. 自动打开 B2X 并跳转到工单详情</p>
+            </div>
+
+            <div class="step">
+                <h4>💡 快捷方式</h4>
+                <p>你也可以直接在本页面输入工单号，按 <strong>Enter</strong> 键，会自动复制工单号并打开 B2X 登录页。</p>
+                <p>登录后在 Job Number 输入框粘贴（Ctrl+V）即可。</p>
+            </div>
+        </div>
 
         <div class="history" id="historySection" style="display: none;">
             <h3>📋 最近访问</h3>
             <div class="history-list" id="historyList"></div>
-        </div>
-
-        <div class="instructions">
-            <h3>使用说明</h3>
-            <ol>
-                <li>在上方输入框输入工单号</li>
-                <li>点击"启动自动访问"按钮</li>
-                <li>系统会自动打开 Chrome 浏览器</li>
-                <li>自动登录 B2X 系统</li>
-                <li>自动导航到 Job List History</li>
-                <li>自动搜索并进入工单详情</li>
-            </ol>
-            <p style="margin-top: 10px; color: #999; font-size: 12px;">
-                提示：首次使用可能需要几秒钟启动浏览器
-            </p>
         </div>
     </div>
 
@@ -252,19 +317,12 @@
         // 保存历史记录
         function saveToHistory(jobNumber) {
             let history = JSON.parse(localStorage.getItem('jobHistory') || '[]');
-
-            // 移除重复项
             history = history.filter(item => item.jobNumber !== jobNumber);
-
-            // 添加到开头
             history.unshift({
                 jobNumber: jobNumber,
                 timestamp: new Date().toISOString()
             });
-
-            // 只保留最近 10 条
             history = history.slice(0, 10);
-
             localStorage.setItem('jobHistory', JSON.stringify(history));
             loadHistory();
         }
@@ -282,44 +340,92 @@
             status.className = 'status ' + type;
         }
 
-        // 启动工单访问
-        async function launchJob() {
+        // 生成书签脚本
+        function generateBookmarklet() {
             const jobNumber = document.getElementById('jobNumber').value.trim();
 
             if (!jobNumber) {
-                showStatus('请输入工单号', 'error');
+                showStatus('请先输入工单号', 'error');
                 return;
             }
-
-            const btn = document.getElementById('launchBtn');
-            btn.disabled = true;
-            showStatus('正在启动自动访问...', 'loading');
 
             // 保存到历史记录
             saveToHistory(jobNumber);
 
-            try {
-                // 调用本地服务器
-                const response = await fetch(`http://localhost:8765/open_job?job=${encodeURIComponent(jobNumber)}`);
-                const result = await response.json();
+            // 生成书签脚本代码
+            const bookmarkletCode = `javascript:(function(){
+                var jobNum='${jobNumber}';
+                var win=window.open('https://app-srt.b2x.com/ui/#!/login','_blank');
+                var checkLoaded=setInterval(function(){
+                    if(win.document.readyState==='complete'){
+                        clearInterval(checkLoaded);
+                        setTimeout(function(){
+                            var userName=win.document.querySelector('input[name="userName"]')||win.document.querySelector('input[name="username"]');
+                            var passWord=win.document.querySelector('input[name="passWord"]')||win.document.querySelector('input[name="password"]');
+                            if(userName&&passWord){
+                                userName.value='rbouchlarhem';
+                                passWord.value='1LoveService##';
+                                var loginBtn=win.document.querySelector('button[type="submit"]');
+                                if(loginBtn)loginBtn.click();
+                                setTimeout(function(){
+                                    win.location.href='https://app-srt.b2x.com/ui/#!/reports/joblist';
+                                    setTimeout(function(){
+                                        var jobInput=win.document.querySelector('input[ng-model="searchCriteria.jobNumber"]')||win.document.querySelector('input[name="jobNumber"]');
+                                        if(jobInput){
+                                            jobInput.value=jobNum;
+                                            var searchBtn=win.document.querySelector('button[ng-click*="search"]');
+                                            if(searchBtn){
+                                                searchBtn.click();
+                                                setTimeout(function(){
+                                                    var jobLink=win.document.querySelector('a[ui-sref*="'+jobNum+'"]');
+                                                    if(jobLink)jobLink.click();
+                                                },2000);
+                                            }
+                                        }
+                                    },2000);
+                                },3000);
+                            }
+                        },1000);
+                    }
+                },500);
+            })();`;
 
-                if (result.status === 'success') {
-                    showStatus(`✓ ${result.message}，浏览器将自动打开`, 'success');
-                    document.getElementById('jobNumber').value = '';
-                } else {
-                    showStatus(`✗ ${result.message}`, 'error');
-                }
-            } catch (error) {
-                showStatus('✗ 无法连接到服务器，请先启动 b2x_server.py', 'error');
-            }
+            // 显示书签按钮
+            showStatus('', 'success');
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `
+                <p style="margin-bottom: 15px;"><strong>✓ 书签脚本已生成！</strong></p>
+                <p style="margin-bottom: 15px;">请将下方蓝色按钮<strong>拖动到书签栏</strong>：</p>
+                <a href="${bookmarkletCode}" class="bookmarklet">🎫 B2X 工单：${jobNumber}</a>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    提示：拖动到书签栏后，每次只需：<br>
+                    1. 在本页面输入工单号<br>
+                    2. 点击书签栏中的"B2X 工单"书签<br>
+                    3. 自动打开并跳转到工单详情
+                </p>
+            `;
 
-            btn.disabled = false;
+            // 清空输入框
+            document.getElementById('jobNumber').value = '';
         }
 
-        // 回车键触发
+        // 回车键处理
         document.getElementById('jobNumber').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                launchJob();
+                const jobNumber = this.value.trim();
+                if (jobNumber) {
+                    // 复制工单号到剪贴板
+                    navigator.clipboard.writeText(jobNumber).then(() => {
+                        showStatus(`✓ 已复制工单号 ${jobNumber} 到剪贴板，正在打开 B2X...`, 'success');
+                        saveToHistory(jobNumber);
+                        // 打开 B2X 登录页
+                        window.open('https://app-srt.b2x.com/ui/#!/login', '_blank');
+                    }).catch(() => {
+                        showStatus(`✓ 正在打开 B2X，请手动输入工单号：${jobNumber}`, 'info');
+                        saveToHistory(jobNumber);
+                        window.open('https://app-srt.b2x.com/ui/#!/login', '_blank');
+                    });
+                }
             }
         });
 
