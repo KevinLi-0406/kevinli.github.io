@@ -917,20 +917,23 @@ async function loadManifest() {
 
     // 构建更新后的 manifest（内存中）
     let updated = manifestFiles.filter(f => dirFilenames.has(f.filename));
+    // 【修复】添加目录中新发现的文件时，检查是否已存在于 updated 中（防止重复添加导致覆盖正确的上传者信息）
     for (const f of toAdd) {
-      updated.push({
-        filename: f.filename,
-        path: f.path,
-        download_url: f.download_url,
-        type: f.type,
-        size: f.size,
-        uploader: f.uploader,
-        uploaderNickname: f.uploaderNickname,
-        uploadedAt: f.uploadedAt,
-        sha: f.sha,
-        github_url: f.github_url,
-        mediaType: f.type,
-      });
+      if (!updated.some(u => u.filename === f.filename)) {
+        updated.push({
+          filename: f.filename,
+          path: f.path,
+          download_url: f.download_url,
+          type: f.type,
+          size: f.size,
+          uploader: f.uploader,
+          uploaderNickname: f.uploaderNickname,
+          uploadedAt: f.uploadedAt,
+          sha: f.sha,
+          github_url: f.github_url,
+          mediaType: f.type,
+        });
+      }
     }
 
     // 如果有差异且是管理员，写回 GitHub
