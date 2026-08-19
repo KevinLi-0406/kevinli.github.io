@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 20:04 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.7.html`
+- **变更类型**：修复
+- **变更描述**：将地点详情高德 REST 公交规划请求使用的 Key 替换为用户提供的 Web 服务 Key，解决错误使用 JS API Key 导致的 `USERKEY_PLAT_NOMATCH`（10009）平台类型不匹配。
+- **影响范围**：城市漫游行程助手 v2.0.7 的地点详情地铁/公交原始路线数据请求。
+- **关联请求**："Web服务的key是 f84312c5df5a21e7d16bc748cd4b5283"
+
 ### 2026-08-19 21:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.7.html`、`Projects/project-config.json`
 - **变更类型**：新增
