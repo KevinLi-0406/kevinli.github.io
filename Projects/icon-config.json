@@ -4,7 +4,7 @@
   "description": "城市漫游行程助手 - 图标配置文件",
   "categories": {
     "park": { "icon": "🌳", "name": "公园" },
-    "museum": { "icon": "️", "name": "博物馆" },
+    "museum": { "icon": "️🏟", "name": "博物馆" },
     "food": { "icon": "🍽️", "name": "美食" },
     "cafe": { "icon": "☕", "name": "咖啡" },
     "shopping": { "icon": "🛍️", "name": "购物" },
