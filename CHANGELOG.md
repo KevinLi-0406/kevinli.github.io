@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 18:45 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.1.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.1 独立版本文件，并在项目配置中新增首页入口。v2.0.1 以当前已修复的 v2.0.0 功能为发布基线，保留历史版本文件不变。
+- **影响范围**：城市漫游行程助手 v2.0.1 独立访问页、首页旅行规划项目列表
+- **关联请求**："为什么不生成新的版本的html？那我让你做版本管理还有什么意义"、"生成"
+
 ### 2026-08-19 18:38 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.0.html`
 - **变更类型**：修复

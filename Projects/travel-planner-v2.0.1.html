@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.1</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge { position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none; padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">城市漫游行程助手 · v2.0.1</div>
+  <iframe id="plannerFrame" src="travel-planner.html" title="城市漫游行程助手 v2.0.1"></iframe>
+  <script>
+  (() => {
+    const frame = document.getElementById('plannerFrame');
+    frame.addEventListener('load', () => {
+      const w = frame.contentWindow;
+      const d = frame.contentDocument;
+      if (!w || !d || !w.AMap) return;
+
+      const CATEGORY = {
+        park: { icon: '🌳', name: '公园' }, museum: { icon: '🏛️', name: '博物馆' },
+        food: { icon: '🍽️', name: '美食' }, cafe: { icon: '☕', name: '咖啡' },
+        shopping: { icon: '🛍️', name: '购物' }, scenic: { icon: '🎯', name: '景点' },
+        hotel: { icon: '🏨', name: '酒店' }, transport: { icon: '🚉', name: '交通' }, other: { icon: '📌', name: '其他' }
+      };
+      const DEFAULT_SUBWAY_COLOR = '#9C27B0';
+      let transitOverlays = [];
+      let categoryConfigReady = false;
+
+      const getCategory = key => (w.iconConfig && w.iconConfig.categories && w.iconConfig.categories[key]) || CATEGORY[key] || CATEGORY.other;
+      const getIcon = (group, key, fallback) => (w.iconConfig && w.iconConfig[group] && w.iconConfig[group][key] && w.iconConfig[group][key].icon) || fallback;
+      const lineName = name => String(name || '').trim().replace(/[（(].*$/, '').trim();
+      const lineColor = name => (w.iconConfig && w.iconConfig.subwayColors && w.iconConfig.subwayColors[lineName(name)]) || (w.SUBWAY_COLORS && w.SUBWAY_COLORS[lineName(name)]) || DEFAULT_SUBWAY_COLOR;
+      const stopName = stop => typeof stop === 'string' ? stop : (stop && stop.name) || '';
+      const buslineOf = seg => seg && seg.bus && Array.isArray(seg.bus.buslines) ? seg.bus.buslines[0] : (seg && seg.transit && Array.isArray(seg.transit.lines) ? seg.transit.lines[0] : null);
+
+      function applyCategoryConfig() {
+        if (categoryConfigReady) return;
+        Object.keys(CATEGORY).forEach(key => {
+          const value = getCategory(key);
+          CATEGORY[key] = { icon: value.icon || CATEGORY[key].icon, name: value.name || CATEGORY[key].name };
+        });
+        d.querySelectorAll('.cat-btn[data-cat]').forEach(button => {
+          const key = button.dataset.cat;
+          if (key !== 'all' && CATEGORY[key]) button.textContent = `${CATEGORY[key].icon} ${CATEGORY[key].name}`;
+        });
+        const select = d.getElementById('fCategory');
+        if (select) Array.from(select.options).forEach(option => {
+          if (CATEGORY[option.value]) option.textContent = `${CATEGORY[option.value].icon} ${CATEGORY[option.value].name}`;
+        });
+        categoryConfigReady = true;
+      }
+
+      function clearTransitOverlays() {
+        if (transitOverlays.length && w.map) w.map.remove(transitOverlays);
+        transitOverlays = [];
+      }
+      function parsePolyline(value) {
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        return String(value).split(';').map(item => item.split(',').map(Number)).filter(pair => pair.length === 2 && pair.every(Number.isFinite));
+      }
+      function extractTransit(plan) {
+        if (!plan || !Array.isArray(plan.segments)) return [];
+        return plan.segments.map(seg => {
+          const busline = buslineOf(seg);
+          if (busline) {
+            const raw = busline.name || busline.line_name || '地铁';
+            const directionMatch = String(raw).match(/[（(]([^）)]+)[）)]/);
+            const line = lineName(raw) || '地铁';
+            return { type: 'subway', line, direction: busline.direction || (directionMatch ? directionMatch[1] : ''), color: lineColor(line), from: stopName(busline.departure_stop) || stopName(seg.transit && seg.transit.onstation), to: stopName(busline.arrival_stop) || stopName(seg.transit && seg.transit.offstation), viaNum: Number(busline.via_num || 0), polyline: busline.polyline || '' };
+          }
+          if (seg.walk && Number(seg.walk.distance) > 0) return { type: 'walk', distance: (Number(seg.walk.distance) / 1000).toFixed(1) };
+          return null;
+        }).filter(Boolean);
+      }
+      function renderTransit(steps) {
+        if (!steps || !steps.length) return '<div class="transit-detail">暂无可展示的地铁分段信息</div>';
+        let html = '<div class="transit-detail transit-detail-v2">';
+        let previous = null;
+        steps.forEach(step => {
+          if (step.type === 'walk') { html += `<div class="transit-step"><span class="transit-walk">🚶 步行 ${step.distance}km</span></div>`; return; }
+          if (previous && previous.to && previous.to === step.from) html += `<div class="transit-transfer-v2">🔄 在 <strong>${previous.to}</strong> 换乘 <strong>${step.line}</strong></div>`;
+          html += `<div class="transit-subway-v2"><div><span class="transit-line-badge" style="background:${step.color}">${step.line}</span>${step.direction ? `<span class="transit-direction-v2">${step.direction}</span>` : ''}</div><div class="transit-stations-v2">🚉 ${step.from || '起点站'} → 🚉 ${step.to || '终点站'}</div><div class="transit-via-v2">途经 ${step.viaNum} 站</div></div>`;
+          previous = step;
+        });
+        return html + '</div>';
+      }
+      function drawColoredTransit(steps) {
+        const drawable = (steps || []).filter(step => step.type === 'subway' && parsePolyline(step.polyline).length > 1);
+        if (!drawable.length) return false;
+        clearTransitOverlays();
+        drawable.forEach(step => {
+          const overlay = new w.AMap.Polyline({ path: parsePolyline(step.polyline), strokeColor: step.color, strokeWeight: 7, strokeOpacity: .9, lineJoin: 'round', lineCap: 'round', zIndex: 120 });
+          overlay.setMap(w.map); transitOverlays.push(overlay);
+        });
+        if (transitOverlays.length) w.map.setFitView(transitOverlays, false, [70, 40, 90, 40]);
+        return true;
+      }
+
+      const style = d.createElement('style');
+      style.textContent = `.map-section.expanded .transport-bar{bottom:66px!important;z-index:96!important}.transit-detail-v2{background:#f0f4ff;padding:10px;border-radius:8px}.transit-subway-v2{padding:8px 0;border-bottom:1px solid #dfe5f5;line-height:1.7}.transit-subway-v2:last-child{border-bottom:none}.transit-direction-v2{margin-left:8px;color:#555;font-size:12px}.transit-stations-v2{color:#333;font-size:13px;margin-top:3px}.transit-via-v2,.transit-transfer-v2{color:#666;font-size:12px}.transit-transfer-v2{padding:8px 0}`;
+      d.head.appendChild(style);
+
+      const originalLoadIconConfig = w.loadIconConfig;
+      w.loadIconConfig = async function() {
+        const result = await originalLoadIconConfig.apply(this, arguments);
+        if (w.iconConfig && w.iconConfig.subwayColors && w.SUBWAY_COLORS) Object.assign(w.SUBWAY_COLORS, w.iconConfig.subwayColors);
+        categoryConfigReady = false; applyCategoryConfig(); w.renderPlaceList();
+        return result;
+      };
+      if (w.iconConfig && w.iconConfig.subwayColors && w.SUBWAY_COLORS) Object.assign(w.SUBWAY_COLORS, w.iconConfig.subwayColors);
+      applyCategoryConfig();
+      w.extractTransitDetail = extractTransit;
+      w.renderTransitDetail = renderTransit;
+
+      const originalDrawRoute = w.drawRoute;
+      w.drawRoute = function(place, mode, results) {
+        clearTransitOverlays();
+        if (mode !== 'transit') return originalDrawRoute.apply(this, arguments);
+        const steps = results && results.transit && results.transit.detail;
+        if (drawColoredTransit(steps)) { w.clearRoutes(); return; }
+        return originalDrawRoute.apply(this, arguments);
+      };
+      const originalClearRoutes = w.clearRoutes;
+      w.clearRoutes = function() { clearTransitOverlays(); return originalClearRoutes.apply(this, arguments); };
+
+      function currentCityFromPosition(done) {
+        if (!w.myPosition || !w.geocoder) { done(w.currentCity); return; }
+        w.geocoder.getAddress([w.myPosition.lng, w.myPosition.lat], (status, result) => {
+          const component = status === 'complete' && result.regeocode && result.regeocode.addressComponent;
+          const city = component && (Array.isArray(component.city) ? component.city[0] : component.city) || (component && component.province) || w.currentCity;
+          if (city) {
+            w.currentCity = city;
+            if (w.autoComplete && w.autoComplete.setCity) w.autoComplete.setCity(city);
+            if (w.placeSearch && w.placeSearch.setCity) w.placeSearch.setCity(city);
+          }
+          done(city);
+        });
+      }
+      w.doMapSearch = function() {
+        const keyword = d.getElementById('mapSearchInput').value.trim();
+        if (!keyword) return;
+        if (!w.myPosition) { w.showToast('请先完成当前位置定位后再搜索'); return; }
+        w.showLoading('正在搜索当前位置 100km 内地点...');
+        currentCityFromPosition(city => {
+          const search = new w.AMap.PlaceSearch({ pageSize: 20, city: city, citylimit: true });
+          const center = new w.AMap.LngLat(w.myPosition.lng, w.myPosition.lat);
+          search.searchNearBy(keyword, center, 100000, (status, result) => {
+            w.hideLoading();
+            const pois = status === 'complete' && result.poiList && result.poiList.pois ? result.poiList.pois.filter(poi => !poi.cityname || poi.cityname === city) : [];
+            if (pois.length) w.renderSearchResults(pois);
+            else w.showToast('未找到当前位置所在城市 100km 内的相关地点');
+          });
+        });
+      };
+
+      function requestDetailRoutes(place, callback) {
+        if (!w.myPosition || !place.lng || !place.lat) { callback(); return; }
+        const from = [w.myPosition.lng, w.myPosition.lat], to = [place.lng, place.lat], results = {}, services = [
+          ['walking', new w.AMap.Walking(), r => r.routes && r.routes[0]], ['riding', new w.AMap.Riding(), r => r.routes && r.routes[0]],
+          ['driving', new w.AMap.Driving(), r => r.routes && r.routes[0]], ['transit', new w.AMap.Transfer({ city: w.currentCity }), r => r.plans && r.plans[0]]
+        ];
+        let count = 0;
+        services.forEach(([mode, service, pick]) => service.search(from, to, (status, response) => {
+          const route = status === 'complete' && pick(response);
+          results[mode] = route ? { time: Math.round(route.time / 60), distance: (route.distance / 1000).toFixed(1), detail: mode === 'transit' ? extractTransit(route) : null } : { time: null, distance: null, detail: null };
+          if (++count === services.length) { w.placeRouteCache[place.id] = results; callback(); }
+        }));
+      }
+      const originalShowPlaceDetail = w.showPlaceDetail;
+      w.showPlaceDetail = function(id) {
+        const place = w.places.find(item => item.id === id);
+        if (!place) return;
+        originalShowPlaceDetail(id);
+        if (!w.placeRouteCache[place.id] && w.myPosition && place.lng && place.lat) {
+          w.showLoading('正在查询路线详情...');
+          requestDetailRoutes(place, () => { w.hideLoading(); originalShowPlaceDetail(id); w.renderPlaceList(); });
+        }
+      };
+
+      w.renderPlaceList = function() {
+        applyCategoryConfig();
+        const container = d.getElementById('placeListContainer');
+        const keyword = d.getElementById('placeSearchInput').value.trim().toLowerCase();
+        let list = w.places.filter(p => (w.currentCategory === 'all' || p.category === w.currentCategory) && (!keyword || p.name.toLowerCase().includes(keyword))).map(p => {
+          const cached = w.placeRouteCache[p.id] || {}, distance = w.myPosition && p.lng && p.lat ? w.calcDistance(w.myPosition.lat, w.myPosition.lng, p.lat, p.lng) : null;
+          return { ...p, distance, walkTime: cached.walking && cached.walking.time || (distance !== null ? Math.round(distance / 5 * 60) : null), rideTime: cached.riding && cached.riding.time || (distance !== null ? Math.round(distance / 15 * 60) : null), driveTime: cached.driving && cached.driving.time || (distance !== null ? Math.round(distance / 40 * 60) : null), transitTime: cached.transit && cached.transit.time || (distance !== null ? Math.round(distance / 25 * 60 + 10) : null) };
+        });
+        const sortKey = { distance: 'distance', walkTime: 'walkTime', rideTime: 'rideTime', driveTime: 'driveTime', transitTime: 'transitTime' }[w.currentSort];
+        list.sort((a, b) => w.currentSort === 'name' ? a.name.localeCompare(b.name, 'zh') : ((a[sortKey] == null) - (b[sortKey] == null) || (a[sortKey] || 0) - (b[sortKey] || 0)));
+        if (!list.length) { container.innerHTML = `<div class="empty-state"><div class="es-icon">📍</div><p>${keyword ? '没有找到匹配的地点' : '还没有添加地点'}</p><p style="margin-top:8px;font-size:12px;">在地图上搜索或点击添加</p></div>`; return; }
+        container.innerHTML = list.map(p => { const c = getCategory(p.category); return `<div class="place-card"><div class="place-avatar">${c.icon}</div><div class="place-detail"><div class="pd-name">${p.name}</div><div class="pd-meta"><span class="pd-tag">${c.name}</span>${p.distance !== null ? `<span class="pd-dist">📍 ${w.formatDist(p.distance)}</span>` : ''}</div><div class="pd-times">${p.walkTime !== null ? `<span class="pd-time-item">${getIcon('transport','walking','🚶')} ${p.walkTime}分</span>` : ''}${p.rideTime !== null ? `<span class="pd-time-item">${getIcon('transport','riding','🚲')} ${p.rideTime}分</span>` : ''}${p.driveTime !== null ? `<span class="pd-time-item">${getIcon('transport','driving','🚗')} ${p.driveTime}分</span>` : ''}${p.transitTime !== null ? `<span class="pd-time-item">${getIcon('transport','transit','🚇')} ${p.transitTime}分</span>` : ''}</div>${p.address ? `<div class="pd-note">📌 ${p.address}</div>` : ''}${p.note ? `<div class="pd-note">💬 ${p.note}</div>` : ''}</div><div class="place-actions"><button class="pa-btn detail" onclick="showPlaceDetail(${p.id})">${getIcon('buttons','detail','📋')} 详情</button><button class="pa-btn edit" onclick="editPlace(${p.id})">${getIcon('buttons','edit','✏️')} 编辑</button><button class="pa-btn nav" onclick="navToPlace(${p.id})">${getIcon('buttons','nav','🧭')} 导航</button><button class="pa-btn del" onclick="deletePlace(${p.id})">${getIcon('buttons','delete','🗑️')} 删除</button></div></div>`; }).join('');
+      };
+      w.renderPlaceList();
+    });
+  })();
+  </script>
+</body>
+</html>
