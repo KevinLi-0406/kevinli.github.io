@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.5</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge { position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none; padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">城市漫游行程助手 · v2.0.5</div>
+  <iframe id="plannerFrame" src="travel-planner-v2.0.4.html" title="城市漫游行程助手 v2.0.5"></iframe>
+  <script>
+  (() => {
+    const outerFrame = document.getElementById('plannerFrame');
+    const installTransitDetail = () => {
+      const level2 = outerFrame.contentDocument && outerFrame.contentDocument.getElementById('plannerFrame');
+      const level3 = level2 && level2.contentDocument && level2.contentDocument.getElementById('plannerFrame');
+      const d = level3 && level3.contentDocument;
+      if (!d || !d.body || d.getElementById('amapTransitV205')) return false;
+      const patch = d.createElement('script');
+      patch.id = 'amapTransitV205';
+      patch.textContent = String.raw`
+(() => {
+  if (!window.AMap || window.__travelPlannerV205Patched) return;
+  window.__travelPlannerV205Patched = true;
+
+  const AMAP_KEY = '27a05ef5de2df3e22acf62cee95b0e2c';
+  let activeRequest = 0;
+  let latestDetail = null;
+
+  const text = value => Array.isArray(value) || value == null ? '' : String(value);
+  const number = value => Number(value || 0);
+  const meters = value => number(value) ? number(value) + '米' : '0米';
+  const minutes = value => Math.max(1, Math.round(number(value) / 60)) + '分钟';
+  const lineLabel = name => {
+    const matched = text(name).match(/(?:地铁)?(\d+号线|S\d+线|昌平线|亦庄线|房山线|首都机场线|大兴机场线)/);
+    return matched ? matched[1] : text(name).replace(/^地铁/, '').replace(/[（(].*$/, '').trim() || '公交';
+  };
+  const lineColor = name => {
+    const colors = window.iconConfig && window.iconConfig.subwayColors;
+    return colors && colors[lineLabel(name)] || '#9C27B0';
+  };
+  const walkingInfo = walking => {
+    if (!walking || !number(walking.distance)) return null;
+    const steps = Array.isArray(walking.steps) ? walking.steps : [];
+    const last = steps[steps.length - 1] || {};
+    return { distance: number(walking.distance), instruction: text(last.assistant_action || last.instruction) };
+  };
+
+  /* 唯一的数据入口：直接按 REST 返回的 route.transits 解析，不依赖 SDK plans 的字段结构。 */
+  function parseTransitResponse(response) {
+    const transits = response && response.route && Array.isArray(response.route.transits) ? response.route.transits : [];
+    if (!transits.length) return null;
+    const best = transits.reduce((winner, current) => number(current.duration) < number(winner.duration) ? current : winner);
+    const segments = Array.isArray(best.segments) ? best.segments : [];
+    const rides = [];
+    let firstRideIndex = -1;
+    let lastRideIndex = -1;
+
+    segments.forEach((segment, index) => {
+      const buslines = segment && segment.bus && Array.isArray(segment.bus.buslines) ? segment.bus.buslines : [];
+      if (!buslines.length) return;
+      const busline = buslines[0];
+      const departure = text(busline.departure_stop && busline.departure_stop.name);
+      const arrival = text(busline.arrival_stop && busline.arrival_stop.name);
+      if (!departure || !arrival) return;
+      if (firstRideIndex < 0) firstRideIndex = index;
+      lastRideIndex = index;
+      rides.push({
+        name: text(busline.name),
+        type: text(busline.type),
+        line: lineLabel(busline.name),
+        color: lineColor(busline.name),
+        departure,
+        arrival,
+        viaNum: number(busline.via_num),
+        viaStops: Array.isArray(busline.via_stops) ? busline.via_stops.map(stop => text(stop && stop.name)).filter(Boolean) : [],
+        distance: number(busline.distance),
+        duration: number(busline.duration)
+      });
+    });
+
+    const transfers = rides.slice(1).map((ride, index) => rides[index].arrival === ride.departure ? ride.departure : '').filter(Boolean);
+    const before = firstRideIndex > 0 ? walkingInfo(segments[firstRideIndex - 1] && segments[firstRideIndex - 1].walking) : null;
+    const after = lastRideIndex >= 0 && lastRideIndex < segments.length - 1 ? walkingInfo(segments[lastRideIndex + 1] && segments[lastRideIndex + 1].walking) : null;
+    return {
+      total: { duration: number(best.duration), distance: number(best.distance), walkingDistance: number(best.walking_distance), cost: text(best.cost) || '0' },
+      rides,
+      transfers,
+      startWalk: before && { distance: before.distance, station: rides[0] && rides[0].departure, instruction: before.instruction },
+      endWalk: after && { distance: after.distance, station: rides[rides.length - 1] && rides[rides.length - 1].arrival, instruction: after.instruction }
+    };
+  }
+
+  function renderTransitDetail(detail) {
+    if (!detail || !detail.rides.length) return '<div class="transit-detail v205-transit-detail">暂无可展示的地铁分段信息</div>';
+    const summary = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">' +
+      '<div style="background:#f8f9ff;border-radius:6px;padding:7px;text-align:center;"><b style="color:#667eea;">' + minutes(detail.total.duration) + '</b><br><small>总耗时</small></div>' +
+      '<div style="background:#f8f9ff;border-radius:6px;padding:7px;text-align:center;"><b style="color:#667eea;">' + detail.total.cost + '元</b><br><small>费用 · 步行' + meters(detail.total.walkingDistance) + '</small></div></div>';
+    const start = detail.startWalk ? '<div class="transit-walk">🚶 步行 ' + meters(detail.startWalk.distance) + ' 到达 ' + detail.startWalk.station + '</div>' : '';
+    const steps = detail.rides.map((ride, index) => {
+      const transfer = index > 0 && detail.transfers[index - 1] ? '<div class="transit-walk">🔄 在 ' + detail.transfers[index - 1] + ' 站换乘</div>' : '';
+      const via = ride.viaStops.length ? '<div style="margin-top:4px;color:#666;line-height:1.45;">途经：' + ride.viaStops.join('、') + '</div>' : '';
+      return transfer + '<div class="transit-step"><span class="transit-line-badge" style="background:' + ride.color + '">' + ride.line + '</span><span>乘坐 ' + ride.name + '<br>' + ride.departure + ' → ' + ride.arrival + '，途经 ' + ride.viaNum + ' 站<br><small style="color:#666;">' + meters(ride.distance) + ' · ' + minutes(ride.duration) + '</small>' + via + '</span></div>';
+    }).join('');
+    const end = detail.endWalk ? '<div class="transit-walk">🚶 从 ' + detail.endWalk.station + ' 出站后步行 ' + meters(detail.endWalk.distance) + ' 到达终点</div>' : '';
+    return '<div class="transit-detail v205-transit-detail">' + summary + start + steps + end + '</div>';
+  }
+
+  function showLatestDetail() {
+    const content = document.getElementById('pdmContent');
+    if (!content || !latestDetail) return;
+    const old = content.querySelector('.v205-section');
+    if (old) old.remove();
+    const section = document.createElement('div');
+    section.className = 'pdm-section v205-section';
+    section.innerHTML = '<div class="pdm-section-title">地铁路线详情</div>' + renderTransitDetail(latestDetail);
+    content.appendChild(section);
+  }
+
+  function requestRawTransit(origin, destination) {
+    const requestId = ++activeRequest;
+    const callback = '__amapTransitV205_' + Date.now() + '_' + requestId;
+    const script = document.createElement('script');
+    const cleanup = () => { delete window[callback]; script.remove(); };
+    window[callback] = response => {
+      cleanup();
+      if (requestId !== activeRequest) return;
+      latestDetail = parseTransitResponse(response);
+      showLatestDetail();
+    };
+    script.onerror = cleanup;
+    script.src = 'https://restapi.amap.com/v3/direction/transit/integrated?key=' + AMAP_KEY + '&origin=' + encodeURIComponent(origin) + '&destination=' + encodeURIComponent(destination) + '&city=' + encodeURIComponent('北京') + '&extensions=all&output=JSON&callback=' + callback;
+    document.head.appendChild(script);
+  }
+
+  /* 详情页原本会执行 AMap.Transfer.search。这里复用同一组起终点，另行获取 REST 原始响应。 */
+  const prototype = AMap.Transfer && AMap.Transfer.prototype;
+  if (prototype && !prototype.__v205SearchPatched) {
+    const baseSearch = prototype.search;
+    prototype.search = function(origin, destination) {
+      const modal = document.getElementById('placeDetailModal');
+      if (modal && modal.classList.contains('active') && origin && destination) {
+        const toPoint = point => Array.isArray(point) ? point[0] + ',' + point[1] : point.getLng() + ',' + point.getLat();
+        try { requestRawTransit(toPoint(origin), toPoint(destination)); } catch (error) { console.warn('地铁详情请求参数无效', error); }
+      }
+      return baseSearch.apply(this, arguments);
+    };
+    prototype.__v205SearchPatched = true;
+  }
+
+  /* 详情打开时清理旧地点的缓存展示；MutationObserver 保证原详情 DOM 重绘后仍能写入新结果。 */
+  document.addEventListener('click', event => {
+    const button = event.target.closest && event.target.closest('.pa-btn.detail');
+    if (!button) return;
+    activeRequest += 1;
+    latestDetail = null;
+  }, true);
+  const content = document.getElementById('pdmContent');
+  if (content) new MutationObserver(() => { if (latestDetail) showLatestDetail(); }).observe(content, { childList: true });
+})();`;
+      d.body.appendChild(patch);
+      return true;
+    };
+    outerFrame.addEventListener('load', () => {
+      let attempts = 0;
+      const timer = setInterval(() => {
+        if (installTransitDetail() || ++attempts > 80) clearInterval(timer);
+      }, 150);
+    });
+  })();
+  </script>
+</body>
+</html>

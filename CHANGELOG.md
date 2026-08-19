@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 20:15 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.5.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：基于 v2.0.4 新增 v2.0.5，并将地点详情的地铁数据源改为直接请求及解析高德 REST `route.transits` 原始响应，避免 SDK `plans` 字段与 REST 字段不一致导致详情为空。按 `duration` 选取最短方案，提取 `bus.buslines[0]`、换乘节点及首末步行后展示。
+- **影响范围**：城市漫游行程助手 v2.0.5 的地点详情地铁路线信息及首页旅行规划项目列表
+- **关联请求**："基于2.0.4继续修改"、"从这些方案中，选出耗时最短的那一条地铁出行方案，提取关键信息，用于前端页面展示。"
+
 ### 2026-08-19 20:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.1.0.html`、`Projects/project-config.json`
 - **变更类型**：新增
@@ -30,7 +37,7 @@ All notable changes to this project will be documented in this file.
 - **变更类型**：新增
 - **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.2。修复地铁分段配置色绘制被清除、详情按钮跨 iframe 访问词法变量失效、驾车与导航图标兜底，以及将搜索与输入推荐改为以高德已转换的当前位置为 `location` 的 100km 周边检索。
 - **影响范围**：城市漫游行程助手 v2.0.2 独立访问页、首页旅行规划项目列表
-- **关联请求**："你的地图上的地铁线路没有按照我的要求"、"location设置为这一步获取到的location"、"驾车icon为空、导航icon为空"、"地点列表的详情按钮点击后没有任何反应"
+- **关联请求**："你的地图上的地铁线路没有按照我的要求"、"location设置为这一步获取到的location"、"驾车icon为空"、"地点列表的详情按钮点击后没有任何反应"
 
 ### 2026-08-19 18:45 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.1.html`、`Projects/project-config.json`
