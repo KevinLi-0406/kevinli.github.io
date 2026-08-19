@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 19:00 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.4.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.4。修复 v2.0.3 详情弹窗跨 iframe 重写后无法访问原页面词法状态的问题；保留原详情函数，并捕获其高德换乘原始响应，直接读取 `route.transits[].segments[].bus.buslines[]` 中地铁线路的上下车站、途经站数和途经站列表。
+- **影响范围**：城市漫游行程助手 v2.0.4 地点详情弹窗、地铁路线详情及首页旅行规划项目列表
+- **关联请求**："地图上都画出来了，接口里也有，为什么你这显示没有地铁路线详情"
+
 ### 2026-08-19 19:30 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.3.html`、`Projects/project-config.json`
 - **变更类型**：新增
