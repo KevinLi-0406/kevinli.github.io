@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 17:57 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修复
+- **变更描述**：
+  1. **搜索自动推荐回退**：将 `AMap.PlaceSearch` 回退到 `AMap.AutoComplete`，因为 `PlaceSearch` 返回完整搜索结果数据量大、响应慢，用户体验差。`AutoComplete` 是专门用于输入建议的 API，响应更快
+  2. **地铁详情显示修复**：`extractTransitDetail()` 函数正确从 `seg.bus.buslines[0]` 中提取 `departure_stop.name`（起点站）、`arrival_stop.name`（终点站）、`via_num`（途径站数）
+  3. **添加调试日志**：在 `showPlaceRoute()` 中添加 `console.log('🚇 地铁详情:', detail)` 便于排查问题
+- **影响范围**：地图搜索自动推荐、地铁路线详情展示
+- **关联请求**：用户反馈"搜索自动推荐不工作了，建议回退到之前工作的版本"、"地铁路线详情也不显示了，还不如上一个版本"
+
 ### 2026-08-19 16:59 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修复
