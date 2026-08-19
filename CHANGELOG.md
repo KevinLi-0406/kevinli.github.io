@@ -1,38 +1,45 @@
-# CHANGELOG
+# Changelog
+
+All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### 2026-08-19 16:45 (UTC+8)
+### 2026-08-19 16:59 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修复
-- **变更描述**：修复地铁路线2个核心问题：1. 地铁颜色现在从 `icon-config.json` 的 `subwayColors` 配置表读取（`loadIconConfig()` 中用 `Object.assign` 合并），新增 `getSubwayColor()` 函数支持精确+模糊匹配；2. 地铁详情改为时间轴式串联展示（`.transit-timeline`），显示线路名+方向+上车/下车站点+途经站数，换乘站之间显示"在XX站换乘XX线"提示；3. 地图上每段地铁线路用对应颜色绘制彩色 polyline（`drawTransitPolylines()`），切换交通方式时自动清除重绘
+- **变更描述**：
+  1. 修复搜索自动推荐功能：将 `AMap.AutoComplete` 替换为 `AMap.PlaceSearch`，因为 `AutoComplete` 不支持 `setLocation()` 和 `setRadius()` 方法，导致 JS 报错且搜索不工作
+  2. 修复地铁详情显示：`extractTransitDetail()` 函数从 `seg.transit.onstation` 改为正确读取 `seg.bus.buslines[0].departure_stop.name`（起点站）、`arrival_stop.name`（终点站）、`via_num`（途径站数）
+- **影响范围**：地图搜索功能、地铁路线详情展示
+- **关联请求**：用户反馈"搜索地点功能不好使了"、"地铁起点站和终点站没显示，途径的站点数也没显示"
+
+### 2026-08-19 16:30 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修复
+- **变更描述**：
+  1. 修复搜索框 location 参数传递：在 `doAutoComplete()` 中使用 `new AMap.LngLat()` 正确传递当前位置
+  2. 将"💾 保存方案"按钮移到地点列表页顶部
+  3. 修复方案页滚动问题：`.tab-content` 添加 `height: 100%; overflow-y: auto`
+  4. 交通按钮 z-index 提升至 60
+- **影响范围**：搜索功能、方案保存、方案页滚动、交通方式切换
+
+### 2026-08-19 16:00 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修复
+- **变更描述**：
+  1. 修复地铁颜色从 `icon-config.json` 读取：`loadIconConfig()` 中添加 `Object.assign(SUBWAY_COLORS, iconConfig.subwayColors)`
+  2. 重写地铁详情为时间轴式展示：线路名 + 方向 + 上车站→下车站 + 途经站数
+  3. 新增 `drawTransitPolylines()` 函数，为每段地铁线路绘制彩色 polyline
 - **影响范围**：地铁路线颜色、地铁详情展示、地图线路绘制
-- **关联请求**：用户反馈"地铁路线颜色没有根据icon-config.json配置表读取"、"每条线一行的展示方式不友好，希望串联起来并增加换乘车站，地图上的不同段线路也要用不同颜色标识"
 
-### 2026-08-19 16:22 (UTC+8)
+### 2026-08-19 15:30 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修复
-- **变更描述**：修复4个问题：1. 搜索框 autocomplete 传入 location 参数（使用 `setLocation()` 和 `setRadius()`），确保搜索结果以当前位置为中心；2. 确认保存方案按钮已在地点列表页顶部；3. 修复方案页滚动问题（`.tab-content` 添加 `height: 100%; overflow-y: auto`）；4. 确认交通按钮 z-index=60 高于地图展开后的 z-index=50
-- **影响范围**：搜索功能、方案页滚动、交通按钮显示
-- **关联请求**：用户反馈搜索麦当劳时结果在东城区而非当前位置附近
-
-### 2026-08-19 14:00 (UTC+8)
-- **修改文件**：`Projects/travel-planner.html`
-- **变更类型**：修复
-- **变更描述**：修复主页项目列表加载 403 错误，将项目加载方式从 GitHub Contents API 改为直接读取 `project-config.json`，避免 API 速率限制
+- **变更描述**：修复主页项目列表加载 403 错误，将项目加载方式从 GitHub Contents API 改为直接读取 `project-config.json`
 - **影响范围**：主页项目列表加载
-- **关联请求**：用户反馈 "GitHub API Error (403)"
 
-### 2026-08-19 12:00 (UTC+8)
+### 2026-08-19 15:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
-- **变更类型**：修复
-- **变更描述**：所有按钮改为"文字+icon"格式，确保即使 emoji 不显示也能识别功能。包括搜索、定位、全览、重置、详情、编辑、导航、删除等所有按钮
+- **变更类型**：修改
+- **变更描述**：将所有按钮改为"文字 +icon"格式，确保即使 emoji 不显示也能正常使用
 - **影响范围**：所有按钮显示
-- **关联请求**：用户反馈"修复了一万次，还是没修复好，导致现在很多图标看不到icon"
-
-### 2026-08-19 10:00 (UTC+8)
-- **修改文件**：`Projects/travel-planner.html`
-- **变更类型**：修复
-- **变更描述**：修复4个问题：1. 搜索框以当前位置为基础搜索（传入 location 参数）；2. 保存方案按钮移到地点列表页顶部；3. 方案页滚动修复（flex:1 + overflow-y:auto）；4. 交通按钮 z-index 提升至 60
-- **影响范围**：搜索功能、方案保存、方案滚动、交通按钮显示
-- **关联请求**：用户反馈搜索不以当前位置为基础、保存按钮位置不对、方案无法滚动、交通按钮不可见
