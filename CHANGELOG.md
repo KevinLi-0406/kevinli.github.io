@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 20:30 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.4.html`
+- **变更类型**：修复
+- **变更描述**：移除 v2.0.4 到 v2.0.2 的双层 iframe 数据链路，改为直接承载原始页面并在同一页面作用域内重写地点详情的路线查询。详情直接请求高德 `route.transits`，按 `duration` 选取最短方案，解析 `bus.buslines[0]`、换乘节点及首末步行后缓存并渲染。
+- **影响范围**：城市漫游行程助手 v2.0.4 的地点详情地铁路线信息；地图路线、搜索、地点与方案管理逻辑保持不变。
+- **关联请求**："你已经连续多个版本没有把这个需求实现了，原因是什么？解决办法是什么？"、"执行"
+
 ### 2026-08-19 20:15 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.5.html`、`Projects/project-config.json`
 - **变更类型**：新增
