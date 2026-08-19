@@ -324,7 +324,11 @@
         .panel-toggle:hover { color: #667eea; }
 
         /* ========== 标签页内容 ========== */
-        .tab-content { display: none; }
+        .tab-content { 
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+        }
         .tab-content.active { display: block; }
 
         /* ========== 地点列表页 ========== */
@@ -827,13 +831,13 @@
             <div class="map-search-bar">
                 <input type="text" id="mapSearchInput" placeholder="搜索地点..." autocomplete="off">
                 <button class="map-search-clear" id="mapSearchClear" onclick="clearMapSearch()">✕</button>
-                <button onclick="doMapSearch()"> 搜索</button>
+                <button onclick="doMapSearch()">🔍 搜索</button>
             </div>
             <div class="search-results" id="searchResults"></div>
 
             <!-- 地图控件 -->
             <div class="map-controls">
-                <button class="map-ctrl-btn" onclick="centerToMyLocation()" title="回到我的位置"> 定位</button>
+                <button class="map-ctrl-btn" onclick="centerToMyLocation()" title="回到我的位置">📍 定位</button>
                 <button class="map-ctrl-btn" onclick="fitAllPlaces()" title="显示所有地点">👁️ 全览</button>
                 <button class="map-ctrl-btn" onclick="resetMapView()" title="重置视图">🔄 重置</button>
             </div>
@@ -846,7 +850,7 @@
                         <div class="pdp-address" id="pdpAddress"></div>
                         <div class="pdp-category" id="pdpCategory"></div>
                     </div>
-                    <button class="pdp-close" onclick="closePoiDetail()">✕ 关闭</button>
+                    <button class="pdp-close" onclick="closePoiDetail()"> 关闭</button>
                 </div>
                 <div class="pdp-actions">
                     <button class="pdp-btn-cancel" onclick="closePoiDetail()">取消</button>
@@ -882,30 +886,30 @@
             <div class="tab-content active" id="tabPlaces">
                 <div class="places-page">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                        <h3 style="font-size:16px;">📍 我的地点</h3>
+                        <h3 style="font-size:16px;"> 我的地点</h3>
                         <button onclick="openSavePlanModal()" style="padding:8px 16px;border:none;border-radius:10px;background:#667eea;color:white;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;">💾 保存方案</button>
                     </div>
                     <div class="search-filter-bar">
-                        <input type="text" id="placeSearchInput" placeholder="🔍 搜索地点名称..." oninput="renderPlaceList()">
+                        <input type="text" id="placeSearchInput" placeholder=" 搜索地点名称..." oninput="renderPlaceList()">
                     </div>
                     <div class="category-scroll" id="categoryScroll">
                         <button class="cat-btn active" data-cat="all" onclick="setCategory('all')">全部</button>
                         <button class="cat-btn" data-cat="park" onclick="setCategory('park')">🌳 公园</button>
-                        <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">️ 博物馆</button>
-                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">️ 美食</button>
+                        <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">🏛️ 博物馆</button>
+                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">🍽️ 美食</button>
                         <button class="cat-btn" data-cat="cafe" onclick="setCategory('cafe')">☕ 咖啡</button>
-                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">️ 购物</button>
+                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">🛍️ 购物</button>
                         <button class="cat-btn" data-cat="scenic" onclick="setCategory('scenic')">🎯 景点</button>
                         <button class="cat-btn" data-cat="hotel" onclick="setCategory('hotel')">🏨 酒店</button>
                         <button class="cat-btn" data-cat="transport" onclick="setCategory('transport')">🚉 交通</button>
-                        <button class="cat-btn" data-cat="other" onclick="setCategory('other')"> 其他</button>
+                        <button class="cat-btn" data-cat="other" onclick="setCategory('other')">📌 其他</button>
                     </div>
                     <div class="sort-bar">
                         <button class="sort-btn active" data-sort="distance" onclick="setSort('distance')">📏 距离近</button>
                         <button class="sort-btn" data-sort="walkTime" onclick="setSort('walkTime')">🚶 步行</button>
                         <button class="sort-btn" data-sort="rideTime" onclick="setSort('rideTime')">🚲 骑行</button>
                         <button class="sort-btn" data-sort="driveTime" onclick="setSort('driveTime')"> 驾车</button>
-                        <button class="sort-btn" data-sort="transitTime" onclick="setSort('transitTime')"> 地铁</button>
+                        <button class="sort-btn" data-sort="transitTime" onclick="setSort('transitTime')">🚇 地铁</button>
                         <button class="sort-btn" data-sort="name" onclick="setSort('name')">🔤 名称</button>
                     </div>
                     <div id="placeListContainer"></div>
@@ -954,15 +958,15 @@
                 <div class="form-group">
                     <label>分类</label>
                     <select id="fCategory">
-                        <option value="park"> 公园</option>
+                        <option value="park">🌳 公园</option>
                         <option value="museum">️ 博物馆</option>
                         <option value="food">🍽️ 美食</option>
                         <option value="cafe">☕ 咖啡</option>
-                        <option value="shopping">️ 购物</option>
-                        <option value="scenic"> 景点</option>
-                        <option value="hotel">🏨 酒店</option>
+                        <option value="shopping">🛍️ 购物</option>
+                        <option value="scenic">🎯 景点</option>
+                        <option value="hotel"> 酒店</option>
                         <option value="transport">🚉 交通</option>
-                        <option value="other"> 其他</option>
+                        <option value="other">📌 其他</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1018,7 +1022,7 @@
             <div class="modal-title">设置当前位置</div>
             <div class="form-group">
                 <label>方式一：自动定位</label>
-                <button onclick="autoLocate(); closeSetLocationModal();" style="width:100%;padding:12px;border:none;border-radius:10px;background:#667eea;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📍 重新定位</button>
+                <button onclick="autoLocate(); closeSetLocationModal();" style="width:100%;padding:12px;border:none;border-radius:10px;background:#667eea;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"> 重新定位</button>
             </div>
             <div class="form-group">
                 <label>方式二：手动输入坐标</label>
@@ -1054,7 +1058,7 @@
         <div class="modal-sheet confirm-modal">
             <div class="modal-handle"></div>
             <div class="cm-content">
-                <div class="cm-icon" id="cmIcon">️</div>
+                <div class="cm-icon" id="cmIcon">⚠️</div>
                 <div class="cm-message" id="cmMessage">确认操作？</div>
                 <div class="cm-submessage" id="cmSubmessage"></div>
             </div>
@@ -1116,9 +1120,9 @@
 
     // 分类图标映射
     const CAT_ICONS = {
-        park: '🌳', museum: '️', food: '🍽️',
-        cafe: '☕', shopping: '️', scenic: '',
-        hotel: '🏨', transport: '', other: '📌'
+        park: '', museum: '🏛️', food: '🍽️',
+        cafe: '☕', shopping: '🛍️', scenic: '🎯',
+        hotel: '', transport: '🚉', other: '📌'
     };
     const CAT_NAMES = {
         park: '公园', museum: '博物馆', food: '美食',
@@ -1153,7 +1157,7 @@
                 console.log('✅ 图标配置文件加载成功');
             }
         } catch(e) {
-            console.warn('️ 图标配置文件加载失败，使用默认配置');
+            console.warn('⚠️ 图标配置文件加载失败，使用默认配置');
         }
     }
 
@@ -1238,7 +1242,7 @@
                 showToast('✅ 定位成功');
             } else {
                 document.getElementById('locationText').textContent = '定位失败';
-                showToast('⚠️ 定位失败，请检查权限');
+                showToast('️ 定位失败，请检查权限');
             }
         });
     }
@@ -1289,7 +1293,7 @@
     function enableMapClickForLocation() {
         isMapClickForLocation = true;
         closeSetLocationModal();
-        showToast('👆 请点击地图选择位置');
+        showToast(' 请点击地图选择位置');
     }
 
     function setMyPositionFromMap(lng, lat) {
@@ -1519,7 +1523,14 @@
         showToast('🗑️ 搜索已清空');
     }
 
+    // 修复问题1：autocomplete 搜索时传入当前位置
     function doAutoComplete(keyword) {
+        // 每次搜索前更新 location 参数
+        if (myPosition) {
+            autoComplete.setLocation(new AMap.LngLat(myPosition.lng, myPosition.lat));
+            autoComplete.setRadius(100000); // 100km
+        }
+        
         autoComplete.search(keyword, (status, result) => {
             if (status === 'complete' && result.tips && result.tips.length > 0) {
                 renderSearchResults(result.tips);
@@ -1591,7 +1602,7 @@
                 <div class="search-result-item" onclick="selectSearchResult(${lng}, ${lat})">
                     <div class="sr-name">${poi.name}</div>
                     <div class="sr-address">${poi.district || ''} ${poi.address || ''}</div>
-                    ${distStr ? `<div class="sr-dist">📍 ${distStr}</div>` : ''}
+                    ${distStr ? `<div class="sr-dist"> ${distStr}</div>` : ''}
                 </div>
             `;
 
@@ -1863,7 +1874,7 @@
             return;
         }
         map.setFitView(markers, false, [80, 10, 10, 10]);
-        showToast('👁️ 已显示所有地点');
+        showToast('️ 已显示所有地点');
     }
 
     // ============================================================
@@ -1939,7 +1950,7 @@
         if (filtered.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="es-icon">📍</div>
+                    <div class="es-icon"></div>
                     <p>${keyword ? '没有找到匹配的地点' : '还没有添加地点'}</p>
                     <p style="margin-top:8px;font-size:12px;">在地图上搜索或点击添加</p>
                 </div>
@@ -1949,7 +1960,7 @@
 
         container.innerHTML = filtered.map(p => `
             <div class="place-card">
-                <div class="place-avatar">${CAT_ICONS[p.category] || '📌'}</div>
+                <div class="place-avatar">${CAT_ICONS[p.category] || ''}</div>
                 <div class="place-detail">
                     <div class="pd-name">${p.name}</div>
                     <div class="pd-meta">
@@ -1957,18 +1968,18 @@
                         ${p.distance !== null ? `<span class="pd-dist">📍 ${formatDist(p.distance)}</span>` : ''}
                     </div>
                     <div class="pd-times">
-                        ${p.walkTime !== null ? `<span class="pd-time-item">🚶${p.walkTime}分</span>` : ''}
+                        ${p.walkTime !== null ? `<span class="pd-time-item">${p.walkTime}分</span>` : ''}
                         ${p.rideTime !== null ? `<span class="pd-time-item">🚲${p.rideTime}分</span>` : ''}
-                        ${p.driveTime !== null ? `<span class="pd-time-item">${p.driveTime}分</span>` : ''}
+                        ${p.driveTime !== null ? `<span class="pd-time-item">🚗${p.driveTime}分</span>` : ''}
                         ${p.transitTime !== null ? `<span class="pd-time-item">🚇${p.transitTime}分</span>` : ''}
                     </div>
                     ${p.address ? `<div class="pd-note">📌 ${p.address}</div>` : ''}
                     ${p.note ? `<div class="pd-note">💬 ${p.note}</div>` : ''}
                 </div>
                 <div class="place-actions">
-                    <button class="pa-btn detail" onclick="showPlaceDetail(${p.id})" title="详情"> 详情</button>
+                    <button class="pa-btn detail" onclick="showPlaceDetail(${p.id})" title="详情">📋 详情</button>
                     <button class="pa-btn edit" onclick="editPlace(${p.id})" title="编辑">✏️ 编辑</button>
-                    <button class="pa-btn nav" onclick="navToPlace(${p.id})" title="导航"> 导航</button>
+                    <button class="pa-btn nav" onclick="navToPlace(${p.id})" title="导航">🧭 导航</button>
                     <button class="pa-btn del" onclick="deletePlace(${p.id})" title="删除">🗑️ 删除</button>
                 </div>
             </div>
@@ -2011,7 +2022,7 @@
             <div class="pdm-section">
                 <div class="pdm-section-title">基本信息</div>
                 <p style="font-size:14px;color:#333;">${CAT_ICONS[place.category] || '📌'} ${CAT_NAMES[place.category] || '其他'}</p>
-                ${place.address ? `<p style="font-size:13px;color:#666;margin-top:4px;"> ${place.address}</p>` : ''}
+                ${place.address ? `<p style="font-size:13px;color:#666;margin-top:4px;">📌 ${place.address}</p>` : ''}
                 ${place.note ? `<p style="font-size:13px;color:#666;margin-top:4px;">💬 ${place.note}</p>` : ''}
             </div>
             <div class="pdm-section">
@@ -2074,7 +2085,7 @@
                 if (step.entry) html += `<div class="transit-walk">🚶 入口：${step.entry}</div>`;
                 if (step.exit) html += `<div class="transit-walk"> 出口：${step.exit}</div>`;
             } else if (step.type === 'walk') {
-                html += `<div class="transit-step"><span class="transit-walk">🚶 步行 ${step.distance}km</span></div>`;
+                html += `<div class="transit-step"><span class="transit-walk"> 步行 ${step.distance}km</span></div>`;
             }
         });
         html += '</div>';
@@ -2149,7 +2160,7 @@
     }
 
     function deletePlace(id) {
-        showConfirmModal('️', '确定要删除这个地点吗？', '删除后无法恢复', () => {
+        showConfirmModal('⚠️', '确定要删除这个地点吗？', '删除后无法恢复', () => {
             places = places.filter(p => p.id !== id);
             delete placeRouteCache[id];
             saveData();
@@ -2280,7 +2291,7 @@
     function renderPlanList() {
         const container = document.getElementById('planListContainer');
         if (plans.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><p>还没有保存方案<br>添加地点后点击"保存当前方案"</p></div>';
+            container.innerHTML = '<div class="empty-state"><div class="es-icon"></div><p>还没有保存方案<br>添加地点后点击"保存当前方案"</p></div>';
             return;
         }
 
@@ -2292,12 +2303,12 @@
                         <div class="pc-name"> ${plan.name}</div>
                         <div class="pc-count">${planPlaces.length} 个地点</div>
                     </div>
-                    ${plan.note ? `<div style="font-size:12px;color:#999;margin-bottom:8px;"> ${plan.note}</div>` : ''}
+                    ${plan.note ? `<div style="font-size:12px;color:#999;margin-bottom:8px;">💬 ${plan.note}</div>` : ''}
                     <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || ''} ${p.name}`).join('、')}</div>
                     <div class="pc-actions">
                         <button style="background:#e8f4fd;color:#1976d2;" onclick="loadPlan(${plan.id})">📂 加载</button>
                         <button style="background:#e8f5e9;color:#388e3c;" onclick="editPlan(${plan.id})">️ 编辑</button>
-                        <button style="background:#fff3e0;color:#f57c00;" onclick="renamePlan(${plan.id})">️ 重命名</button>
+                        <button style="background:#fff3e0;color:#f57c00;" onclick="renamePlan(${plan.id})">✏️ 重命名</button>
                         <button style="background:#fee;color:#e74c3c;" onclick="deletePlan(${plan.id})">🗑️ 删除</button>
                     </div>
                 </div>
@@ -2344,7 +2355,7 @@
             plans = plans.filter(p => p.id !== id);
             saveData();
             renderPlanList();
-            showToast('️ 方案已删除');
+            showToast('🗑️ 方案已删除');
         });
     }
 
