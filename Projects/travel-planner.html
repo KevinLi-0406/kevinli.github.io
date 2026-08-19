@@ -182,7 +182,7 @@
             bottom: 10px;
             left: 10px;
             right: 10px;
-            z-index: 15;
+            z-index: 60;
             display: none;
             gap: 6px;
             overflow-x: auto;
@@ -827,7 +827,7 @@
             <div class="map-search-bar">
                 <input type="text" id="mapSearchInput" placeholder="搜索地点..." autocomplete="off">
                 <button class="map-search-clear" id="mapSearchClear" onclick="clearMapSearch()">✕</button>
-                <button onclick="doMapSearch()">🔍 搜索</button>
+                <button onclick="doMapSearch()"> 搜索</button>
             </div>
             <div class="search-results" id="searchResults"></div>
 
@@ -881,6 +881,10 @@
             <!-- 地点列表页 -->
             <div class="tab-content active" id="tabPlaces">
                 <div class="places-page">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <h3 style="font-size:16px;">📍 我的地点</h3>
+                        <button onclick="openSavePlanModal()" style="padding:8px 16px;border:none;border-radius:10px;background:#667eea;color:white;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;">💾 保存方案</button>
+                    </div>
                     <div class="search-filter-bar">
                         <input type="text" id="placeSearchInput" placeholder="🔍 搜索地点名称..." oninput="renderPlaceList()">
                     </div>
@@ -888,20 +892,20 @@
                         <button class="cat-btn active" data-cat="all" onclick="setCategory('all')">全部</button>
                         <button class="cat-btn" data-cat="park" onclick="setCategory('park')">🌳 公园</button>
                         <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">️ 博物馆</button>
-                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">🍽️ 美食</button>
+                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">️ 美食</button>
                         <button class="cat-btn" data-cat="cafe" onclick="setCategory('cafe')">☕ 咖啡</button>
-                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">🛍️ 购物</button>
+                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">️ 购物</button>
                         <button class="cat-btn" data-cat="scenic" onclick="setCategory('scenic')">🎯 景点</button>
                         <button class="cat-btn" data-cat="hotel" onclick="setCategory('hotel')">🏨 酒店</button>
                         <button class="cat-btn" data-cat="transport" onclick="setCategory('transport')">🚉 交通</button>
-                        <button class="cat-btn" data-cat="other" onclick="setCategory('other')">📌 其他</button>
+                        <button class="cat-btn" data-cat="other" onclick="setCategory('other')"> 其他</button>
                     </div>
                     <div class="sort-bar">
                         <button class="sort-btn active" data-sort="distance" onclick="setSort('distance')">📏 距离近</button>
                         <button class="sort-btn" data-sort="walkTime" onclick="setSort('walkTime')">🚶 步行</button>
                         <button class="sort-btn" data-sort="rideTime" onclick="setSort('rideTime')">🚲 骑行</button>
                         <button class="sort-btn" data-sort="driveTime" onclick="setSort('driveTime')"> 驾车</button>
-                        <button class="sort-btn" data-sort="transitTime" onclick="setSort('transitTime')">🚇 地铁</button>
+                        <button class="sort-btn" data-sort="transitTime" onclick="setSort('transitTime')"> 地铁</button>
                         <button class="sort-btn" data-sort="name" onclick="setSort('name')">🔤 名称</button>
                     </div>
                     <div id="placeListContainer"></div>
@@ -913,7 +917,6 @@
                 <div class="plans-page">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                         <h3 style="font-size:16px;"> 我的方案</h3>
-                        <button onclick="openSavePlanModal()" style="padding:8px 16px;border:none;border-radius:10px;background:#667eea;color:white;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;">💾 保存方案</button>
                     </div>
                     <div id="planListContainer"></div>
                 </div>
@@ -928,7 +931,7 @@
             <span>地点</span>
         </button>
         <button class="nav-item" data-tab="plans" onclick="switchTab('plans')">
-            <span class="nav-icon">📋</span>
+            <span class="nav-icon"></span>
             <span>方案</span>
         </button>
     </div>
@@ -952,10 +955,10 @@
                     <label>分类</label>
                     <select id="fCategory">
                         <option value="park"> 公园</option>
-                        <option value="museum">🏛️ 博物馆</option>
+                        <option value="museum">️ 博物馆</option>
                         <option value="food">🍽️ 美食</option>
                         <option value="cafe">☕ 咖啡</option>
-                        <option value="shopping">🛍️ 购物</option>
+                        <option value="shopping">️ 购物</option>
                         <option value="scenic"> 景点</option>
                         <option value="hotel">🏨 酒店</option>
                         <option value="transport">🚉 交通</option>
@@ -1051,7 +1054,7 @@
         <div class="modal-sheet confirm-modal">
             <div class="modal-handle"></div>
             <div class="cm-content">
-                <div class="cm-icon" id="cmIcon">⚠️</div>
+                <div class="cm-icon" id="cmIcon">️</div>
                 <div class="cm-message" id="cmMessage">确认操作？</div>
                 <div class="cm-submessage" id="cmSubmessage"></div>
             </div>
@@ -1114,7 +1117,7 @@
     // 分类图标映射
     const CAT_ICONS = {
         park: '🌳', museum: '️', food: '🍽️',
-        cafe: '☕', shopping: '️', scenic: '🎯',
+        cafe: '☕', shopping: '️', scenic: '',
         hotel: '🏨', transport: '', other: '📌'
     };
     const CAT_NAMES = {
@@ -1532,6 +1535,7 @@
 
         showLoading('搜索中...');
         
+        // 修复问题1：每次搜索前重新设置 location 参数
         const searchOptions = {
             pageSize: 20,
             city: currentCity,
@@ -1539,8 +1543,8 @@
         };
         
         if (myPosition) {
-            searchOptions.location = [myPosition.lng, myPosition.lat];
-            searchOptions.radius = 100000;
+            searchOptions.location = new AMap.LngLat(myPosition.lng, myPosition.lat);
+            searchOptions.radius = 100000; // 100km 半径
         }
         
         placeSearch.setOptions(searchOptions);
@@ -1962,7 +1966,7 @@
                     ${p.note ? `<div class="pd-note">💬 ${p.note}</div>` : ''}
                 </div>
                 <div class="place-actions">
-                    <button class="pa-btn detail" onclick="showPlaceDetail(${p.id})" title="详情">📋 详情</button>
+                    <button class="pa-btn detail" onclick="showPlaceDetail(${p.id})" title="详情"> 详情</button>
                     <button class="pa-btn edit" onclick="editPlace(${p.id})" title="编辑">✏️ 编辑</button>
                     <button class="pa-btn nav" onclick="navToPlace(${p.id})" title="导航"> 导航</button>
                     <button class="pa-btn del" onclick="deletePlace(${p.id})" title="删除">🗑️ 删除</button>
@@ -2068,7 +2072,7 @@
                     </div>
                 `;
                 if (step.entry) html += `<div class="transit-walk">🚶 入口：${step.entry}</div>`;
-                if (step.exit) html += `<div class="transit-walk">🚇 出口：${step.exit}</div>`;
+                if (step.exit) html += `<div class="transit-walk"> 出口：${step.exit}</div>`;
             } else if (step.type === 'walk') {
                 html += `<div class="transit-step"><span class="transit-walk">🚶 步行 ${step.distance}km</span></div>`;
             }
@@ -2145,7 +2149,7 @@
     }
 
     function deletePlace(id) {
-        showConfirmModal('🗑️', '确定要删除这个地点吗？', '删除后无法恢复', () => {
+        showConfirmModal('️', '确定要删除这个地点吗？', '删除后无法恢复', () => {
             places = places.filter(p => p.id !== id);
             delete placeRouteCache[id];
             saveData();
@@ -2292,7 +2296,7 @@
                     <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || ''} ${p.name}`).join('、')}</div>
                     <div class="pc-actions">
                         <button style="background:#e8f4fd;color:#1976d2;" onclick="loadPlan(${plan.id})">📂 加载</button>
-                        <button style="background:#e8f5e9;color:#388e3c;" onclick="editPlan(${plan.id})">✏️ 编辑</button>
+                        <button style="background:#e8f5e9;color:#388e3c;" onclick="editPlan(${plan.id})">️ 编辑</button>
                         <button style="background:#fff3e0;color:#f57c00;" onclick="renamePlan(${plan.id})">️ 重命名</button>
                         <button style="background:#fee;color:#e74c3c;" onclick="deletePlan(${plan.id})">🗑️ 删除</button>
                     </div>
