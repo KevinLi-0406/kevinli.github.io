@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 20:45 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.6.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：基于 v2.0.4 新增 v2.0.6，修复地点详情中起点站、终点站与途经站数为空的问题。站点解析兼容高德 REST 与 JS SDK 的对象、字符串及多种命名字段，并在 `via_num` 缺失时以途经站数组或 `pass_stop_num` 回退计算。
+- **影响范围**：城市漫游行程助手 v2.0.6 的地点详情地铁/公交步骤信息及首页旅行规划项目列表。
+- **关联请求**："修改后生成2.0.6版本"、"起点站名字、终点站名字、途径站数均为空"
+
 ### 2026-08-19 20:30 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.4.html`
 - **变更类型**：修复
