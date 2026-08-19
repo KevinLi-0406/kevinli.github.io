@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.8</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge { position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none; padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">城市漫游行程助手 · v2.0.8</div>
+  <iframe id="plannerFrame" src="travel-planner-v2.0.7.html" title="城市漫游行程助手 v2.0.8"></iframe>
+  <script>
+  (() => {
+    const frame = document.getElementById('plannerFrame');
+
+    function installNamePatch(baseDocument) {
+      if (!baseDocument || baseDocument.getElementById('poiNameV208Core')) return;
+      const script = baseDocument.createElement('script');
+      script.id = 'poiNameV208Core';
+      script.textContent = String.raw`
+(() => {
+  if (window.__travelPlannerV208NameInstalled) return;
+  window.__travelPlannerV208NameInstalled = true;
+
+  function normalizePoiName(value) {
+    let name = value == null ? '' : String(value).trim();
+    if (!name || name.length <= 20) return name;
+
+    /* 去除“北京市朝阳区东风乡”等行政区划前缀，保留 POI 的核心名称。 */
+    name = name.replace(/^(?:中国)?(?:北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]{2,}(?:省|自治区))?[\u4e00-\u9fa5]{0,12}(?:区|县|市)(?:[\u4e00-\u9fa5]{0,12}(?:乡|镇|街道|村|路|街))?/, '');
+
+    /* 对“朝阳站(地铁站)朝阳站交通枢纽”保留括号前的核心 POI 名称。 */
+    const bracketIndex = name.search(/[（(]/);
+    if (bracketIndex > 0) name = name.slice(0, bracketIndex).trim();
+
+    return name || String(value).trim();
+  }
+
+  const originalShowPoiDetail = window.showPoiDetail;
+  window.showPoiDetail = function(poi) {
+    if (!poi) return originalShowPoiDetail.call(this, poi);
+    return originalShowPoiDetail.call(this, { ...poi, name: normalizePoiName(poi.name) });
+  };
+
+  /* 保留原有分类判断，仅阻止该函数再次以高德长名称覆盖已规范的地点名称。 */
+  window.autoDetectCategory = function(address, poi) {
+    const categoryText = ((address || '') + ' ' + (poi && poi.name || '') + ' ' + (poi && poi.type || '')).toLowerCase();
+    let category = '';
+    if (categoryText.includes('公园') || categoryText.includes('绿地') || categoryText.includes('广场')) category = 'park';
+    else if (categoryText.includes('博物馆') || categoryText.includes('美术馆') || categoryText.includes('展览')) category = 'museum';
+    else if (categoryText.includes('餐厅') || categoryText.includes('饭店') || categoryText.includes('美食') || categoryText.includes('小吃')) category = 'food';
+    else if (categoryText.includes('咖啡') || categoryText.includes('茶饮') || categoryText.includes('奶茶')) category = 'cafe';
+    else if (categoryText.includes('商场') || categoryText.includes('购物') || categoryText.includes('超市')) category = 'shopping';
+    else if (categoryText.includes('景区') || categoryText.includes('景点') || categoryText.includes('旅游')) category = 'scenic';
+    else if (categoryText.includes('酒店') || categoryText.includes('宾馆') || categoryText.includes('住宿')) category = 'hotel';
+    else if (categoryText.includes('地铁') || categoryText.includes('车站') || categoryText.includes('机场')) category = 'transport';
+
+    if (category) document.getElementById('fCategory').value = category;
+    if (poi && poi.name) document.getElementById('fName').value = normalizePoiName(poi.name);
+  };
+})();`;
+      baseDocument.body.appendChild(script);
+    }
+
+    function attachToBase() {
+      const v207Document = frame.contentDocument;
+      const baseFrame = v207Document && v207Document.getElementById('plannerFrame');
+      if (!baseFrame) return;
+      const apply = () => installNamePatch(baseFrame.contentDocument);
+      baseFrame.addEventListener('load', apply);
+      apply();
+    }
+
+    frame.addEventListener('load', attachToBase);
+  })();
+  </script>
+</body>
+</html>
