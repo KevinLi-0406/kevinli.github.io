@@ -134,8 +134,6 @@
     }
   .cp-toggle-btn{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 12px;border:1px solid var(--cp-yellow);color:var(--cp-yellow);background:transparent;transition:.2s;text-transform:uppercase;clip-path:polygon(8% 0%,100% 0%,92% 100%,0% 100%);text-decoration:none;}.cp-toggle-btn:hover{background:var(--cp-yellow);color:var(--cp-bg);}
   </style>
-<link rel="preconnect" href="https://api.github.com" crossorigin>
-  <link rel="dns-prefetch" href="https://api.github.com">
 </head>
 <body class="logged-out">
   <header class="topbar">
@@ -175,11 +173,11 @@
           <div class="profile-info">
             <h2>李奕兴 · Kevin</h2>
             <div class="subtitle">应用工程师 · 集团信息化中心</div>
-            <p class="bio">2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
+            <p class="bio">2023 年 3 月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
             <div class="profile-meta">
               <span>🏢 纳恩博（北京）科技有限公司</span>
               <span>📍 海外销服系统部</span>
-              <span>📅 2023年3月入职</span>
+              <span>📅 2023 年 3 月入职</span>
               <span>🌐 支持北美/欧洲/墨西哥</span>
             </div>
           </div>
@@ -235,21 +233,21 @@
         <div class="section-heading"><div><h2>工作风格</h2><p>同事眼中的 Kevin</p></div></div>
         <div class="achievements-grid">
           <div class="achievement-card"><div class="a-icon">🔥</div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
-          <div class="achievement-card"><div class="a-icon">🛡️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
-          <div class="achievement-card"><div class="a-icon">🏃</div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
+          <div class="achievement-card"><div class="a-icon">️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
           <div class="achievement-card"><div class="a-icon">😄</div><h3>幽默风趣</h3><p>工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
-          <div class="achievement-card"><div class="a-icon">📝</div><h3>善于总结沉淀</h3><p>多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
-          <div class="achievement-card"><div class="a-icon">🤝</div><h3>跨文化协作</h3><p>耐心教海外同事系统操作，2025年赴阿姆斯特丹/巴黎现场演示。</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>善于总结沉淀</h3><p>多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
+          <div class="achievement-card"><div class="a-icon">🤝</div><h3>跨文化协作</h3><p>耐心教海外同事系统操作，2025 年赴阿姆斯特丹/巴黎现场演示。</p></div>
         </div>
       </div>
     </section>
 
     <section id="projects" class="section">
       <div class="container">
-        <div class="section-heading"><div><h2>我的项目</h2><p id="projectCount">从 kevinli.github.io/Projects 目录实时加载</p></div></div>
+        <div class="section-heading"><div><h2>我的项目</h2><p id="projectCount">从 project-config.json 加载项目列表</p></div></div>
         <div class="filter-bar" id="filterBar" style="display:none"></div>
         <div id="project-grid" class="project-grid">
-          <div class="loading-state"><div class="loading-spinner"></div><div>正在从 GitHub 拉取项目…</div></div>
+          <div class="loading-state"><div class="loading-spinner"></div><div>正在加载项目列表…</div></div>
         </div>
       </div>
     </section>
@@ -257,8 +255,8 @@
     <section class="section">
       <div class="container">
         <div class="info-grid">
-          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取。</p></div>
-          <div class="info-card"><h3>使用技术</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
+          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 project-config.json 配置文件管理，无需调用 GitHub API，避免速率限制。</p></div>
+          <div class="info-card"><h3>使用技术</h3><p>纯 HTML / CSS / JavaScript，项目配置通过 JSON 文件管理。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub Pages</span></div></div>
         </div>
       </div>
     </section>
@@ -361,7 +359,7 @@
         var data = JSON.parse(session);
         document.body.classList.remove("logged-out");
         document.body.classList.add("logged-in");
-        document.getElementById("currentNickname").textContent = "欢迎, " + data.nickname;
+        document.getElementById("currentNickname").textContent = "欢迎，" + data.nickname;
         document.getElementById("userProfile").style.display = "flex";
       } else {
         document.getElementById("userProfile").style.display = "none";
@@ -441,7 +439,7 @@
         localStorage.setItem("portal_session", JSON.stringify({ username: found.username, nickname: found.nickname }));
         document.body.classList.remove("logged-out");
         document.body.classList.add("logged-in");
-        document.getElementById("currentNickname").textContent = "欢迎, " + found.nickname;
+        document.getElementById("currentNickname").textContent = "欢迎，" + found.nickname;
         document.getElementById("userProfile").style.display = "flex";
       } else {
         document.getElementById("loginError").textContent = "密码错误，请重试";
@@ -453,73 +451,24 @@
       location.reload();
     }
 
-    // ===== 项目加载逻辑 =====
-    var CATEGORY_MAP = {
-      "宝可梦":"cat.fun","pokemon":"cat.fun","图鉴":"cat.fun",
-      "杰尼龟":"cat.fun","squirtle":"cat.fun","宠物":"cat.fun",
-      "游戏":"cat.fun","game":"cat.fun","音乐":"cat.fun",
-      "画":"cat.fun","draw":"cat.fun",
-      "工具":"cat.tool","tool":"cat.tool","utility":"cat.tool",
-      "计算器":"cat.tool","calc":"cat.tool","天气":"cat.tool",
-      "关于":"cat.profile","个人":"cat.profile","about":"cat.profile",
-      "博客":"cat.content","blog":"cat.content",
-      "项目展示":"cat.content","portfolio":"cat.content",
-      "链接":"cat.nav","link":"cat.nav","导航":"cat.nav",
-      "数据":"cat.data","data":"cat.data","分析":"cat.data"
-    };
-
-    var CAT_ZH = {"cat.fun":"趣味互动","cat.tool":"工具应用","cat.profile":"个人信息","cat.content":"内容展示","cat.nav":"导航工具","cat.data":"数据分析","cat.other":"其他"};
-    var ICONS = {"cat.fun":"⚡","cat.tool":"🛠️","cat.profile":"👤","cat.content":"🚀","cat.nav":"🔗","cat.data":"📊"};
-
-    // ===== 外部项目配置文件 =====
+    // ===== 项目加载逻辑（使用 project-config.json，避免 GitHub API 速率限制）=====
     var projectConfig = null;
 
     async function fetchProjectConfig() {
-      try {
-        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/project-config.json?v=" + Date.now();
-        var resp = await fetch(url);
-        if (!resp.ok) return null;
-        projectConfig = await resp.json();
-        return projectConfig;
-      } catch(e) {
-        console.warn("project-config.json 加载失败，使用内置默认配置", e);
-        return null;
-      }
-    }
-
-    function getCatKey(name) {
-      if (projectConfig && projectConfig.projects) {
-        for (var i = 0; i < projectConfig.projects.length; i++) {
-          var p = projectConfig.projects[i];
-          var pName = p.file.replace(/\.html?$/i, "");
-          if (pName === name) return p.category || "cat.other";
-        }
-      }
-      var low = name.toLowerCase();
-      for (var k in CATEGORY_MAP) { if (low.includes(k)) return CATEGORY_MAP[k]; }
-      return "cat.other";
-    }
-    function getCatName(name) { return CAT_ZH[getCatKey(name)] || "其他"; }
-    function getIcon(name) { return ICONS[getCatKey(name)] || "📄"; }
-    function esc(v) { return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
-    async function fetchProjectFiles() {
-      var cacheKey = "kp_cache_v1";
+      var cacheKey = "project_config_cache_v1";
       var cached = localStorage.getItem(cacheKey);
       if (cached) {
-        try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.files; } catch(e) {}
+        try {
+          var d = JSON.parse(cached);
+          if (Date.now() - d.ts < 300000) return d.config;
+        } catch(e) {}
       }
-      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR;
+      var url = PAGES_BASE + "/" + PROJECTS_DIR + "/project-config.json?v=" + Date.now();
       var resp = await fetch(url);
-      if (!resp.ok) {
-        if (resp.status === 404) throw new Error('"' + PROJECTS_DIR + '" 目录未找到');
-        throw new Error("GitHub API Error (" + resp.status + ")");
-      }
-      var files = (await resp.json()).filter(function(f) {
-        return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
-      });
-      try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), files: files})); } catch(e) {}
-      return files;
+      if (!resp.ok) throw new Error("无法加载 project-config.json (" + resp.status + ")");
+      var config = await resp.json();
+      try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), config: config})); } catch(e) {}
+      return config;
     }
 
     var allItems = [];
@@ -543,15 +492,14 @@
       var html = "";
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
-        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
-        var icon = it.customIcon || getIcon(it.name);
+        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file);
+        var icon = it.icon || "📄";
         html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
         html += '<div class="project-icon">' + esc(icon) + '</div>';
         html += '<h3>' + esc(it.name) + '</h3>';
-        html += '<p>点击打开此项目页面</p>';
+        html += '<p>' + esc(it.description || '点击打开此项目页面') + '</p>';
         html += '<div class="project-meta">';
-        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + getCatName(it.name) + '</span>';
-        html += '<span class="meta-item">💾 ' + (it.file.size / 1024).toFixed(1) + ' KB</span>';
+        html += '<span class="meta-item" style="padding:2px 8px;border-radius:999px;background:var(--bg-light);border:1px solid var(--border);font-size:11px">' + esc(it.catName) + '</span>';
         html += '</div>';
         html += '<span class="card-link">打开项目 →</span>';
         html += '</a>';
@@ -566,32 +514,45 @@
       var fb = document.getElementById("filterBar");
       fb.style.display = "flex";
       fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + esc(CAT_ZH[c] || c) + '</option>'; }).join('') + '</select>';
+        cats.map(function(c) { return '<option value="' + c + '">' + esc(projectConfig.defaults.categories[c]?.label || c) + '</option>'; }).join('') + '</select>';
       document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
     }
 
+    function esc(v) { return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
     (async function() {
       try {
-        await fetchProjectConfig();
-        if (projectConfig) {
-          if (projectConfig.defaults && projectConfig.defaults.categories) {
-            var dc = projectConfig.defaults.categories;
-            for (var k in dc) { CAT_ZH[k] = dc[k].label; ICONS[k] = dc[k].icon; }
+        projectConfig = await fetchProjectConfig();
+        if (!projectConfig || !projectConfig.projects) {
+          throw new Error("project-config.json 格式错误");
+        }
+
+        // 合并默认分类配置
+        if (projectConfig.defaults && projectConfig.defaults.categories) {
+          var dc = projectConfig.defaults.categories;
+          for (var k in dc) {
+            if (!window.CAT_ZH) window.CAT_ZH = {};
+            if (!window.ICONS) window.ICONS = {};
+            window.CAT_ZH[k] = dc[k].label;
+            window.ICONS[k] = dc[k].icon;
           }
         }
-        var files = await fetchProjectFiles();
-        allItems = files.map(function(f) {
-          var name = f.name.replace(/\.html?$/i, "");
-          var customIcon = null;
-          if (projectConfig && projectConfig.projects) {
-            for (var j = 0; j < projectConfig.projects.length; j++) {
-              var p = projectConfig.projects[j];
-              var pName = p.file.replace(/\.html?$/i, "");
-              if (pName === name) { customIcon = p.icon || null; break; }
-            }
-          }
-          return { file: f, name: name, catKey: getCatKey(name), customIcon: customIcon };
+
+        // 从 project-config.json 构建项目列表
+        allItems = projectConfig.projects.map(function(p) {
+          var name = p.file.replace(/\.html?$/i, "");
+          var catKey = p.category || "cat.other";
+          var catName = (projectConfig.defaults.categories && projectConfig.defaults.categories[catKey]) ? projectConfig.defaults.categories[catKey].label : "其他";
+          return {
+            file: p.file,
+            name: name,
+            icon: p.icon || "",
+            catKey: catKey,
+            catName: catName,
+            description: p.description || null
+          };
         });
+
         buildFilter();
         applyFilters();
       } catch(err) {
