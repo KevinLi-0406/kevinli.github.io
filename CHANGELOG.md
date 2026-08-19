@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 18:35 (UTC+8)
+- **修改文件**：`Projects/project-config.json`
+- **变更类型**：修改
+- **变更描述**：在主页项目配置中新增 `travel-planner-v2.0.0.html`，使 `index.html` 通过既有项目加载逻辑展示城市漫游 v2.0.0 的入口。
+- **影响范围**：首页项目列表、旅行规划分类
+- **关联请求**："新版本的travelplanner没有在index.html中显示"
+
 ### 2026-08-19 18:26 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.0.html`
 - **变更类型**：新增
