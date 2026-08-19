@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-20",
+  "description": "城市漫游行程助手 - 图标配置文件",
+  "categories": {
+    "park": { "icon": "🌳", "name": "公园" },
+    "museum": { "icon": "️", "name": "博物馆" },
+    "food": { "icon": "🍽️", "name": "美食" },
+    "cafe": { "icon": "☕", "name": "咖啡" },
+    "shopping": { "icon": "🛍️", "name": "购物" },
+    "scenic": { "icon": "🎯", "name": "景点" },
+    "hotel": { "icon": "🏨", "name": "酒店" },
+    "transport": { "icon": "🚉", "name": "交通" },
+    "other": { "icon": "📌", "name": "其他" }
+  },
+  "buttons": {
+    "detail": { "icon": "📋", "title": "详情" },
+    "edit": { "icon": "️", "title": "编辑" },
+    "nav": { "icon": "🧭", "title": "导航" },
+    "delete": { "icon": "🗑️", "title": "删除" },
+    "search": { "icon": "🔍", "title": "搜索" },
+    "clear": { "icon": "✕", "title": "清空" },
+    "reset": { "icon": "🔄", "title": "重置" },
+    "location": { "icon": "📍", "title": "定位" },
+    "fitAll": { "icon": "👁️", "title": "显示所有地点" },
+    "save": { "icon": "💾", "title": "保存" },
+    "load": { "icon": "📂", "title": "加载" },
+    "rename": { "icon": "🏷️", "title": "重命名" },
+    "add": { "icon": "", "title": "添加" },
+    "close": { "icon": "✕", "title": "关闭" },
+    "confirm": { "icon": "✅", "title": "确认" },
+    "cancel": { "icon": "❌", "title": "取消" }
+  },
+  "transport": {
+    "walking": { "icon": "", "name": "步行" },
+    "riding": { "icon": "🚲", "name": "骑行" },
+    "driving": { "icon": "🚗", "name": "驾车" },
+    "transit": { "icon": "🚇", "name": "地铁" }
+  },
+  "subwayColors": {
+    "1号线": "#C23A30",
+    "2号线": "#004B87",
+    "4号线": "#007A33",
+    "5号线": "#A400A3",
+    "6号线": "#CFB53B",
+    "7号线": "#F47920",
+    "8号线": "#007B7F",
+    "9号线": "#8DC23E",
+    "10号线": "#009B77",
+    "13号线": "#FED500",
+    "14号线": "#D4A574",
+    "15号线": "#5E3B99",
+    "昌平线": "#E0B0FF",
+    "亦庄线": "#C4007D",
+    "房山线": "#F7941D",
+    "S1线": "#8B8B8B",
+    "首都机场线": "#A6CCE2",
+    "大兴机场线": "#C9182B"
+  }
+}
