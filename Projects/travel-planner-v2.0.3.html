@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.3</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge { position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none; padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">城市漫游行程助手 · v2.0.3</div>
+  <iframe id="plannerFrame" src="travel-planner-v2.0.2.html" title="城市漫游行程助手 v2.0.3"></iframe>
+  <script>
+  (() => {
+    const outerFrame = document.getElementById('plannerFrame');
+    const installPatch = () => {
+      const outerDocument = outerFrame.contentDocument;
+      const innerFrame = outerDocument && outerDocument.getElementById('plannerFrame');
+      const d = innerFrame && innerFrame.contentDocument;
+      if (!d || !d.body || d.getElementById('amapTransitV203Patch')) return false;
+      const patch = d.createElement('script');
+      patch.id = 'amapTransitV203Patch';
+      patch.textContent = String.raw`
+(() => {
+  if (!window.AMap || window.__travelPlannerV203Patched) return;
+  window.__travelPlannerV203Patched = true;
+
+  const transitOverlayGroup = [];
+  const lineKey = name => {
+    const value = String(name || '');
+    const match = value.match(/(?:地铁)?(\d+号线|S\d+线|昌平线|亦庄线|房山线|首都机场线|大兴机场线)/);
+    return match ? match[1] : value.replace(/^地铁/, '').replace(/[（(].*$/, '').trim();
+  };
+  const colorOf = name => (iconConfig && iconConfig.subwayColors && iconConfig.subwayColors[lineKey(name)]) || '#9C27B0';
+  const parsePath = polyline => String(polyline || '').split(';').map(point => point.split(',').map(Number)).filter(point => point.length === 2 && Number.isFinite(point[0]) && Number.isFinite(point[1]));
+  const clean = value => Array.isArray(value) ? '' : String(value || '');
+  const isSubway = busline => clean(busline && busline.type) === '地铁线路';
+
+  /* 直接对应高德 direction/transit/integrated 的 route.transits[].segments 数据结构。 */
+  function parseTransitPlan(plan) {
+    const segments = Array.isArray(plan && plan.segments) ? plan.segments : [];
+    return segments.flatMap(segment => {
+      const lines = segment && segment.bus && Array.isArray(segment.bus.buslines) ? segment.bus.buslines : [];
+      return lines.filter(isSubway).map(busline => ({
+        type: busline.type,
+        name: clean(busline.name),
+        line: lineKey(busline.name),
+        color: colorOf(busline.name),
+        departure: clean(busline.departure_stop && busline.departure_stop.name),
+        arrival: clean(busline.arrival_stop && busline.arrival_stop.name),
+        viaNum: Number(busline.via_num || 0),
+        viaStops: Array.isArray(busline.via_stops) ? busline.via_stops.map(stop => clean(stop && stop.name)).filter(Boolean) : [],
+        polyline: clean(busline.polyline),
+        direction: (() => {
+          const matched = clean(busline.name).match(/[（(]([^）)]+)[）)]/);
+          return matched ? matched[1] : '';
+        })()
+      }));
+    });
+  }
+  function getTransitPlan(response) {
+    return response && ((Array.isArray(response.plans) && response.plans[0]) || (response.route && Array.isArray(response.route.transits) && response.route.transits[0]) || (Array.isArray(response.transits) && response.transits[0]));
+  }
+  function clearTransitOverlays() {
+    if (transitOverlayGroup.length && map) map.remove(transitOverlayGroup);
+    transitOverlayGroup.length = 0;
+  }
+  function drawActualSubwayLines(lines) {
+    clearTransitOverlays();
+    lines.forEach(item => {
+      const path = parsePath(item.polyline);
+      if (path.length < 2) return;
+      const overlay = new AMap.Polyline({ path, strokeColor: item.color, strokeWeight: 7, strokeOpacity: 0.96, lineJoin: 'round', lineCap: 'round', zIndex: 160 });
+      overlay.setMap(map);
+      transitOverlayGroup.push(overlay);
+    });
+    if (transitOverlayGroup.length) map.setFitView(transitOverlayGroup, false, [70, 45, 70, 65]);
+    return transitOverlayGroup.length > 0;
+  }
+  function subwayDetailHtml(lines) {
+    if (!lines.length) return '<div class="transit-detail">未获取到地铁线路分段。</div>';
+    return '<div class="transit-detail">' + lines.map(item => {
+      const direction = item.direction ? '（' + item.direction + '）' : '';
+      const via = item.viaStops.length ? '<div style="margin-top:5px;color:#666;font-size:12px;line-height:1.55;">途经：' + item.viaStops.join('、') + '</div>' : '';
+      return '<div class="transit-step"><span class="transit-line-badge" style="background:' + item.color + '">' + item.line + '</span><span>' + item.name + direction + '<br>' + item.departure + ' → ' + item.arrival + '（途经 ' + item.viaNum + ' 站）' + via + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  const previousDrawRoute = window.drawRoute;
+  window.drawRoute = function(place, mode, results) {
+    if (mode !== 'transit') return previousDrawRoute.apply(this, arguments);
+    if (!myPosition || !place || !place.lng || !place.lat) return;
+    clearRoutes();
+    clearTransitOverlays();
+    const origin = [myPosition.lng, myPosition.lat];
+    const destination = [place.lng, place.lat];
+    transferInstance.search(origin, destination, (status, response) => {
+      const plan = status === 'complete' ? getTransitPlan(response) : null;
+      const lines = parseTransitPlan(plan);
+      if (drawActualSubwayLines(lines)) {
+        /* 仅在已成功按真实 polyline 绘制后清除高德默认覆盖物，防止默认样式遮挡线路配置色。 */
+        transferInstance.clear();
+      } else if (previousDrawRoute) {
+        previousDrawRoute(place, mode, results);
+      }
+    });
+  };
+
+  const previousShowPlaceDetail = window.showPlaceDetail;
+  window.showPlaceDetail = function(id) {
+    if (previousShowPlaceDetail) previousShowPlaceDetail(id);
+    const place = places.find(item => item.id === id);
+    if (!place || !myPosition || !place.lng || !place.lat) return;
+    transferInstance.search([myPosition.lng, myPosition.lat], [place.lng, place.lat], (status, response) => {
+      const lines = status === 'complete' ? parseTransitPlan(getTransitPlan(response)) : [];
+      const content = document.getElementById('pdmContent');
+      if (!content) return;
+      const oldSection = content.querySelector('.v203-subway-section');
+      if (oldSection) oldSection.remove();
+      const section = document.createElement('div');
+      section.className = 'pdm-section v203-subway-section';
+      section.innerHTML = '<div class="pdm-section-title">地铁路线详情</div>' + subwayDetailHtml(lines);
+      content.appendChild(section);
+    });
+  };
+
+  window.extractTransitDetail = parseTransitPlan;
+  window.renderTransitDetail = subwayDetailHtml;
+})();`;
+      d.body.appendChild(patch);
+      return true;
+    };
+    outerFrame.addEventListener('load', () => {
+      let attempts = 0;
+      const timer = setInterval(() => {
+        if (installPatch() || ++attempts > 40) clearInterval(timer);
+      }, 150);
+    });
+  })();
+  </script>
+</body>
+</html>

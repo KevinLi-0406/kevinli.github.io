@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 19:30 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.3.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.3。地铁路线和详情改为直接读取高德换乘响应中 `segments[].bus.buslines[]` 的线路类型、上下车站、途经站数、途经站及真实 `polyline`，并按 `icon-config.json` 的线路颜色绘制。
+- **影响范围**：城市漫游行程助手 v2.0.3 地铁地图路线、地点详情弹窗及首页旅行规划项目列表
+- **关联请求**："这些数据接口里都有，为什么你做前端展示的时候不用呢？"
+
 ### 2026-08-19 19:10 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.2.html`、`Projects/project-config.json`
 - **变更类型**：新增

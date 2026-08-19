@@ -28,6 +28,7 @@
     { "file": "travel-planner.html",        "icon": "🗺️", "category": "cat.travel" },
     { "file": "travel-planner-v2.0.0.html", "icon": "🗺️", "category": "cat.travel" },
     { "file": "travel-planner-v2.0.1.html", "icon": "🗺️", "category": "cat.travel" },
-    { "file": "travel-planner-v2.0.2.html", "icon": "🗺️", "category": "cat.travel" }
+    { "file": "travel-planner-v2.0.2.html", "icon": "🗺️", "category": "cat.travel" },
+    { "file": "travel-planner-v2.0.3.html", "icon": "🗺️", "category": "cat.travel" }
   ]
 }
