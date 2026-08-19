@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### 2026-08-19 16:45 (UTC+8)
+- **修改文件**：`Projects/travel-planner.html`
+- **变更类型**：修复
+- **变更描述**：修复地铁路线2个核心问题：1. 地铁颜色现在从 `icon-config.json` 的 `subwayColors` 配置表读取（`loadIconConfig()` 中用 `Object.assign` 合并），新增 `getSubwayColor()` 函数支持精确+模糊匹配；2. 地铁详情改为时间轴式串联展示（`.transit-timeline`），显示线路名+方向+上车/下车站点+途经站数，换乘站之间显示"在XX站换乘XX线"提示；3. 地图上每段地铁线路用对应颜色绘制彩色 polyline（`drawTransitPolylines()`），切换交通方式时自动清除重绘
+- **影响范围**：地铁路线颜色、地铁详情展示、地图线路绘制
+- **关联请求**：用户反馈"地铁路线颜色没有根据icon-config.json配置表读取"、"每条线一行的展示方式不友好，希望串联起来并增加换乘车站，地图上的不同段线路也要用不同颜色标识"
+
 ### 2026-08-19 16:22 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修复
