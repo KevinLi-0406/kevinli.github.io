@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 22:00 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.2.0.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：以 v2.0.9 为发布基线新增 v2.2.0 独立版本，仅更新页面版本标识与项目入口，不变更 v2.0.9 的功能实现。
+- **影响范围**：城市漫游行程助手 v2.2.0 的独立访问页及首页旅行规划项目列表。
+- **关联请求**："把v2.0.9发布为V2.2.0吧"
+
 ### 2026-08-19 21:45 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.10.html`、`Projects/project-config.json`
 - **变更类型**：新增
