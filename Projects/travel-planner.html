@@ -123,6 +123,24 @@
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
+        .map-search-clear {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px; height: 24px;
+            border: none;
+            border-radius: 50%;
+            background: #ccc;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
+        }
+        .map-search-clear.visible { display: flex; }
 
         /* 搜索结果下拉 */
         .search-results {
@@ -694,6 +712,73 @@
         .place-marker-content:hover {
             transform: scale(1.15) !important;
         }
+
+        /* 自定义确认弹窗 */
+        .confirm-modal .cm-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .confirm-modal .cm-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .confirm-modal .cm-message {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .confirm-modal .cm-submessage {
+            font-size: 13px;
+            color: #999;
+        }
+        .confirm-modal .cm-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .cm-btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .cm-btn-confirm {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* 名称选择器 */
+        .name-selector {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        .name-selector .ns-hint {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .name-selector .ns-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .name-selector .ns-option {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .name-selector .ns-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .name-selector .ns-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -717,6 +802,7 @@
             <!-- 地图搜索 -->
             <div class="map-search-bar">
                 <input type="text" id="mapSearchInput" placeholder="搜索地点..." autocomplete="off">
+                <button class="map-search-clear" id="mapSearchClear" onclick="clearMapSearch()"></button>
                 <button onclick="doMapSearch()">🔍</button>
             </div>
             <div class="search-results" id="searchResults"></div>
@@ -724,7 +810,7 @@
             <!-- 地图控件 -->
             <div class="map-controls">
                 <button class="map-ctrl-btn" onclick="centerToMyLocation()" title="回到我的位置">📍</button>
-                <button class="map-ctrl-btn" onclick="fitAllPlaces()" title="显示所有地点">️</button>
+                <button class="map-ctrl-btn" onclick="fitAllPlaces()" title="显示所有地点">👁️</button>
                 <button class="map-ctrl-btn" onclick="resetMapView()" title="重置视图">🔄</button>
             </div>
 
@@ -736,7 +822,7 @@
                         <div class="pdp-address" id="pdpAddress"></div>
                         <div class="pdp-category" id="pdpCategory"></div>
                     </div>
-                    <button class="pdp-close" onclick="closePoiDetail()"></button>
+                    <button class="pdp-close" onclick="closePoiDetail()">✕</button>
                 </div>
                 <div class="pdp-actions">
                     <button class="pdp-btn-cancel" onclick="closePoiDetail()">关闭</button>
@@ -753,7 +839,7 @@
                     🚲 <span class="tb-time" id="tbRideTime">--</span>
                 </button>
                 <button class="transport-btn" data-mode="driving" onclick="switchTransport('driving')">
-                    🚗 <span class="tb-time" id="tbDriveTime">--</span>
+                     <span class="tb-time" id="tbDriveTime">--</span>
                 </button>
                 <button class="transport-btn" data-mode="transit" onclick="switchTransport('transit')">
                     🚇 <span class="tb-time" id="tbTransitTime">--</span>
@@ -778,9 +864,9 @@
                         <button class="cat-btn active" data-cat="all" onclick="setCategory('all')">全部</button>
                         <button class="cat-btn" data-cat="park" onclick="setCategory('park')"> 公园</button>
                         <button class="cat-btn" data-cat="museum" onclick="setCategory('museum')">🏛️ 博物馆</button>
-                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">🍽️ 美食</button>
+                        <button class="cat-btn" data-cat="food" onclick="setCategory('food')">️ 美食</button>
                         <button class="cat-btn" data-cat="cafe" onclick="setCategory('cafe')">☕ 咖啡</button>
-                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">🛍️ 购物</button>
+                        <button class="cat-btn" data-cat="shopping" onclick="setCategory('shopping')">️ 购物</button>
                         <button class="cat-btn" data-cat="scenic" onclick="setCategory('scenic')">🎯 景点</button>
                         <button class="cat-btn" data-cat="hotel" onclick="setCategory('hotel')"> 酒店</button>
                         <button class="cat-btn" data-cat="transport" onclick="setCategory('transport')">🚉 交通</button>
@@ -833,6 +919,10 @@
                 <div class="form-group">
                     <label>地点名称 *</label>
                     <input type="text" id="fName" placeholder="例如：故宫博物院" required>
+                    <div class="name-selector" id="nameSelector" style="display:none;">
+                        <div class="ns-hint">💡 请选择一个合适的名称：</div>
+                        <div class="ns-options" id="nameOptions"></div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>分类</label>
@@ -876,6 +966,16 @@
             <div class="form-group">
                 <label>方案名称</label>
                 <input type="text" id="planNameInput" placeholder="例如：周末北京游">
+            </div>
+            <div class="form-group">
+                <label>备注（可选）</label>
+                <textarea id="planNoteInput" placeholder="例如：适合周末一日游"></textarea>
+            </div>
+            <div class="form-group" id="saveToExistingGroup" style="display:none;">
+                <label>保存到现有方案</label>
+                <select id="saveToExistingPlan">
+                    <option value="">-- 选择方案 --</option>
+                </select>
             </div>
             <div class="form-actions">
                 <button class="btn-cancel" onclick="closeSavePlanModal()">取消</button>
@@ -922,6 +1022,22 @@
         </div>
     </div>
 
+    <!-- 自定义确认弹窗 -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-sheet confirm-modal">
+            <div class="modal-handle"></div>
+            <div class="cm-content">
+                <div class="cm-icon" id="cmIcon">⚠️</div>
+                <div class="cm-message" id="cmMessage">确认操作？</div>
+                <div class="cm-submessage" id="cmSubmessage"></div>
+            </div>
+            <div class="cm-actions">
+                <button class="btn-cancel cm-btn-cancel" onclick="closeConfirmModal()">取消</button>
+                <button class="btn-confirm cm-btn-confirm" id="cmConfirmBtn" onclick="">确认</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 加载遮罩 -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
@@ -958,6 +1074,7 @@
     let placeRouteCache = {};
     let currentCity = '北京';
     let bottomPanelCollapsed = false;
+    let confirmCallback = null;
 
     // 北京地铁线路颜色（官方颜色）
     const SUBWAY_COLORS = {
@@ -1079,7 +1196,7 @@
                 showToast('✅ 定位成功');
             } else {
                 document.getElementById('locationText').textContent = '定位失败';
-                showToast('⚠️ 定位失败，请检查权限');
+                showToast('️ 定位失败，请检查权限');
             }
         });
     }
@@ -1099,7 +1216,7 @@
         if (myPosition) {
             map.setCenter([myPosition.lng, myPosition.lat]);
             map.setZoom(15);
-            showToast(' 已回到当前位置');
+            showToast('📍 已回到当前位置');
         } else {
             autoLocate();
         }
@@ -1329,11 +1446,20 @@
     // ============================================================
     function setupMapSearch() {
         const input = document.getElementById('mapSearchInput');
+        const clearBtn = document.getElementById('mapSearchClear');
         let debounceTimer = null;
 
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             const keyword = input.value.trim();
+            
+            // 显示/隐藏清空按钮
+            if (keyword.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+            
             if (keyword.length < 2) {
                 document.getElementById('searchResults').classList.remove('active');
                 return;
@@ -1346,6 +1472,14 @@
                 document.getElementById('searchResults').classList.remove('active');
             }
         });
+    }
+
+    function clearMapSearch() {
+        document.getElementById('mapSearchInput').value = '';
+        document.getElementById('mapSearchClear').classList.remove('visible');
+        document.getElementById('searchResults').classList.remove('active');
+        clearSearchMarkers();
+        showToast('🗑️ 搜索已清空');
     }
 
     function doAutoComplete(keyword) {
@@ -1496,7 +1630,7 @@
         places.forEach(place => {
             if (!place.lng || !place.lat) return;
 
-            const icon = CAT_ICONS[place.category] || '';
+            const icon = CAT_ICONS[place.category] || '📌';
             const markerContent = document.createElement('div');
             markerContent.className = 'place-marker-content';
             markerContent.innerHTML = `<div style="background:white;border-radius:12px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:18px;white-space:nowrap;">${icon} ${place.name}</div>`;
@@ -1672,6 +1806,7 @@
     function resetMapView() {
         selectedPlaceId = null;
         clearRoutes();
+        clearSearchMarkers(); // 修复问题5：清除搜索结果红点
         document.getElementById('transportBar').classList.remove('active');
         closePoiDetail();
         if (myPosition) {
@@ -1845,7 +1980,7 @@
         let html = `
             <div class="pdm-section">
                 <div class="pdm-section-title">基本信息</div>
-                <p style="font-size:14px;color:#333;">${CAT_ICONS[place.category] || ''} ${CAT_NAMES[place.category] || '其他'}</p>
+                <p style="font-size:14px;color:#333;">${CAT_ICONS[place.category] || '📌'} ${CAT_NAMES[place.category] || '其他'}</p>
                 ${place.address ? `<p style="font-size:13px;color:#666;margin-top:4px;">📌 ${place.address}</p>` : ''}
                 ${place.note ? `<p style="font-size:13px;color:#666;margin-top:4px;">💬 ${place.note}</p>` : ''}
             </div>
@@ -1868,7 +2003,7 @@
                         <div class="ptc-dist">${driveDist ? driveDist + 'km' : ''}</div>
                     </div>
                     <div class="pdm-time-card">
-                        <div class="ptc-icon"></div>
+                        <div class="ptc-icon">🚇</div>
                         <div class="ptc-time">${transitTime ? transitTime + '分钟' : '不可达'}</div>
                         <div class="ptc-dist">${transitDist ? transitDist + 'km' : ''}</div>
                     </div>
@@ -1901,8 +2036,8 @@
             if (step.type === 'subway') {
                 html += `
                     <div class="transit-step">
-                        <span class="transit-line-badge" style="background:${step.color};">${step.line}</span>
-                        <span>${step.from} → ${step.to}</span>
+                        <span class="transit-line-badge" style="background:${step.color};">${step.line || '地铁'}</span>
+                        <span>${step.from || ''} → ${step.to || ''}</span>
                     </div>
                 `;
                 if (step.entry) html += `<div class="transit-walk">入口：${step.entry}</div>`;
@@ -1920,6 +2055,7 @@
     // ============================================================
     function closeAddModal() {
         document.getElementById('addModal').classList.remove('active');
+        document.getElementById('nameSelector').style.display = 'none';
     }
 
     function savePlace() {
@@ -1976,18 +2112,20 @@
         document.getElementById('fAddress').value = place.address || '';
         document.getElementById('fNote').value = place.note || '';
         document.getElementById('fCoords').value = (place.lng && place.lat) ? `${place.lng.toFixed(6)}, ${place.lat.toFixed(6)}` : '';
+        document.getElementById('nameSelector').style.display = 'none';
 
         document.getElementById('addModal').classList.add('active');
     }
 
     function deletePlace(id) {
-        if (!confirm('确定要删除这个地点吗？')) return;
-        places = places.filter(p => p.id !== id);
-        delete placeRouteCache[id];
-        saveData();
-        renderPlaceMarkers();
-        renderPlaceList();
-        showToast('🗑️ 地点已删除');
+        showConfirmModal('🗑️', '确定要删除这个地点吗？', '删除后无法恢复', () => {
+            places = places.filter(p => p.id !== id);
+            delete placeRouteCache[id];
+            saveData();
+            renderPlaceMarkers();
+            renderPlaceList();
+            showToast('🗑️ 地点已删除');
+        });
     }
 
     function navToPlace(id) {
@@ -2052,6 +2190,19 @@
             return;
         }
         document.getElementById('planNameInput').value = '';
+        document.getElementById('planNoteInput').value = '';
+        
+        // 如果有现有方案，显示保存到现有方案的选项
+        const existingGroup = document.getElementById('saveToExistingGroup');
+        const existingSelect = document.getElementById('saveToExistingPlan');
+        if (plans.length > 0) {
+            existingGroup.style.display = 'block';
+            existingSelect.innerHTML = '<option value="">-- 创建新方案 --</option>' + 
+                plans.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        } else {
+            existingGroup.style.display = 'none';
+        }
+        
         document.getElementById('savePlanModal').classList.add('active');
     }
 
@@ -2061,21 +2212,38 @@
 
     function confirmSavePlan() {
         const name = document.getElementById('planNameInput').value.trim();
-        if (!name) { showToast('请输入方案名称'); return; }
-
-        const plan = {
-            id: Date.now(),
-            name: name,
-            placeIds: places.map(p => p.id),
-            placesSnapshot: JSON.parse(JSON.stringify(places)),
-            createdAt: new Date().toISOString()
-        };
-
-        plans.push(plan);
-        saveData();
-        renderPlanList();
-        closeSavePlanModal();
-        showToast('✅ 方案已保存');
+        const note = document.getElementById('planNoteInput').value.trim();
+        const saveToExistingId = document.getElementById('saveToExistingPlan').value;
+        
+        if (saveToExistingId) {
+            // 保存到现有方案
+            const plan = plans.find(p => p.id === parseInt(saveToExistingId));
+            if (plan) {
+                plan.placesSnapshot = JSON.parse(JSON.stringify(places));
+                plan.placeIds = places.map(p => p.id);
+                if (note) plan.note = note;
+                saveData();
+                renderPlanList();
+                closeSavePlanModal();
+                showToast('✅ 方案已更新');
+            }
+        } else {
+            // 创建新方案
+            if (!name) { showToast('请输入方案名称'); return; }
+            const plan = {
+                id: Date.now(),
+                name: name,
+                note: note,
+                placeIds: places.map(p => p.id),
+                placesSnapshot: JSON.parse(JSON.stringify(places)),
+                createdAt: new Date().toISOString()
+            };
+            plans.push(plan);
+            saveData();
+            renderPlanList();
+            closeSavePlanModal();
+            showToast('✅ 方案已保存');
+        }
 
         // 清空当前地点列表
         places = [];
@@ -2088,7 +2256,7 @@
     function renderPlanList() {
         const container = document.getElementById('planListContainer');
         if (plans.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><p>还没有保存方案<br>添加地点后点击"保存当前方案"</p></div>';
+            container.innerHTML = '<div class="empty-state"><div class="es-icon"></div><p>还没有保存方案<br>添加地点后点击"保存当前方案"</p></div>';
             return;
         }
 
@@ -2100,9 +2268,10 @@
                         <div class="pc-name">📋 ${plan.name}</div>
                         <div class="pc-count">${planPlaces.length} 个地点</div>
                     </div>
-                    <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || ''} ${p.name}`).join('、')}</div>
+                    ${plan.note ? `<div style="font-size:12px;color:#999;margin-bottom:8px;">💬 ${plan.note}</div>` : ''}
+                    <div class="pc-places">${planPlaces.map(p => `${CAT_ICONS[p.category] || '📌'} ${p.name}`).join('、')}</div>
                     <div class="pc-actions">
-                        <button style="background:#e8f4fd;color:#1976d2;" onclick="loadPlan(${plan.id})"> 加载</button>
+                        <button style="background:#e8f4fd;color:#1976d2;" onclick="loadPlan(${plan.id})">📂 加载</button>
                         <button style="background:#e8f5e9;color:#388e3c;" onclick="editPlan(${plan.id})">✏️ 编辑</button>
                         <button style="background:#fff3e0;color:#f57c00;" onclick="renamePlan(${plan.id})">🏷️ 重命名</button>
                         <button style="background:#fee;color:#e74c3c;" onclick="deletePlan(${plan.id})">🗑️ 删除</button>
@@ -2136,6 +2305,8 @@
     function renamePlan(id) {
         const plan = plans.find(p => p.id === id);
         if (!plan) return;
+        
+        // 使用自定义弹窗
         const newName = prompt('请输入新名称', plan.name);
         if (newName && newName.trim()) {
             plan.name = newName.trim();
@@ -2146,12 +2317,34 @@
     }
 
     function deletePlan(id) {
-        if (!confirm('确定要删除这个方案吗？')) return;
-        plans = plans.filter(p => p.id !== id);
-        saveData();
-        renderPlanList();
-        showToast('🗑️ 方案已删除');
+        showConfirmModal('️', '确定要删除这个方案吗？', '删除后无法恢复', () => {
+            plans = plans.filter(p => p.id !== id);
+            saveData();
+            renderPlanList();
+            showToast('🗑️ 方案已删除');
+        });
     }
+
+    // ============================================================
+    //  自定义确认弹窗
+    // ============================================================
+    function showConfirmModal(icon, message, submessage, callback) {
+        document.getElementById('cmIcon').textContent = icon;
+        document.getElementById('cmMessage').textContent = message;
+        document.getElementById('cmSubmessage').textContent = submessage || '';
+        confirmCallback = callback;
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        confirmCallback = null;
+    }
+
+    document.getElementById('cmConfirmBtn').onclick = () => {
+        if (confirmCallback) confirmCallback();
+        closeConfirmModal();
+    };
 
     // ============================================================
     //  标签切换
@@ -2249,6 +2442,9 @@
     });
     document.getElementById('placeDetailModal').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closePlaceDetailModal();
+    });
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeConfirmModal();
     });
     </script>
 </body>
