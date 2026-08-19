@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.0</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge {
+      position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none;
+      padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff;
+      font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <!-- 独立版本：保留原 travel-planner.html 的所有既有结构与交互，并仅对本版本注入定点功能补丁。 -->
+  <div class="version-badge">城市漫游行程助手 · v2.0.0</div>
+  <iframe id="plannerFrame" src="travel-planner.html" title="城市漫游行程助手 v2.0.0"></iframe>
+
+  <script>
+  (() => {
+    const frame = document.getElementById('plannerFrame');
+    frame.addEventListener('load', () => {
+      const w = frame.contentWindow;
+      const d = frame.contentDocument;
+      if (!w || !d || !w.AMap) return;
+
+      const DEFAULT_SUBWAY_COLOR = '#9C27B0';
+      let transitOverlays = [];
+
+      const getIcon = (group, key, fallback) =>
+        w.iconConfig && w.iconConfig[group] && w.iconConfig[group][key] && w.iconConfig[group][key].icon || fallback;
+
+      const getLineName = (name) => {
+        const raw = String(name || '').trim();
+        const matched = raw.match(/^(.+?)(?:[（(].*)?$/);
+        return matched ? matched[1].trim() : raw;
+      };
+
+      const getLineColor = (lineName) => {
+        const plainName = getLineName(lineName);
+        return (w.iconConfig && w.iconConfig.subwayColors && w.iconConfig.subwayColors[plainName]) ||
+          (w.SUBWAY_COLORS && w.SUBWAY_COLORS[plainName]) || DEFAULT_SUBWAY_COLOR;
+      };
+
+      const getBusline = (segment) => {
+        if (!segment) return null;
+        if (segment.bus && Array.isArray(segment.bus.buslines) && segment.bus.buslines[0]) return segment.bus.buslines[0];
+        if (segment.transit && Array.isArray(segment.transit.lines) && segment.transit.lines[0]) return segment.transit.lines[0];
+        return null;
+      };
+
+      const getStopName = (stop) => typeof stop === 'string' ? stop : (stop && stop.name) || '';
+
+      function clearTransitOverlays() {
+        if (transitOverlays.length && w.map) w.map.remove(transitOverlays);
+        transitOverlays = [];
+      }
+
+      function parsePolyline(polyline) {
+        if (!polyline) return [];
+        if (Array.isArray(polyline)) return polyline;
+        return String(polyline).split(';').map(point => {
+          const pair = point.split(',').map(Number);
+          return pair.length === 2 && pair.every(Number.isFinite) ? pair : null;
+        }).filter(Boolean);
+      }
+
+      function normalizeTransitDetail(plan) {
+        if (!plan || !Array.isArray(plan.segments)) return [];
+        const steps = [];
+        plan.segments.forEach(segment => {
+          const busline = getBusline(segment);
+          if (busline) {
+            const rawName = busline.name || busline.line_name || '';
+            const line = getLineName(rawName) || '地铁';
+            const directionMatch = String(rawName).match(/[（(]([^）)]+)[）)]/);
+            const direction = busline.direction || (directionMatch ? directionMatch[1] : '');
+            const from = getStopName(busline.departure_stop) || getStopName(segment.transit && segment.transit.onstation);
+            const to = getStopName(busline.arrival_stop) || getStopName(segment.transit && segment.transit.offstation);
+            steps.push({
+              type: 'subway', line, direction, color: getLineColor(line), from, to,
+              viaNum: Number(busline.via_num || busline.via_num === 0 ? busline.via_num : 0),
+              polyline: busline.polyline || '', transferStation: to
+            });
+          } else if (segment.walk && Number(segment.walk.distance) > 0) {
+            steps.push({ type: 'walk', distance: (Number(segment.walk.distance) / 1000).toFixed(1) });
+          }
+        });
+        return steps;
+      }
+
+      function renderTransitSteps(steps) {
+        if (!steps || !steps.length) return '<div class="transit-detail">暂无可展示的地铁分段信息</div>';
+        let html = '<div class="transit-detail transit-detail-v2">';
+        let previousSubway = null;
+        steps.forEach(step => {
+          if (step.type === 'walk') {
+            html += `<div class="transit-step"><span class="transit-walk">🚶 步行 ${step.distance}km</span></div>`;
+            return;
+          }
+          if (previousSubway && previousSubway.to && previousSubway.to === step.from) {
+            html += `<div class="transit-transfer-v2">🔄 在 <strong>${previousSubway.to}</strong> 换乘 <strong>${step.line}</strong></div>`;
+          }
+          html += `<div class="transit-subway-v2">
+            <div><span class="transit-line-badge" style="background:${step.color}">${step.line}</span>${step.direction ? `<span class="transit-direction-v2">${step.direction}</span>` : ''}</div>
+            <div class="transit-stations-v2">🚉 ${step.from || '起点站'} → 🚉 ${step.to || '终点站'}</div>
+            <div class="transit-via-v2">途经 ${step.viaNum || 0} 站</div>
+          </div>`;
+          previousSubway = step;
+        });
+        return html + '</div>';
+      }
+
+      function drawTransitPolylines(steps) {
+        clearTransitOverlays();
+        if (!w.map || !Array.isArray(steps)) return;
+        const transferNames = new Set();
+        let lastSubway = null;
+        steps.forEach(step => {
+          if (step.type !== 'subway') return;
+          const path = parsePolyline(step.polyline);
+          if (path.length > 1) {
+            const polyline = new w.AMap.Polyline({ path, strokeColor: step.color, strokeWeight: 7, strokeOpacity: .9, lineJoin: 'round', lineCap: 'round', zIndex: 120 });
+            polyline.setMap(w.map);
+            transitOverlays.push(polyline);
+          }
+          if (lastSubway && lastSubway.to && lastSubway.to === step.from) transferNames.add(step.from);
+          lastSubway = step;
+        });
+        steps.filter(step => step.type === 'subway' && transferNames.has(step.from)).forEach(step => {
+          if (!step.polyline) return;
+          const path = parsePolyline(step.polyline);
+          if (!path.length) return;
+          const marker = new w.AMap.Marker({
+            position: path[0], offset: new w.AMap.Pixel(-42, -28), zIndex: 130,
+            content: `<div class="transit-transfer-marker-v2">🔄 换乘<br>${step.from}</div>`
+          });
+          marker.setMap(w.map);
+          transitOverlays.push(marker);
+        });
+        if (transitOverlays.length) w.map.setFitView(transitOverlays, false, [70, 40, 90, 40]);
+      }
+
+      const style = d.createElement('style');
+      style.textContent = `
+        .map-section.expanded .transport-bar { bottom: 66px !important; z-index: 96 !important; }
+        .transit-detail-v2 { background:#f0f4ff; padding:10px; border-radius:8px; }
+        .transit-subway-v2 { padding:8px 0; border-bottom:1px solid #dfe5f5; line-height:1.7; }
+        .transit-subway-v2:last-child { border-bottom:none; }
+        .transit-direction-v2 { margin-left:8px; color:#555; font-size:12px; }
+        .transit-stations-v2 { color:#333; font-size:13px; margin-top:3px; }
+        .transit-via-v2 { color:#666; font-size:12px; }
+        .transit-transfer-v2 { padding:8px 0; color:#5a5a5a; font-size:12px; }
+        .transit-transfer-marker-v2 { background:#fff; border:2px solid #667eea; border-radius:8px; padding:3px 6px; color:#333; font-size:10px; line-height:1.3; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.2); white-space:nowrap; }
+      `;
+      d.head.appendChild(style);
+
+      // 配置加载完成后，以 icon-config.json 的 subwayColors 覆盖默认线路颜色。
+      const originalLoadIconConfig = w.loadIconConfig;
+      w.loadIconConfig = async function() {
+        const result = await originalLoadIconConfig.apply(this, arguments);
+        if (w.iconConfig && w.iconConfig.subwayColors && w.SUBWAY_COLORS) Object.assign(w.SUBWAY_COLORS, w.iconConfig.subwayColors);
+        return result;
+      };
+      if (w.iconConfig && w.iconConfig.subwayColors && w.SUBWAY_COLORS) Object.assign(w.SUBWAY_COLORS, w.iconConfig.subwayColors);
+
+      w.extractTransitDetail = normalizeTransitDetail;
+      w.renderTransitDetail = renderTransitSteps;
+
+      // 使用当前位置作为圆心，在当前城市内检索 100km；输入推荐继续使用稳定的 AutoComplete。
+      w.doMapSearch = function() {
+        const keyword = d.getElementById('mapSearchInput').value.trim();
+        if (!keyword) return;
+        w.showLoading('搜索中...');
+        const options = { pageSize: 20, city: w.currentCity, citylimit: true };
+        if (w.myPosition) { options.location = new w.AMap.LngLat(w.myPosition.lng, w.myPosition.lat); options.radius = 100000; }
+        const nearbySearch = new w.AMap.PlaceSearch(options);
+        nearbySearch.search(keyword, (status, result) => {
+          w.hideLoading();
+          if (status === 'complete' && result.poiList && result.poiList.pois && result.poiList.pois.length) w.renderSearchResults(result.poiList.pois);
+          else w.showToast('未找到当前位置 100km 内的相关地点');
+        });
+      };
+
+      // 详情首次打开即查询四种路线，完成后自动刷新详情，不要求先在地图点击地点。
+      const originalShowPlaceDetail = w.showPlaceDetail;
+      w.showPlaceDetail = function(id) {
+        const place = w.places.find(item => item.id === id);
+        if (!place || !w.myPosition || !place.lng || !place.lat || w.placeRouteCache[place.id]) return originalShowPlaceDetail(id);
+        originalShowPlaceDetail(id);
+        w.showLoading('正在查询路线详情...');
+        const from = [w.myPosition.lng, w.myPosition.lat], to = [place.lng, place.lat];
+        const results = {}, complete = (mode, time, distance, detail, plan) => {
+          results[mode] = { time, distance, detail, plan }; 
+          if (Object.keys(results).length !== 4) return;
+          w.placeRouteCache[place.id] = results;
+          w.hideLoading();
+          w.updateTransportBar(results);
+          originalShowPlaceDetail(id);
+          w.renderPlaceList();
+        };
+        w.walkingInstance.search(from, to, (s, r) => { const route = s === 'complete' && r.routes && r.routes[0]; complete('walking', route ? Math.round(route.time / 60) : null, route ? (route.distance / 1000).toFixed(1) : null); });
+        w.ridingInstance.search(from, to, (s, r) => { const route = s === 'complete' && r.routes && r.routes[0]; complete('riding', route ? Math.round(route.time / 60) : null, route ? (route.distance / 1000).toFixed(1) : null); });
+        w.drivingInstance.search(from, to, (s, r) => { const route = s === 'complete' && r.routes && r.routes[0]; complete('driving', route ? Math.round(route.time / 60) : null, route ? (route.distance / 1000).toFixed(1) : null); });
+        w.transferInstance.search(from, to, (s, r) => { const plan = s === 'complete' && r.plans && r.plans[0]; complete('transit', plan ? Math.round(plan.time / 60) : null, plan ? (plan.distance / 1000).toFixed(1) : null, plan ? normalizeTransitDetail(plan) : null, plan); });
+      };
+
+      // 地铁模式：按每段 busline polyline 绘制颜色，并标注实际换乘站。
+      const originalDrawRoute = w.drawRoute;
+      w.drawRoute = function(place, mode, results) {
+        clearTransitOverlays();
+        if (mode !== 'transit') return originalDrawRoute(place, mode, results);
+        const detail = results && results.transit && results.transit.detail;
+        if (detail && detail.length) { w.clearRoutes(); drawTransitPolylines(detail); return; }
+        return originalDrawRoute(place, mode, results);
+      };
+      const originalClearRoutes = w.clearRoutes;
+      w.clearRoutes = function() { clearTransitOverlays(); return originalClearRoutes.apply(this, arguments); };
+
+      // 图标配置完成后及每次地点列表渲染后，补回丢失的驾车/导航图标。
+      const originalRenderPlaceList = w.renderPlaceList;
+      w.renderPlaceList = function() {
+        const result = originalRenderPlaceList.apply(this, arguments);
+        d.querySelectorAll('.pd-time-item').forEach(item => {
+          if (/^\d+分$/.test(item.textContent.trim())) item.textContent = `${getIcon('transport', 'driving', '🚗')}${item.textContent.trim()}`;
+        });
+        d.querySelectorAll('.pa-btn.nav').forEach(button => {
+          if (!button.textContent.includes(getIcon('buttons', 'nav', '🧭'))) button.textContent = `${getIcon('buttons', 'nav', '🧭')} 导航`;
+        });
+        return result;
+      };
+      w.renderPlaceList();
+    });
+  })();
+  </script>
+</body>
+</html>
