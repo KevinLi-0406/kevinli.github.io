@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 21:00 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.7.html`、`Projects/project-config.json`
+- **变更类型**：新增
+- **变更描述**：基于 v2.0.6 新增 v2.0.7，地点详情的地铁分段严格读取高德 `bus.buslines[0]` 同层的 `departure_stop.name`、`arrival_stop.name`、`via_num`、`via_stops`、`distance` 和 `duration`。其中距离按米展示、耗时按秒转换为分钟；缺少有效数值时明确提示数据暂不可用，避免错误显示为“0米 · 1分钟”。
+- **影响范围**：城市漫游行程助手 v2.0.7 的地点详情地铁分段信息及首页旅行规划项目列表。
+- **关联请求**："type=地铁线路的时候，同一层的distance就是米数，duration就是时间（单位为秒，你需要转换为分钟）"、"执行以上修改，并生成新的版本"
+
 ### 2026-08-19 20:45 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.6.html`、`Projects/project-config.json`
 - **变更类型**：新增
