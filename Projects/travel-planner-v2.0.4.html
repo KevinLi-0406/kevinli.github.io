@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>城市漫游行程助手 v2.0.4</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #plannerFrame { width: 100%; height: 100%; margin: 0; border: 0; overflow: hidden; }
+    .version-badge { position: fixed; top: 6px; left: 8px; z-index: 9999; pointer-events: none; padding: 3px 8px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">城市漫游行程助手 · v2.0.4</div>
+  <iframe id="plannerFrame" src="travel-planner-v2.0.2.html" title="城市漫游行程助手 v2.0.4"></iframe>
+  <script>
+  (() => {
+    const outerFrame = document.getElementById('plannerFrame');
+    const installPatch = () => {
+      const outerDocument = outerFrame.contentDocument;
+      const innerFrame = outerDocument && outerDocument.getElementById('plannerFrame');
+      const d = innerFrame && innerFrame.contentDocument;
+      if (!d || !d.body || d.getElementById('amapTransitV204Patch')) return false;
+      const patch = d.createElement('script');
+      patch.id = 'amapTransitV204Patch';
+      patch.textContent = String.raw`
+(() => {
+  if (!window.AMap || window.__travelPlannerV204Patched) return;
+  window.__travelPlannerV204Patched = true;
+
+  let latestTransitResponse = null;
+  let latestTransitAt = 0;
+  const lineKey = name => {
+    const value = String(name || '');
+    const match = value.match(/(?:地铁)?(\d+号线|S\d+线|昌平线|亦庄线|房山线|首都机场线|大兴机场线)/);
+    return match ? match[1] : value.replace(/^地铁/, '').replace(/[（(].*$/, '').trim();
+  };
+  const clean = value => Array.isArray(value) ? '' : String(value || '');
+  const colorOf = name => (window.iconConfig && iconConfig.subwayColors && iconConfig.subwayColors[lineKey(name)]) || '#9C27B0';
+  const getPlan = response => response && (
+    (response.route && Array.isArray(response.route.transits) && response.route.transits[0]) ||
+    (Array.isArray(response.plans) && response.plans[0]) ||
+    (Array.isArray(response.transits) && response.transits[0])
+  );
+  const parseSubwayLines = response => {
+    const plan = getPlan(response);
+    const segments = Array.isArray(plan && plan.segments) ? plan.segments : [];
+    return segments.flatMap(segment => {
+      const buslines = segment && segment.bus && Array.isArray(segment.bus.buslines) ? segment.bus.buslines : [];
+      return buslines.filter(busline => clean(busline.type) === '地铁线路').map(busline => ({
+        name: clean(busline.name),
+        line: lineKey(busline.name),
+        color: colorOf(busline.name),
+        departure: clean(busline.departure_stop && busline.departure_stop.name),
+        arrival: clean(busline.arrival_stop && busline.arrival_stop.name),
+        viaNum: Number(busline.via_num || 0),
+        viaStops: Array.isArray(busline.via_stops) ? busline.via_stops.map(stop => clean(stop && stop.name)).filter(Boolean) : []
+      }));
+    });
+  };
+  const renderSubwayDetail = lines => {
+    if (!lines.length) return '<div class="transit-detail">未获取到地铁线路分段。</div>';
+    return '<div class="transit-detail">' + lines.map(item => {
+      const directionMatch = item.name.match(/[（(]([^）)]+)[）)]/);
+      const direction = directionMatch ? '（' + directionMatch[1] + '）' : '';
+      const via = item.viaStops.length ? '<div style="margin-top:5px;color:#666;font-size:12px;line-height:1.55;">途经：' + item.viaStops.join('、') + '</div>' : '';
+      return '<div class="transit-step"><span class="transit-line-badge" style="background:' + item.color + '">' + item.line + '</span><span>' + item.name + direction + '<br>' + item.departure + ' → ' + item.arrival + '（途经 ' + item.viaNum + ' 站）' + via + '</span></div>';
+    }).join('') + '</div>';
+  };
+
+  /* 不重写 showPlaceDetail：该函数依赖原页面的词法变量。仅捕获其发起的 Transfer 原始响应。 */
+  const transferPrototype = AMap.Transfer && AMap.Transfer.prototype;
+  if (transferPrototype && !transferPrototype.__v204SearchPatched) {
+    const originalSearch = transferPrototype.search;
+    transferPrototype.search = function() {
+      const args = Array.from(arguments);
+      const callbackIndex = args.length - 1;
+      const originalCallback = typeof args[callbackIndex] === 'function' ? args[callbackIndex] : null;
+      if (originalCallback) {
+        args[callbackIndex] = function(status, response) {
+          if (status === 'complete' && response) {
+            latestTransitResponse = response;
+            latestTransitAt = Date.now();
+          }
+          return originalCallback.apply(this, arguments);
+        };
+      }
+      return originalSearch.apply(this, args);
+    };
+    transferPrototype.__v204SearchPatched = true;
+  }
+
+  function appendLatestSubwayDetail() {
+    const content = document.getElementById('pdmContent');
+    if (!content || !latestTransitResponse || Date.now() - latestTransitAt > 15000) return false;
+    const lines = parseSubwayLines(latestTransitResponse);
+    if (!lines.length) return false;
+    const oldSection = content.querySelector('.v204-subway-section');
+    if (oldSection) oldSection.remove();
+    const section = document.createElement('div');
+    section.className = 'pdm-section v204-subway-section';
+    section.innerHTML = '<div class="pdm-section-title">地铁路线详情</div>' + renderSubwayDetail(lines);
+    content.appendChild(section);
+    return true;
+  }
+
+  document.addEventListener('click', event => {
+    const detailButton = event.target.closest && event.target.closest('.pa-btn.detail');
+    if (!detailButton) return;
+    latestTransitResponse = null;
+    latestTransitAt = 0;
+    let attempts = 0;
+    const timer = setInterval(() => {
+      attempts += 1;
+      if (appendLatestSubwayDetail() || attempts >= 40) clearInterval(timer);
+    }, 250);
+  });
+})();`;
+      d.body.appendChild(patch);
+      return true;
+    };
+    outerFrame.addEventListener('load', () => {
+      let attempts = 0;
+      const timer = setInterval(() => {
+        if (installPatch() || ++attempts > 40) clearInterval(timer);
+      }, 150);
+    });
+  })();
+  </script>
+</body>
+</html>
