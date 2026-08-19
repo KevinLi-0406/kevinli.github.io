@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-08-19 18:26 (UTC+8)
+- **修改文件**：`Projects/travel-planner-v2.0.0.html`
+- **变更类型**：新增
+- **变更描述**：新增带版本标识的独立城市漫游页面，不覆盖现有 `travel-planner.html`。该版本以现有页面为基础注入地铁配置色、详情直查、彩色分段与换乘标注、100km 同城搜索、图标兜底和折叠地图交通栏可见性修复。
+- **影响范围**：城市漫游行程助手 v2.0.0 独立访问页
+- **关联请求**："地铁路线的颜色根据kevinli.github.io/Projects/icon-config.json里面的配置表读取"、"搜索的时候把当前位置作为圆心，搜索本城市内周边100km的结果"、"依然存在icon缺失的情况"、"将功能区收起来后，我看不到选中地点后切换交通方式的按钮了"、"那你生成个新html吧，标注上版本"
+
 ### 2026-08-19 17:57 (UTC+8)
 - **修改文件**：`Projects/travel-planner.html`
 - **变更类型**：修复
