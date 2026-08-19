@@ -7,11 +7,12 @@
       "cat.fun":     { "label": "趣味互动", "icon": "⚡" },
       "cat.tool":    { "label": "工具应用", "icon": "🛠️" },
       "cat.profile": { "label": "个人信息", "icon": "👤" },
-      "cat.content": { "label": "内容展示", "icon": "🚀" },
-      "cat.nav":     { "label": "导航工具", "icon": "🔗" },
+      "cat.content": { "label": "内容展示", "icon": "" },
+      "cat.nav":     { "label": "导航工具", "icon": "" },
       "cat.data":    { "label": "数据图鉴", "icon": "📊" },
       "cat.photo":   { "label": "相册分享", "icon": "📷" },
       "cat.sport":   { "label": "体育运动", "icon": "🏎️" },
+      "cat.travel":  { "label": "旅行规划", "icon": "🗺️" },
       "cat.other":   { "label": "其他",     "icon": "📄" }
     }
   },
@@ -19,10 +20,11 @@
   "projects": [
     { "file": "宝可梦图鉴.html",            "icon": "⚡", "category": "cat.data" },
     { "file": "奇怪的杰尼龟.html",          "icon": "🐢", "category": "cat.fun" },
-    { "file": "奇怪的小鸡毛.html",          "icon": "🐕", "category": "cat.fun" },
+    { "file": "奇怪的小鸡毛.html",          "icon": "", "category": "cat.fun" },
     { "file": "F1数据大全.html",            "icon": "🏎️", "category": "cat.data" },
     { "file": "CherryStudio CSS 编辑器.html", "icon": "🎨", "category": "cat.tool" },
-    { "file": "共享相册.html",          "icon": "📷", "category": "cat.photo" }
-    { "file": "B2X工单查询.html",            "icon": "🔎", "category": "cat.tool" }
+    { "file": "共享相册.html",              "icon": "📷", "category": "cat.photo" },
+    { "file": "B2X工单查询.html",           "icon": "🔎", "category": "cat.tool" },
+    { "file": "travel-planner.html",        "icon": "🗺️", "category": "cat.travel" }
   ]
 }
