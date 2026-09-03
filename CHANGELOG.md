@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 17:00 (UTC+8)
+- **修改文件**：`README.md`
+- **变更类型**：更新
+- **变更描述**：修正技术栈描述，将 B2X 从技术栈移至对接系统，区分业务系统（D365、Salesforce、Omni-channel）和对接系统（B2X、OA、SAP）
+- **影响范围**：仓库文档
+- **关联请求**："README.md里面的技术栈也不太对，B2X是外部对接系统"
+
 ### 2026-09-03 16:00 (UTC+8)
 - **修改文件**：`README.md`
 - **变更类型**：更新

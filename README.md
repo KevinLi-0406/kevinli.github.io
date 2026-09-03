@@ -12,7 +12,8 @@
 
 - **核心项目**：NA SDS（北美）、EU SPP（欧洲）—— Microsoft Dynamics 365 售后 CRM 系统
 - **负责模块**：线上、线下、备件、结算、主数据
-- **技术栈**：D365（OP/SaaS）、B2X 数据平台、Salesforce（历史）、Omni-channel + Copilot
+- **技术栈**：D365（OP/SaaS）、Salesforce（历史）、Omni-channel + Copilot
+- **对接系统**：B2X 数据平台、OA、SAP
 - **协作范围**：北美、欧洲（荷兰/法国/德国）、墨西哥
 
 ---
@@ -99,8 +100,12 @@ kevinli.github.io/
 ### 业务系统
 - Microsoft Dynamics 365 (OP / SaaS)
 - Salesforce (历史经验)
-- B2X 数据平台
 - Omni-channel + Copilot
+
+### 对接系统
+- B2X 数据平台（工单双向同步）
+- OA 系统
+- SAP
 
 ### 系统集成
 - OA 接口对接、SAP ↔ D365 数据同步
