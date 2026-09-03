@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 17:33 (UTC+8)
+- **新增文件**：`Tools/css-editor/index.html`、`Tools/photo-album/index.html`
+- **变更类型**：修复
+- **变更描述**：恢复之前缺失的 CSS 编辑器和共享相册项目。这两个文件因体积较大（111KB、65KB）在之前仓库重构时未成功推送，导致门户网站上出现 404 错误
+- **影响范围**：个人门户项目列表
+- **关联请求**："我的门户网站上，有几个项目404了"
+- **Commits**：
+  - CSS 编辑器：`d396a753` - 恢复 CSS 编辑器到 Tools 目录
+  - 共享相册：`bd19ef30` - 恢复共享相册到 Tools 目录
+
 ### 2026-09-03 17:30 (UTC+8)
 - **修改文件**：`README.md`
 - **变更类型**：更新
@@ -16,7 +26,7 @@ All notable changes to this project will be documented in this file.
 - **变更类型**：更新
 - **变更描述**：修正技术栈描述，将 B2X 从技术栈移至对接系统，区分业务系统（D365、Salesforce、Omni-channel）和对接系统（B2X、OA、SAP）
 - **影响范围**：仓库文档
-- **关联请求**："README.md里面的技术栈也不太对，B2X是外部对接系统"
+- **关联请求**："README.md里面的技术栈不太对，B2X是外部对接系统"
 
 ### 2026-09-03 16:00 (UTC+8)
 - **修改文件**：`README.md`
