@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 17:30 (UTC+8)
+- **修改文件**：`README.md`
+- **变更类型**：更新
+- **变更描述**：优化技术栈描述，将 Omni-channel 作为 D365 的子项，恢复 Udesk 和 UIBot，调整技术能力分类为客服系统和 RPA
+- **影响范围**：仓库文档
+- **关联请求**：用户确认技术栈调整方案
+
 ### 2026-09-03 17:00 (UTC+8)
 - **修改文件**：`README.md`
 - **变更类型**：更新
