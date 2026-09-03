@@ -23,11 +23,11 @@
 kevinli.github.io/
 ├── index.html              # 个人门户（GitHub Pages）
 ├── user.json               # 用户系统
-├── Tools/
-│   └── project-config.json # 项目配置
 ├── README.md               # 本文件
+├── CHANGELOG.md            # 变更日志
 │
 ├── Tools/                  # HTML 工具项目
+│   ├── project-config.json # 项目配置（门户读取此文件）
 │   ├── b2x-query/          # B2X 工单查询
 │   ├── css-editor/         # CherryStudio CSS 编辑器
 │   ├── f1-data/            # F1 数据大全
@@ -41,6 +41,8 @@ kevinli.github.io/
 │   ├── unified-platform.md # 架构设计 + 需求 + 路线图
 │   ├── requirements.md     # 需求文档
 │   ├── tasks.md            # 任务清单
+│   ├── progress-log.md     # 进度日志
+│   ├── operation-log.md    # 操作日志
 │   └── wecom-integration.md# 企微集成详情
 │
 ├── Knowledge/              # 知识库
@@ -52,8 +54,10 @@ kevinli.github.io/
 │   └── 05-Personal/        # 个人笔记
 │
 └── Resources/              # 公共资源
-    ├── F1-images/           # F1 赛车图片
-    └── Media/               # 共享相册文件
+    ├── F1-images/          # F1 赛车图片
+    ├── Media/              # 共享相册文件
+    ├── index2077.html      # 赛博朋克风格门户
+    └── portal-editor.html  # 门户编辑器
 ```
 
 ---
