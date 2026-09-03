@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共享相册</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* ========== 全局 & 暗色主题 ========== */
+  :root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-card: #222639;
+    --bg-hover: #2a2f45;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --text-primary: #e8e8f0;
+    --text-secondary: #9a9ab0;
+    --border: #2d3150;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f39c12;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ========== 滚动条 ========== */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ========== 加载动画 ========== */
+  .loader {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ========== 图片 shimmer 加载效果 ========== */
+  .gallery-item img {
+    background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  .gallery-item img.loaded {
+    animation: none;
+    background: transparent;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ========== 统一网格布局 ========== */
+  .grid-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 0 16px;
+  }
+  @media (max-width: 900px) { .grid-gallery { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid-gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+  .gallery-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    transition: transform 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+    aspect-ratio: 1 / 1;
+  }
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(108,92,231,0.25);
+  }
+  .gallery-item img, .gallery-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s;
+  }
+  /* 显示模式：contain（原始大小，不超出格子） */
+  .gallery-item.contain-mode img,
+  .gallery-item.contain-mode video {
+    object-fit: contain;
+    background: var(--bg-primary);
+  }
+
+  /* 删除按钮 */
+  .gallery-item .delete-btn {
+    position: absolute; top: 6px; left: 6px;
+    background: rgba(231,76,60,0.9);
+    backdrop-filter: blur(6px);
+    border: none; color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.8);
+  }
+  .gallery-item:hover .delete-btn {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* 文件类型角标 */
+  .gallery-item .file-type-badge {
+    position: absolute; top: 6px; right: 6px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
+    z-index: 5;
+  }
+
+  /* 底部叠加层 */
+  .gallery-item .overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding: 40px 10px 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gallery-item:hover .overlay { opacity: 1; }
+
+  /* ========== 灯箱 ========== */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.97);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .lightbox.active { display: flex; }
+
+  .lightbox-toolbar {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10001;
+    background: rgba(30,30,50,0.8);
+    backdrop-filter: blur(12px);
+    padding: 6px 12px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .lightbox-toolbar button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .lightbox-toolbar button:hover { background: rgba(255,255,255,0.25); }
+
+  .lightbox-close {
+    position: absolute; top: 16px; right: 20px;
+    background: rgba(255,255,255,0.1);
+    border: none; color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10001;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+
+  .lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.08);
+    border: none; color: white;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    z-index: 10000;
+  }
+  .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+  .lightbox-nav.prev { left: 16px; }
+  .lightbox-nav.next { right: 16px; }
+
+  .lightbox-media-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 60px 60px 140px;
+  }
+
+  /* 灯箱内容元素样式 + 幻灯片动效 */
+  .lightbox-content {
+    max-width: 90vw;
+    max-height: calc(100vh - 200px);
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: grab;
+    transform-origin: center center;
+  }
+  .lightbox-content:active { cursor: grabbing; }
+
+  /* 幻灯片切换动效 */
+  .lightbox-content.slide-left {
+    animation: slideInLeft 0.35s ease-out;
+  }
+  .lightbox-content.slide-right {
+    animation: slideInRight 0.35s ease-out;
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(80px) scale(var(--zoom, 1)); }
+    to { opacity: 1; transform: translateX(0) scale(var(--zoom, 1)); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(-80px) scale(var(--zoom, 1)); }
+    to { opacity: 1; transform: translateX(0) scale(var(--zoom, 1)); }
+  }
+
+  .lightbox-info {
+    position: absolute;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    white-space: nowrap;
+    background: rgba(20,20,35,0.8);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .lightbox-info strong { color: var(--text-primary); }
+
+  /* ========== 缩略图导航栏 ========== */
+  .lightbox-thumbs-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: rgba(15,17,23,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 10000;
+    scroll-behavior: smooth;
+  }
+  .lightbox-thumbs-bar::-webkit-scrollbar { height: 4px; }
+  .lightbox-thumbs-bar::-webkit-scrollbar-track { background: transparent; }
+  .lightbox-thumbs-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .lightbox-thumb {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s, opacity 0.2s;
+    opacity: 0.5;
+  }
+  .lightbox-thumb.active {
+    border-color: var(--accent);
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  .lightbox-thumb:hover { opacity: 0.85; }
+  .lightbox-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ========== 上传区域 ========== */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: pointer;
+    background: var(--bg-secondary);
+  }
+  .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(108,92,231,0.08);
+  }
+  .drop-zone-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ========== 筛选面板 ========== */
+  .filter-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+  .filter-panel select, .filter-panel input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-panel select:focus, .filter-panel input:focus { border-color: var(--accent); }
+  .filter-panel label {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* 日期输入框深色适配 */
+  input[type="date"] {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    color-scheme: dark;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7) sepia(0.3) saturate(1) hue-rotate(220deg);
+    cursor: pointer;
+  }
+  input[type="date"]:focus { border-color: var(--accent) !important; }
+
+  /* ========== 登录弹窗 ========== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 8000;
+    background: rgba(0,0,0,0.97);
+    backdrop-filter: blur(30px) saturate(0.5);
+    -webkit-backdrop-filter: blur(30px) saturate(0.5);
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%; max-width: 440px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .modal-box h2 { font-size: 22px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .modal-box p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+  .modal-box input, .modal-box select {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .modal-box input:focus, .modal-box select:focus { border-color: var(--accent); }
+  .modal-box .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+  .modal-box .field-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .modal-box .field-group { margin-bottom: 4px; }
+
+  .pwd-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+    user-select: none;
+  }
+  .pwd-toggle-btn:hover { color: var(--accent-light); }
+
+  /* ========== 按钮 ========== */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-light); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Toast 通知 */
+  .toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
+    min-width: 280px;
+  }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.info { border-left: 4px solid var(--accent); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+  }
+  .empty-state .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-state h3 { font-size: 20px; color: var(--text-primary); margin-bottom: 8px; }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    flex: 1; min-width: 140px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: var(--accent-light); }
+  .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .upload-preview-list {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 16px;
+  }
+  .upload-preview-item {
+    width: 100px; height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+  .upload-preview-item img, .upload-preview-item video {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .upload-preview-item .remove-btn {
+    position: absolute; top: 2px; right: 2px;
+    background: rgba(231,76,60,0.9); border: none;
+    color: white; width: 20px; height: 20px;
+    border-radius: 50%; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* 上传面板（垂直布局时全宽） */
+  .upload-panel-full {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  /* 上传者信息条 */
+  .uploader-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .uploader-info-bar .uploader-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: white; font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .filter-panel { flex-direction: column; align-items: stretch; }
+    .filter-panel > div { width: 100%; }
+    .lightbox-nav { width: 36px; height: 36px; font-size: 16px; }
+    .lightbox-thumb { width: 60px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Toast 容器 ==================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ==================== 顶部导航 ==================== -->
+<header class="border-b border-[var(--border)]" style="background:var(--bg-secondary);">
+  <div class="max-w-[1400px] mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span style="font-size:28px;">📸</span>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;">共享相册</h1>
+        <p style="font-size:12px;color:var(--text-secondary);">Shared Album on GitHub</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="modeBadge" class="text-xs px-3 py-1 rounded-full font-semibold"
+            style="background:rgba(108,92,231,0.2);color:var(--accent-light);">未登录</span>
+      <button id="logoutBtn" class="btn btn-secondary btn-sm hidden" onclick="logout()">退出登录</button>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 主内容区：垂直排列 概览→筛选器→上传→网格 ==================== -->
+<div class="max-w-[1400px] mx-auto px-4 mt-3">
+  <!-- 统计栏（概览） -->
+  <div class="flex gap-4 flex-wrap mb-4" id="statsBar">
+    <div class="stat-card">
+      <div class="num" id="statTotal">0</div>
+      <div class="label">总文件</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statImages">0</div>
+      <div class="label">图片</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statVideos">0</div>
+      <div class="label">视频</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statUsers">0</div>
+      <div class="label">上传用户</div>
+    </div>
+  </div>
+
+  <!-- 筛选 & 排序栏 -->
+  <div class="filter-panel mb-4">
+    <div>
+      <label class="block mb-1">排序</label>
+      <select id="sortSelect" onchange="renderAlbum()">
+        <option value="time-desc">🕐 最新优先</option>
+        <option value="time-asc">🕐 最早优先</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">上传用户</label>
+      <select id="userFilter" onchange="renderAlbum()">
+        <option value="">全部用户</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">开始日期</label>
+      <input type="date" id="dateFrom" onchange="renderAlbum()">
+    </div>
+    <div>
+      <label class="block mb-1">结束日期</label>
+      <input type="date" id="dateTo" onchange="renderAlbum()">
+    </div>
+    <div>
+      <label class="block mb-1">类型</label>
+      <select id="typeFilter" onchange="renderAlbum()">
+        <option value="">全部</option>
+        <option value="image">🖼️ 图片</option>
+        <option value="video">🎬 视频</option>
+      </select>
+    </div>
+    <!-- 格式筛选器 -->
+    <div>
+      <label class="block mb-1">格式</label>
+      <select id="formatFilter" onchange="renderAlbum()">
+        <option value="">全部格式</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">显示模式</label>
+      <select id="displayModeSelect" onchange="setDisplayMode(this.value)">
+        <option value="cover">📐 填满格子</option>
+        <option value="contain">🖼️ 原始大小</option>
+      </select>
+    </div>
+    <div>
+      <label class="block mb-1">&nbsp;</label>
+      <button class="btn btn-secondary btn-sm" onclick="refreshMedia()">🔄 刷新</button>
+      <button class="btn btn-secondary btn-sm" onclick="clearFilters()">🔁 重置</button>
+    </div>
+  </div>
+
+  <!-- 上传面板（管理员，垂直布局全宽） -->
+  <div id="uploadPanel" class="hidden mb-4 upload-panel-full">
+    <h2 style="font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">📤 上传文件</h2>
+    <p style="color:var(--text-secondary);font-size:12px;margin-bottom:12px;">单文件上限 20MB</p>
+    <!-- 【修复1+2】上传者信息条：显示当前登录用户，不再使用下拉选择 -->
+    <div class="uploader-info-bar" id="uploaderInfoBar">
+      <div class="uploader-avatar" id="uploaderAvatar">?</div>
+      <span>上传者：</span>
+      <strong id="uploaderName">—</strong>
+      <span style="color:var(--text-secondary);font-size:11px;">（当前登录用户）</span>
+    </div>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="padding:24px 16px;">
+      <div class="drop-zone-icon" style="font-size:32px;margin-bottom:8px;">📁</div>
+      <p style="font-size:14px;font-weight:600;margin-bottom:2px;">拖拽或点击选择</p>
+      <p style="font-size:11px;color:var(--text-secondary);">JPG / PNG / GIF / WEBP / MP4 / WEBM</p>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(this.files)">
+    </div>
+    <div id="uploadPreview" class="upload-preview-list hidden"></div>
+    <div id="uploadProgress" class="hidden mt-3">
+      <div class="flex items-center justify-between mb-1">
+        <span style="font-size:12px;color:var(--text-secondary);" id="progressText">上传中...</span>
+        <span style="font-size:12px;color:var(--accent-light);" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="mt-3">
+      <button id="uploadBtn" class="btn btn-primary btn-sm" onclick="uploadFiles()" disabled>开始上传</button>
+      <button class="btn btn-secondary btn-sm ml-2" onclick="clearUpload()">清除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 相册网格 ==================== -->
+<main class="max-w-[1400px] mx-auto px-4 mt-4 pb-20">
+  <div id="loadingState" class="flex flex-col items-center justify-center py-32">
+    <div class="loader mb-4"></div>
+    <p style="color:var(--text-secondary);font-size:14px;">正在加载相册...</p>
+  </div>
+  <div id="albumGrid" class="grid-gallery hidden"></div>
+  <div id="emptyState" class="empty-state hidden">
+    <div class="icon">📭</div>
+    <h3>相册是空的</h3>
+    <p>还没有人上传文件，快来上传第一张照片吧！</p>
+  </div>
+  <div id="noResultState" class="empty-state hidden">
+    <div class="icon">🔍</div>
+    <h3>没有找到匹配的文件</h3>
+    <p>试试调整筛选条件</p>
+  </div>
+</main>
+
+<!-- ==================== 灯箱 ==================== -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-toolbar">
+    <button onclick="zoomOut()" title="缩小">➖</button>
+    <button onclick="resetZoom()" title="还原">↺</button>
+    <button onclick="zoomIn()" title="放大">➕</button>
+    <button onclick="downloadCurrent()" title="下载">⬇️</button>
+    <button id="lightboxDeleteBtn" onclick="deleteFromLightbox()" title="删除" style="display:none;">🗑️</button>
+  </div>
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">‹</button>
+  <button class="lightbox-nav next" onclick="navigateLightbox(1)">›</button>
+  <div class="lightbox-media-container" id="lightboxContainer">
+    <div id="lightboxMedia"></div>
+  </div>
+  <div class="lightbox-info" id="lightboxInfo"></div>
+  <div class="lightbox-thumbs-bar" id="lightboxThumbs"></div>
+</div>
+
+<!-- ==================== 登录弹窗 ==================== -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <h2>🔐 登录共享相册</h2>
+    <p>选择用户并输入密码登录。<br>管理员可上传和删除文件，非管理员以游客身份浏览。</p>
+    <div class="field-group">
+      <label class="field-label">选择用户</label>
+      <select id="loginUserSelect" onchange="onLoginUserChange()">
+        <option value="">-- 请选择用户 --</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">密码</label>
+      <div style="position:relative;margin-bottom:12px;">
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+      </div>
+    </div>
+    <div class="field-group" id="patFieldGroup" style="display:none;">
+      <label class="field-label">GitHub PAT <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0;">（必填，上传/删除文件时需要）</span></label>
+      <div style="position:relative;margin-bottom:12px;">
+        <input type="password" id="loginPat" placeholder="ghp_xxxx" autocomplete="off" style="padding-right:44px;margin-bottom:0;">
+        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPat', this)">👁️</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1;" onclick="doLogin()">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 删除确认弹窗 ==================== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h2>⚠️ 确认删除</h2>
+    <p>确定要删除 <strong id="deleteFileName"></strong> 吗？此操作不可恢复。</p>
+    <div class="btn-row">
+      <button class="btn btn-danger" style="flex:1;" onclick="confirmDelete()">确认删除</button>
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 配置 ====================
+const CONFIG = {
+  OWNER: 'KevinLi-0406',
+  REPO: 'kevinli.github.io',
+  BRANCH: 'main',
+  MEDIA_PATH: 'Resources/Media',
+  MANIFEST_PATH: 'Resources/Media/manifest.json',
+  USER_JSON: 'user.json',
+  MAX_FILE_SIZE: 20 * 1024 * 1024,
+};
+
+// ==================== 全局状态 ====================
+let state = {
+  isAdministrator: false,
+  currentUser: null,
+  loginPat: null,
+  users: [],
+  adminUsers: [],
+  mediaFiles: [],
+  pendingFiles: [],
+  lightboxIndex: -1,
+  lightboxZoom: 1,
+  filteredFiles: [],
+  deletingFile: null,
+  displayMode: 'cover',
+};
+
+// ==================== 初始化：立即显示登录弹窗，后台加载用户 ====================
+document.addEventListener('DOMContentLoaded', async () => {
+  setupDropZone();
+  openLoginModal(); // 立即显示，不等 loadUsers
+  await loadUsers(); // 后台加载
+  checkLoginStatus(); // 检查自动登录
+});
+
+// ==================== 加载 user.json ====================
+async function loadUsers() {
+  try {
+    const resp = await fetch(`https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.USER_JSON}`);
+    if (!resp.ok) throw new Error('Failed to load user.json');
+    const data = await resp.json();
+    state.users = Array.isArray(data) ? data : data.users || [];
+    state.adminUsers = state.users.filter(u => u.is_admin === true);
+
+    // 【修复1】登录下拉：显示所有用户
+    const loginSelect = document.getElementById('loginUserSelect');
+    loginSelect.innerHTML = '<option value="">-- 请选择用户 --</option>';
+    state.users.forEach(u => {
+      const username = u.username || u.name || 'Unknown';
+      const badge = u.is_admin ? ' 👑' : '';
+      loginSelect.innerHTML += `<option value="${username}">${username}${badge}</option>`;
+    });
+  } catch (e) {
+    console.warn('加载 user.json 失败:', e);
+    state.users = [];
+    state.adminUsers = [];
+    const loginSelect = document.getElementById('loginUserSelect');
+    loginSelect.innerHTML = '<option value="" disabled>⚠️ 无法加载用户列表</option>';
+  }
+}
+
+// ==================== 【修复2】更新上传者信息条 ====================
+function updateUploaderInfo() {
+  const avatarEl = document.getElementById('uploaderAvatar');
+  const nameEl = document.getElementById('uploaderName');
+  if (state.currentUser && state.isAdministrator) {
+    const nickname = state.currentUser.nickname || state.currentUser.username;
+    const initial = nickname.charAt(0).toUpperCase();
+    avatarEl.textContent = initial;
+    nameEl.textContent = nickname;
+  } else {
+    avatarEl.textContent = '?';
+    nameEl.textContent = '—';
+  }
+}
+
+// ==================== 写入 manifest（通用函数，支持创建和更新） ====================
+async function writeManifest(manifest) {
+  const contentStr = JSON.stringify(manifest, null, 2);
+  const content = btoa(unescape(encodeURIComponent(contentStr)));
+
+  let currentSha = null;
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`, {
+      headers: { Authorization: `token ${state.loginPat || ''}` }
+    });
+    if (resp.ok) currentSha = (await resp.json()).sha;
+  } catch (e) { /* manifest may not exist */ }
+
+  const putBody = { message: `[Album] Sync manifest (${manifest.length} files)`, content, branch: CONFIG.BRANCH };
+  if (currentSha) putBody.sha = currentSha;
+
+  let putResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
+    method: 'PUT',
+    headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(putBody),
+  });
+
+  // SHA 冲突重试一次
+  if (!putResp.ok && (putResp.status === 409 || putResp.status === 422)) {
+    await new Promise(r => setTimeout(r, 1500));
+    let retrySha = null;
+    try {
+      const retryResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`, {
+        headers: { Authorization: `token ${state.loginPat || ''}` }
+      });
+      if (retryResp.ok) retrySha = (await retryResp.json()).sha;
+    } catch (e) { }
+    const retryBody = { message: `[Album] Sync manifest (retry)`, content, branch: CONFIG.BRANCH };
+    if (retrySha) retryBody.sha = retrySha;
+    putResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(retryBody),
+    });
+  }
+
+  if (!putResp.ok) {
+    const err = await putResp.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${putResp.status}`);
+  }
+}
+
+// ==================== 加载 manifest + 双向同步 ====================
+async function loadManifest() {
+  showLoading(true);
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${CONFIG.OWNER}/${CONFIG.REPO}/${CONFIG.BRANCH}/${CONFIG.MANIFEST_PATH}`;
+    const resp = await fetch(rawUrl);
+    let manifestFiles = [];
+    if (resp.ok) {
+      manifestFiles = await resp.json();
+    }
+
+    // 扫描实际目录
+    const dirFiles = await scanMediaDirectory();
+    const dirFilenames = new Set(dirFiles.map(f => f.filename));
+    const manifestFilenames = new Set(manifestFiles.map(f => f.filename));
+
+    // 双向差异
+    const toAdd = dirFiles.filter(f => !manifestFilenames.has(f.filename));
+    const toRemove = manifestFiles.filter(f => !dirFilenames.has(f.filename));
+
+    // 构建更新后的 manifest（内存中）
+    let updated = manifestFiles.filter(f => dirFilenames.has(f.filename));
+    // 【修复】添加目录中新发现的文件时，检查是否已存在于 updated 中（防止重复添加导致覆盖正确的上传者信息）
+    for (const f of toAdd) {
+      if (!updated.some(u => u.filename === f.filename)) {
+        updated.push({
+          filename: f.filename,
+          path: f.path,
+          download_url: f.download_url,
+          type: f.type,
+          size: f.size,
+          uploader: f.uploader,
+          uploaderNickname: f.uploaderNickname,
+          uploadedAt: f.uploadedAt,
+          sha: f.sha,
+          github_url: f.github_url,
+          mediaType: f.type,
+        });
+      }
+    }
+
+    // 如果有差异且是管理员，写回 GitHub
+    if ((toAdd.length > 0 || toRemove.length > 0) && state.isAdministrator && state.loginPat) {
+      try {
+        await writeManifest(updated);
+        if (toRemove.length > 0 && toAdd.length > 0) {
+          showToast(`🔄 同步：新增 ${toAdd.length}，移除 ${toRemove.length} 个失效文件`, 'info');
+        } else if (toRemove.length > 0) {
+          showToast(`🔄 已移除 ${toRemove.length} 个失效文件`, 'info');
+        } else {
+          showToast(`🔄 已添加 ${toAdd.length} 个新文件`, 'info');
+        }
+      } catch (e) {
+        console.warn('同步 manifest 失败:', e);
+      }
+    }
+
+    state.mediaFiles = updated;
+  } catch (e) {
+    console.warn('加载 manifest.json 失败，扫描目录:', e);
+    state.mediaFiles = await scanMediaDirectory();
+  }
+  showLoading(false);
+  renderAlbum();
+}
+
+// ==================== 刷新目录 ====================
+async function refreshMedia() {
+  if (!state.currentUser) {
+    showToast('请先登录', 'info');
+    return;
+  }
+  showToast('🔄 正在刷新目录...', 'info');
+  await loadManifest();
+}
+
+// ==================== 扫描 Media 目录 ====================
+async function scanMediaDirectory() {
+  const token = state.loginPat ? `token ${state.loginPat}` : '';
+  const headers = token ? { Authorization: token } : {};
+  try {
+    const api = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MEDIA_PATH}?ref=${CONFIG.BRANCH}`;
+    const resp = await fetch(api, { headers });
+    if (!resp.ok) return [];
+    const items = await resp.json();
+    const files = [];
+    const ignoreFiles = ['.gitkeep', 'manifest.json'];
+    for (const item of items) {
+      if (ignoreFiles.includes(item.name)) continue;
+      files.push({
+        filename: item.name,
+        path: item.path,
+        download_url: item.download_url,
+        type: guessMediaType(item.name),
+        size: item.size,
+        uploader: 'unknown',
+        uploaderNickname: '未知',
+        uploadedAt: item.commit ? item.commit.author.date : new Date().toISOString(),
+        sha: item.sha,
+        github_url: item.html_url,
+      });
+    }
+    return files;
+  } catch (e) {
+    console.error('扫描目录失败:', e);
+    return [];
+  }
+}
+
+function guessMediaType(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  const imageExts = ['jpg','jpeg','png','gif','webp','bmp','svg','ico','tiff','avif'];
+  const videoExts = ['mp4','webm','mov','avi','mkv','m4v','ogv'];
+  if (imageExts.includes(ext)) return 'image';
+  if (videoExts.includes(ext)) return 'video';
+  return 'unknown';
+}
+
+// ==================== 密码明文/密文切换 ====================
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+// ==================== 登录用户切换 → PAT 字段显隐 ====================
+function onLoginUserChange() {
+  const selectedUsername = document.getElementById('loginUserSelect').value;
+  const user = state.users.find(u => (u.username || u.name) === selectedUsername);
+  const patGroup = document.getElementById('patFieldGroup');
+  if (user && user.is_admin === true) {
+    patGroup.style.display = '';
+  } else {
+    patGroup.style.display = 'none';
+    document.getElementById('loginPat').value = '';
+  }
+}
+
+// ==================== 登录 / 登出 ====================
+function checkLoginStatus() {
+  const username = localStorage.getItem('album_username');
+  const password = localStorage.getItem('album_password');
+  const pat = localStorage.getItem('album_pat') || '';
+
+  if (username && password) {
+    const user = state.users.find(u => (u.username || u.name) === username && u.password === password);
+    if (user) {
+      state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
+      state.isAdministrator = (user.is_admin === true);
+      state.loginPat = pat;
+      closeLoginModal(); // 自动登录成功，关闭弹窗
+      if (state.isAdministrator) updateUIForAdmin();
+      else updateUIForGuest();
+      loadManifest();
+    } else {
+      localStorage.removeItem('album_username');
+      localStorage.removeItem('album_password');
+      localStorage.removeItem('album_pat');
+    }
+  }
+}
+
+function openLoginModal() {
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginPassword').type = 'password';
+  document.getElementById('loginPat').value = '';
+  document.getElementById('loginPat').type = 'password';
+  document.querySelectorAll('.pwd-toggle-btn').forEach(btn => btn.textContent = '👁️');
+  document.getElementById('patFieldGroup').style.display = 'none';
+  document.getElementById('loginModal').classList.add('active');
+}
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('active');
+}
+
+async function doLogin() {
+  const selectedUsername = document.getElementById('loginUserSelect').value;
+  const password = document.getElementById('loginPassword').value.trim();
+  const pat = document.getElementById('loginPat').value.trim();
+
+  if (!selectedUsername) { showToast('请选择一个用户', 'error'); return; }
+  if (!password) { showToast('请输入密码', 'error'); return; }
+
+  const user = state.users.find(u => (u.username || u.name) === selectedUsername && u.password === password);
+  if (!user) { showToast('❌ 密码错误', 'error'); return; }
+  if (user.is_admin === true && !pat) { showToast('⚠️ 管理员必须填写 GitHub PAT', 'error'); return; }
+
+  state.currentUser = { username: user.username || user.name, nickname: user.nickname || user.username || user.name };
+  state.isAdministrator = (user.is_admin === true);
+  state.loginPat = pat;
+
+  localStorage.setItem('album_username', selectedUsername);
+  localStorage.setItem('album_password', password);
+  if (pat) localStorage.setItem('album_pat', pat);
+
+  closeLoginModal();
+
+  if (state.isAdministrator) {
+    updateUIForAdmin();
+    showToast(`👋 欢迎回来，管理员 ${state.currentUser.username}！`, 'success');
+  } else {
+    updateUIForGuest();
+    showToast(`👋 欢迎，${state.currentUser.username}！你以游客身份浏览。`, 'success');
+  }
+  await loadManifest();
+}
+
+function logout() {
+  state.isAdministrator = false;
+  state.currentUser = null;
+  state.loginPat = null;
+  localStorage.removeItem('album_username');
+  localStorage.removeItem('album_password');
+  localStorage.removeItem('album_pat');
+  document.getElementById('modeBadge').textContent = '未登录';
+  document.getElementById('modeBadge').style.background = 'rgba(108,92,231,0.2)';
+  document.getElementById('modeBadge').style.color = 'var(--accent-light)';
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('uploadPanel').classList.add('hidden');
+  showToast('已退出登录', 'info');
+  setTimeout(() => openLoginModal(), 500);
+}
+
+function updateUIForAdmin() {
+  document.getElementById('modeBadge').textContent = `🔑 ${state.currentUser?.username || '管理员'}`;
+  document.getElementById('modeBadge').style.background = 'rgba(46,204,113,0.2)';
+  document.getElementById('modeBadge').style.color = '#2ecc71';
+  document.getElementById('logoutBtn').classList.remove('hidden');
+  document.getElementById('uploadPanel').classList.remove('hidden');
+  updateUploaderInfo(); // 【修复2】更新上传者信息条
+}
+
+function updateUIForGuest() {
+  document.getElementById('modeBadge').textContent = `👤 ${state.currentUser?.username || '游客'}（游客）`;
+  document.getElementById('modeBadge').style.background = 'rgba(243,156,18,0.2)';
+  document.getElementById('modeBadge').style.color = '#f39c12';
+  document.getElementById('logoutBtn').classList.remove('hidden');
+  document.getElementById('uploadPanel').classList.add('hidden');
+}
+
+// ==================== 拖拽上传 ====================
+function setupDropZone() {
+  const dz = document.getElementById('dropZone');
+  ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('drag-over'); }));
+  ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('drag-over'); }));
+  dz.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    handleFileSelect(files);
+  });
+}
+
+function handleFileSelect(files) {
+  if (!state.isAdministrator) { showToast('请先登录为管理员才能上传', 'error'); return; }
+  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。', 'error'); return; }
+  const preview = document.getElementById('uploadPreview');
+  preview.classList.remove('hidden');
+  preview.innerHTML = '';
+  state.pendingFiles = [];
+
+  for (const file of files) {
+    if (file.size > CONFIG.MAX_FILE_SIZE) { showToast(`⚠️ ${file.name} 超过 20MB 限制，已跳过`, 'error'); continue; }
+    const mediaType = guessMediaType(file.name);
+    if (mediaType === 'unknown') { showToast(`️ ${file.name} 格式不支持`, 'error'); continue; }
+
+    const uniqueName = generateUniqueFilename(file.name);
+    state.pendingFiles.push({ file, filename: uniqueName, mediaType });
+
+    const item = document.createElement('div');
+    item.className = 'upload-preview-item';
+    if (mediaType === 'image') {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.onload = () => URL.revokeObjectURL(img.src);
+      item.appendChild(img);
+    } else {
+      const vid = document.createElement('video');
+      vid.src = URL.createObjectURL(file);
+      vid.onloadeddata = () => URL.revokeObjectURL(vid.src);
+      vid.muted = true;
+      item.appendChild(vid);
+    }
+    const rm = document.createElement('button');
+    rm.className = 'remove-btn';
+    rm.textContent = '';
+    rm.onclick = () => { state.pendingFiles = state.pendingFiles.filter(f => f.file !== file); item.remove(); updateUploadBtn(); };
+    item.appendChild(rm);
+    preview.appendChild(item);
+  }
+  updateUploadBtn();
+}
+
+function generateUniqueFilename(originalName) {
+  const ext = originalName.split('.').pop();
+  const base = originalName.replace(/\.[^.]+$/, '');
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 6);
+  return `${base}_${timestamp}_${random}.${ext}`;
+}
+
+function updateUploadBtn() {
+  document.getElementById('uploadBtn').disabled = state.pendingFiles.length === 0;
+}
+
+function clearUpload() {
+  state.pendingFiles = [];
+  document.getElementById('uploadPreview').classList.add('hidden');
+  document.getElementById('uploadPreview').innerHTML = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadProgress').classList.add('hidden');
+  updateUploadBtn();
+}
+
+// ==================== 【修复2】上传文件：使用当前登录用户作为上传者 ====================
+async function uploadFiles() {
+  if (state.pendingFiles.length === 0) return;
+  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法上传。', 'error'); return; }
+  // 【修复2】始终使用当前登录用户作为上传者
+  const uploaderInfo = {
+    username: state.currentUser.username,
+    nickname: state.currentUser.nickname || state.currentUser.username,
+  };
+
+  const progressEl = document.getElementById('uploadProgress');
+  progressEl.classList.remove('hidden');
+  document.getElementById('uploadBtn').disabled = true;
+
+  let success = 0;
+  let failed = 0;
+  const newEntries = [];
+
+  for (let i = 0; i < state.pendingFiles.length; i++) {
+    const pf = state.pendingFiles[i];
+    const pct = Math.round((i / state.pendingFiles.length) * 100);
+    document.getElementById('progressText').textContent = `上传中 (${i + 1}/${state.pendingFiles.length}): ${pf.filename}`;
+    document.getElementById('progressPercent').textContent = `${pct}%`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+
+    try {
+      await uploadSingleFile(pf, uploaderInfo);
+      success++;
+      newEntries.push(pf._entry);
+    } catch (e) {
+      console.error(`上传 ${pf.filename} 失败:`, e);
+      failed++;
+      showToast(`❌ ${pf.filename} 上传失败：${e.message}`, 'error');
+    }
+  }
+
+  document.getElementById('progressText').textContent = `上传完成！成功 ${success}，失败 ${failed}`;
+  document.getElementById('progressPercent').textContent = '100%';
+  document.getElementById('progressFill').style.width = '100%';
+
+  if (newEntries.length > 0) {
+    try {
+      await updateManifestBulk(newEntries);
+    } catch (e) {
+      console.error('更新 manifest 失败:', e);
+      showToast('⚠️ 文件上传成功，但 manifest 更新失败', 'error');
+    }
+  }
+
+  clearUpload();
+  await loadManifest();
+  if (failed === 0) {
+    showToast(`🎉 成功上传 ${success} 个文件！`, 'success');
+  } else {
+    showToast(`⚠️ 上传完成：成功 ${success}，失败 ${failed}`, 'info');
+  }
+}
+
+async function uploadSingleFile(fileInfo, uploaderInfo) {
+  const { file, filename, mediaType } = fileInfo;
+  const base64 = await fileToBase64(file);
+
+  const fileResp = await fetch(
+    `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${CONFIG.MEDIA_PATH}/${filename}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${state.loginPat || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `[Album] Upload ${filename} by ${uploaderInfo.nickname || uploaderInfo.username}`,
+        content: base64,
+        branch: CONFIG.BRANCH,
+      }),
+    }
+  );
+
+  if (!fileResp.ok) {
+    const err = await fileResp.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${fileResp.status}`);
+  }
+
+  fileInfo._entry = {
+    filename,
+    uploader: uploaderInfo.username,
+    uploaderNickname: uploaderInfo.nickname || uploaderInfo.username,
+    uploadedAt: new Date().toISOString(),
+    type: mediaType === 'image' ? 'image' : 'video',
+    size: file.size,
+    path: `${CONFIG.MEDIA_PATH}/${filename}`,
+    mediaType,
+  };
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => { resolve(reader.result.split(',')[1]); };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ==================== 批量更新 manifest（上传用，只添加不删除） ====================
+async function updateManifestBulk(entries) {
+  let manifest = [];
+  let currentSha = null;
+
+  try {
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`;
+    const resp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
+    if (resp.ok) {
+      const data = await resp.json();
+      manifest = JSON.parse(atob(data.content.replace(/\s/g, '')));
+      currentSha = data.sha;
+    }
+  } catch (e) { console.warn('读取 manifest 失败，创建新文件:', e); }
+
+  for (const entry of entries) {
+    const exists = manifest.find(f => f.filename === entry.filename);
+    if (!exists) manifest.push(entry);
+  }
+
+  const contentStr = JSON.stringify(manifest, null, 2);
+  const content = btoa(unescape(encodeURIComponent(contentStr)));
+
+  const putBody = { message: `[Album] Update manifest (${entries.length} files)`, content, branch: CONFIG.BRANCH };
+  if (currentSha) putBody.sha = currentSha;
+
+  let putResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
+    method: 'PUT',
+    headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(putBody),
+  });
+
+  if (!putResp.ok && (putResp.status === 409 || putResp.status === 422)) {
+    await new Promise(r => setTimeout(r, 1500));
+    let retryManifest = [];
+    let retrySha = null;
+    try {
+      const retryResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}?ref=${CONFIG.BRANCH}`, { headers: { Authorization: `token ${state.loginPat || ''}` } });
+      if (retryResp.ok) {
+        const retryData = await retryResp.json();
+        retryManifest = JSON.parse(atob(retryData.content.replace(/\s/g, '')));
+        retrySha = retryData.sha;
+      }
+    } catch (e) { console.warn('重试获取 manifest 失败:', e); }
+
+    for (const entry of entries) {
+      if (!retryManifest.find(f => f.filename === entry.filename)) retryManifest.push(entry);
+    }
+    const retryContent = btoa(unescape(encodeURIComponent(JSON.stringify(retryManifest, null, 2))));
+    const retryPutBody = { message: `[Album] Update manifest (retry)`, content: retryContent, branch: CONFIG.BRANCH };
+    if (retrySha) retryPutBody.sha = retrySha;
+
+    putResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${encodeURIComponent(CONFIG.MANIFEST_PATH)}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(retryPutBody),
+    });
+  }
+
+  if (!putResp.ok) {
+    const err = await putResp.json().catch(() => ({}));
+    throw new Error(err.message || `manifest update failed: HTTP ${putResp.status}`);
+  }
+}
+
+// ==================== 删除文件 ====================
+async function deleteFile(item) {
+  if (!state.isAdministrator) { showToast('只有管理员可以删除文件', 'error'); return; }
+  if (!state.loginPat) { showToast('⚠️ 未设置 GitHub PAT，无法删除。', 'error'); return; }
+  state.deletingFile = item;
+  document.getElementById('deleteFileName').textContent = item.filename;
+  document.getElementById('deleteModal').classList.add('active');
+}
+
+function deleteFromLightbox() {
+  const f = state.filteredFiles[state.lightboxIndex];
+  if (f) deleteFile(f);
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('active');
+  state.deletingFile = null;
+}
+
+// ==================== 确认删除：删除文件 + 同步 manifest ====================
+async function confirmDelete() {
+  const item = state.deletingFile;
+  if (!item) return;
+  try {
+    const apiPath = item.path || `${CONFIG.MEDIA_PATH}/${item.filename}`;
+    const apiUrl = `https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}?ref=${CONFIG.BRANCH}`;
+    const fileResp = await fetch(apiUrl, { headers: { Authorization: `token ${state.loginPat || ''}` } });
+    if (!fileResp.ok) throw new Error(`无法获取文件信息：${fileResp.status}`);
+    const fileData = await fileResp.json();
+
+    const delResp = await fetch(`https://api.github.com/repos/${CONFIG.OWNER}/${CONFIG.REPO}/contents/${apiPath}`, {
+      method: 'DELETE',
+      headers: { Authorization: `token ${state.loginPat || ''}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `[Album] Delete ${item.filename}`, sha: fileData.sha, branch: CONFIG.BRANCH }),
+    });
+    if (!delResp.ok) throw new Error('删除文件失败');
+
+    // 从内存中移除
+    const updatedManifest = state.mediaFiles.filter(f => f.filename !== item.filename);
+
+    // 写回 manifest
+    try {
+      await writeManifest(updatedManifest);
+    } catch (e) {
+      console.warn('更新 manifest 失败:', e);
+    }
+
+    closeDeleteModal();
+    closeLightbox();
+    await loadManifest();
+    showToast(`✅ 已删除 ${item.filename}`, 'success');
+  } catch (e) {
+    closeDeleteModal();
+    showToast(`删除失败：${e.message}`, 'error');
+  }
+}
+
+// ==================== 【修复3】渲染用户筛选器：使用 uploaderNickname 作为 key ====================
+function renderUserFilters() {
+  const select = document.getElementById('userFilter');
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">全部用户</option>';
+  const uploaders = new Map();
+  // 从 manifest 中提取实际上传者（用 uploaderNickname 作为 key，避免 "unknown" 覆盖问题）
+  state.mediaFiles.forEach(f => {
+    const nick = f.uploaderNickname || f.uploader || '未知';
+    uploaders.set(nick, nick);
+  });
+  // 补充 admin 用户（即使还没上传过文件）
+  state.adminUsers.forEach(u => {
+    const name = u.nickname || u.username || u.name || 'Unknown';
+    if (!uploaders.has(name)) uploaders.set(name, name);
+  });
+  uploaders.forEach((nick, key) => {
+    select.innerHTML += `<option value="${key}">${nick}</option>`;
+  });
+  select.value = currentValue;
+}
+
+// ==================== 渲染格式筛选器 ====================
+function renderFormatFilters() {
+  const select = document.getElementById('formatFilter');
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">全部格式</option>';
+  const formats = new Set();
+  state.mediaFiles.forEach(f => {
+    const ext = f.filename.split('.').pop().toUpperCase();
+    formats.add(ext);
+  });
+  [...formats].sort().forEach(ext => {
+    select.innerHTML += `<option value="${ext.toLowerCase()}">${ext}</option>`;
+  });
+  select.value = currentValue;
+}
+
+// ==================== 渲染相册 ====================
+function renderAlbum() {
+  renderUserFilters();
+  renderFormatFilters();
+
+  const sort = document.getElementById('sortSelect').value;
+  const userFilter = document.getElementById('userFilter').value;
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  const typeFilter = document.getElementById('typeFilter').value;
+  const formatFilter = document.getElementById('formatFilter').value;
+
+  let files = [...state.mediaFiles];
+  // 【修复3】筛选改为匹配 uploaderNickname
+  if (userFilter) files = files.filter(f => (f.uploaderNickname || f.uploader || '') === userFilter);
+  if (dateFrom) files = files.filter(f => new Date(f.uploadedAt) >= new Date(dateFrom));
+  if (dateTo) { const end = new Date(dateTo); end.setHours(23, 59, 59, 999); files = files.filter(f => new Date(f.uploadedAt) <= end); }
+  if (typeFilter) files = files.filter(f => (f.mediaType || f.type) === typeFilter);
+  if (formatFilter) files = files.filter(f => f.filename.split('.').pop().toLowerCase() === formatFilter);
+
+  files.sort((a, b) => {
+    const ta = new Date(a.uploadedAt).getTime();
+    const tb = new Date(b.uploadedAt).getTime();
+    return sort === 'time-asc' ? ta - tb : tb - ta;
+  });
+
+  state.filteredFiles = files;
+
+  document.getElementById('statTotal').textContent = state.mediaFiles.length;
+  document.getElementById('statImages').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='image').length;
+  document.getElementById('statVideos').textContent = state.mediaFiles.filter(f => (f.mediaType||f.type)==='video').length;
+  // 【修复3】统计用户数改用 uploaderNickname
+  const userSet = new Set(state.mediaFiles.map(f => f.uploaderNickname || f.uploader || '未知'));
+  document.getElementById('statUsers').textContent = userSet.size;
+
+  const grid = document.getElementById('albumGrid');
+  const empty = document.getElementById('emptyState');
+  const noResult = document.getElementById('noResultState');
+
+  if (state.mediaFiles.length === 0) {
+    grid.classList.add('hidden'); empty.classList.remove('hidden'); noResult.classList.add('hidden'); return;
+  }
+  if (files.length === 0) {
+    grid.classList.add('hidden'); empty.classList.add('hidden'); noResult.classList.remove('hidden'); return;
+  }
+
+  grid.classList.remove('hidden'); empty.classList.add('hidden'); noResult.classList.add('hidden');
+  grid.innerHTML = files.map((f, idx) => {
+    const url = getFileUrl(f);
+    const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
+    const isVideo = mediaType === 'video';
+    const icon = isVideo ? '🎬' : '🖼️';
+    const ext = f.filename.split('.').pop().toUpperCase();
+    const time = new Date(f.uploadedAt);
+    const timeStr = formatTime(time);
+    const uploader = f.uploaderNickname || f.uploader || '未知';
+    const modeClass = state.displayMode === 'contain' ? 'contain-mode' : '';
+
+    return `
+      <div class="gallery-item ${modeClass}" onclick="openLightbox(${idx})">
+        ${state.isAdministrator ? `<button class="delete-btn" onclick="event.stopPropagation();deleteFile(state.filteredFiles[${idx}])" title="删除">🗑️</button>` : ''}
+        <span class="file-type-badge">${icon} ${ext}</span>
+        ${isVideo
+          ? `<video src="${url}" muted preload="metadata"></video>`
+          : `<img src="${url}" alt="${f.filename}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.opacity='0.3'">`
+        }
+        <div class="overlay">
+          <p style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.filename}</p>
+          <p style="font-size:10px;color:var(--text-secondary);margin-top:2px;">
+            👤 ${uploader} ·  ${timeStr}
+          </p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ==================== 使用 jsdelivr CDN 加速图片加载 ====================
+function getFileUrl(f) {
+  return `https://cdn.jsdelivr.net/gh/${CONFIG.OWNER}/${CONFIG.REPO}@${CONFIG.BRANCH}/${CONFIG.MEDIA_PATH}/${f.filename}`;
+}
+
+function clearFilters() {
+  document.getElementById('sortSelect').value = 'time-desc';
+  document.getElementById('userFilter').value = '';
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  document.getElementById('typeFilter').value = '';
+  document.getElementById('formatFilter').value = '';
+  document.getElementById('displayModeSelect').value = 'cover';
+  state.displayMode = 'cover';
+  renderAlbum();
+}
+
+function setDisplayMode(mode) {
+  state.displayMode = mode;
+  renderAlbum();
+}
+
+// ==================== 灯箱 ====================
+function openLightbox(index) {
+  state.lightboxIndex = index;
+  state.lightboxZoom = 1;
+  updateLightboxContent();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  updateThumbs();
+
+  // 鼠标滚轮缩放
+  const container = document.getElementById('lightboxContainer');
+  container.onwheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else zoomOut();
+  };
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+  state.lightboxZoom = 1;
+  const media = document.getElementById('lightboxMedia');
+  if (media) media.innerHTML = '';
+  state.lightboxIndex = -1;
+  const container = document.getElementById('lightboxContainer');
+  container.onwheel = null;
+}
+
+function navigateLightbox(direction) {
+  const len = state.filteredFiles.length;
+  if (len === 0) return;
+  state.lightboxIndex = (state.lightboxIndex + direction + len) % len;
+  state.lightboxZoom = 1;
+  updateLightboxContent(direction);
+  updateThumbs();
+}
+
+function updateLightboxContent(direction) {
+  const f = state.filteredFiles[state.lightboxIndex];
+  if (!f) return;
+
+  const url = getFileUrl(f);
+  const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
+  const container = document.getElementById('lightboxMedia');
+
+  if (mediaType === 'video') {
+    container.innerHTML = `<video class="lightbox-content" controls autoplay src="${url}" style="transform:scale(${state.lightboxZoom})"></video>`;
+  } else {
+    container.innerHTML = `<img class="lightbox-content" src="${url}" alt="${f.filename}" style="transform:scale(${state.lightboxZoom})">`;
+  }
+
+  // 幻灯片切换动效
+  const mediaEl = container.querySelector('.lightbox-content');
+  if (mediaEl && direction !== undefined) {
+    mediaEl.style.setProperty('--zoom', state.lightboxZoom);
+    mediaEl.classList.remove('slide-left', 'slide-right');
+    void mediaEl.offsetWidth;
+    mediaEl.classList.add(direction > 0 ? 'slide-left' : 'slide-right');
+  }
+
+  const time = new Date(f.uploadedAt);
+  document.getElementById('lightboxInfo').innerHTML = `
+    <strong>${f.filename}</strong>
+    &nbsp;·&nbsp; 👤 ${f.uploaderNickname || f.uploader || '未知'}
+    &nbsp;·&nbsp;  ${formatTimeFull(time)}
+    &nbsp;·&nbsp; ${state.lightboxIndex + 1} / ${state.filteredFiles.length}
+    &nbsp;·&nbsp; 🖱️ 滚轮缩放
+  `;
+
+  const deleteBtn = document.getElementById('lightboxDeleteBtn');
+  if (deleteBtn) deleteBtn.style.display = state.isAdministrator ? '' : 'none';
+
+  // 预加载相邻图片
+  preloadAdjacent();
+}
+
+// 预加载相邻图片
+function preloadAdjacent() {
+  const len = state.filteredFiles.length;
+  if (len === 0) return;
+  const prev = (state.lightboxIndex - 1 + len) % len;
+  const next = (state.lightboxIndex + 1) % len;
+  [prev, next].forEach(idx => {
+    const f = state.filteredFiles[idx];
+    if (f && (f.mediaType || f.type) === 'image') {
+      const img = new Image();
+      img.src = getFileUrl(f);
+    }
+  });
+}
+
+function zoomIn() {
+  state.lightboxZoom = Math.min(state.lightboxZoom + 0.25, 5);
+  applyZoom();
+}
+function zoomOut() {
+  state.lightboxZoom = Math.max(state.lightboxZoom - 0.25, 0.5);
+  applyZoom();
+}
+function resetZoom() {
+  state.lightboxZoom = 1;
+  applyZoom();
+}
+function applyZoom() {
+  const media = document.querySelector('.lightbox-content');
+  if (media) {
+    media.style.transform = `scale(${state.lightboxZoom})`;
+    media.style.setProperty('--zoom', state.lightboxZoom);
+    media.classList.remove('slide-left', 'slide-right');
+  }
+}
+
+function downloadCurrent() {
+  const f = state.filteredFiles[state.lightboxIndex];
+  if (!f) return;
+  const url = getFileUrl(f);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = f.filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function updateThumbs() {
+  const thumbsContainer = document.getElementById('lightboxThumbs');
+  thumbsContainer.innerHTML = '';
+  state.filteredFiles.forEach((f, idx) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'lightbox-thumb' + (idx === state.lightboxIndex ? ' active' : '');
+    const url = getFileUrl(f);
+    const mediaType = f.mediaType || f.type || guessMediaType(f.filename);
+    if (mediaType === 'video') {
+      thumb.innerHTML = `<video src="${url}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;"></video>`;
+    } else {
+      thumb.innerHTML = `<img src="${url}" alt="${f.filename}" loading="lazy">`;
+    }
+    thumb.onclick = () => {
+      state.lightboxIndex = idx;
+      state.lightboxZoom = 1;
+      updateLightboxContent();
+      updateThumbs();
+    };
+    thumbsContainer.appendChild(thumb);
+  });
+  const activeThumb = thumbsContainer.querySelector('.lightbox-thumb.active');
+  if (activeThumb) {
+    const containerWidth = thumbsContainer.clientWidth;
+    const thumbWidth = activeThumb.offsetWidth;
+    const thumbLeft = activeThumb.offsetLeft;
+    const scrollTarget = thumbLeft - (containerWidth / 2) + (thumbWidth / 2);
+    thumbsContainer.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') navigateLightbox(-1);
+  if (e.key === 'ArrowRight') navigateLightbox(1);
+  if (e.key === '+' || e.key === '=') zoomIn();
+  if (e.key === '-') zoomOut();
+  if (e.key === '0') resetZoom();
+  if (e.key === 'd' || e.key === 'D') downloadCurrent();
+  if (e.key === 'Delete' && state.isAdministrator) deleteFromLightbox();
+});
+
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+
+// ==================== 工具函数 ====================
+function formatTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return `${Math.floor(diff/60000)} 分钟前`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)} 小时前`;
+  if (diff < 604800000) return `${Math.floor(diff/86400000)} 天前`;
+  return date.toLocaleDateString('zh-CN');
+}
+
+function formatTimeFull(date) {
+  return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '未知';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function showLoading(show) {
+  document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    toast.style.transition = 'all 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginModal').classList.contains('active')) {
+    doLogin();
+  }
+});
+</script>
+
+</body>
+</html>
