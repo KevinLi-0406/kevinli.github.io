@@ -1,0 +1,27 @@
+{
+  "_说明": "项目配置文件。file 字段为 Tools/ 下的子目录名。",
+
+  "defaults": {
+    "icon": "",
+    "categories": {
+      "cat.fun":     { "label": "趣味互动", "icon": "" },
+      "cat.tool":    { "label": "工具应用", "icon": "️" },
+      "cat.data":    { "label": "数据图鉴", "icon": "📊" },
+      "cat.photo":   { "label": "相册分享", "icon": "📷" },
+      "cat.sport":   { "label": "体育运动", "icon": "🏎️" },
+      "cat.travel":  { "label": "旅行规划", "icon": "🗺️" },
+      "cat.other":   { "label": "其他",     "icon": "" }
+    }
+  },
+
+  "projects": [
+    { "file": "pokemon-pokedex/index.html",    "icon": "⚡",  "category": "cat.data" },
+    { "file": "squirts/index.html",            "icon": "🐢",  "category": "cat.fun" },
+    { "file": "chicks/index.html",             "icon": "🐣",  "category": "cat.fun" },
+    { "file": "f1-data/index.html",            "icon": "🏎️",  "category": "cat.data" },
+    { "file": "css-editor/index.html",         "icon": "🎨",  "category": "cat.tool" },
+    { "file": "photo-album/index.html",        "icon": "",  "category": "cat.photo" },
+    { "file": "b2x-query/index.html",          "icon": "🔎",  "category": "cat.tool" },
+    { "file": "travel-planner/index.html",     "icon": "🗺️",  "category": "cat.travel" }
+  ]
+}
