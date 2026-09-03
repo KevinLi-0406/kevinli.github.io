@@ -1,22 +1,20 @@
-# Integration - 多平台集成项目
+# Integration - 统一信息平台
 
-本目录包含所有平台集成的技术文档和设计文档。
+本目录包含**统一信息平台**项目的所有技术文档。
+
+> 核心理念：**一个大脑，四个触角** —— Cherry Studio AI 整合企微、飞书、Teams、邮箱
 
 ## 目录结构
 
 ```
 Integration/
-├── cherry-integration/   # Cherry Studio 统一平台集成
-│   ├── README.md         # 项目概述
-│   ├── requirements.md   # 需求文档
-│   ├── tasks.md          # 任务清单
-│   ├── progress-log.md   # 进度日志
-│   ├── operation-log.md  # 操作日志
-│   ├── unified-platform-design.md  # 统一平台架构设计
-│   └── wecom-integration.md        # 企业微信集成详情
-│
-└── feishu-integration/   # 飞书集成（历史记录）
-    └── (已清空，内容合并到 cherry-integration/)
+├── README.md              # 本文件
+├── unified-platform.md    # 统一平台架构设计（需求 + 方案 + 路线图）
+├── requirements.md        # 功能需求文档
+├── tasks.md               # 任务清单
+├── progress-log.md        # 进度日志
+├── operation-log.md       # 操作日志
+└── wecom-integration.md   # 企业微信集成详情
 ```
 
 ## 集成状态
@@ -30,8 +28,8 @@ Integration/
 
 ## 快速链接
 
-- [统一平台架构设计](cherry-integration/unified-platform-design.md)
-- [企业微信集成详情](cherry-integration/wecom-integration.md)
-- [项目任务清单](cherry-integration/tasks.md)
-- [进度日志](cherry-integration/progress-log.md)
-- [操作日志](cherry-integration/operation-log.md)
+- [统一平台架构设计](unified-platform.md)
+- [企业微信集成详情](wecom-integration.md)
+- [项目任务清单](tasks.md)
+- [进度日志](progress-log.md)
+- [操作日志](operation-log.md)
