@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2X 工单快速访问</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 { color: #333; margin-bottom: 10px; font-size: 28px; text-align: center; }
+        .subtitle { color: #666; text-align: center; margin-bottom: 30px; font-size: 14px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { outline: none; border-color: #667eea; }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
+        button:active { transform: translateY(0); }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .status.success { background: #d4edda; color: #155724; display: block; }
+        .status.info { background: #d1ecf1; color: #0c5460; display: block; }
+        .bookmarklet-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .bookmarklet-box.show { display: block; }
+        .bookmarklet-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 15px 0;
+            cursor: move;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .bookmarklet-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .instructions h3 { color: #333; margin-bottom: 15px; font-size: 16px; }
+        .step {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .step h4 { color: #333; margin-bottom: 8px; font-size: 14px; }
+        .step p { margin-bottom: 8px; line-height: 1.6; color: #666; }
+        .history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .history h3 { color: #333; margin-bottom: 10px; font-size: 14px; }
+        .history-list { max-height: 200px; overflow-y: auto; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover { background: #e9ecef; }
+        .history-item .job-number { font-weight: 600; color: #333; }
+        .history-item .timestamp { font-size: 12px; color: #999; }
+        .highlight { background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107; }
+        .highlight h4 { color: #856404; margin-bottom: 8px; }
+        .highlight ul { margin-left: 20px; line-height: 1.8; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 B2X 工单快速访问</h1>
+        <p class="subtitle">生成书签脚本，一键跳转到工单详情</p>
+
+        <div class="highlight">
+            <h4>📌 使用说明</h4>
+            <ul>
+                <li><strong>首次使用：</strong>输入工单号 → 生成书签 → 拖到书签栏</li>
+                <li><strong>日常使用：</strong>输入工单号 → 点击书签 → 自动跳转</li>
+            </ul>
+        </div>
+
+        <div class="input-group">
+            <label for="jobNumber">工单号</label>
+            <input type="text" id="jobNumber" placeholder="请输入工单号（如：B2XSGWY1120130）" autocomplete="off">
+        </div>
+
+        <button onclick="generateBookmarklet()">📌 生成书签脚本</button>
+
+        <div id="status" class="status"></div>
+
+        <div id="bookmarkletBox" class="bookmarklet-box">
+            <p style="margin-bottom: 15px;"><strong>✓ 书签脚本已生成！</strong></p>
+            <p style="margin-bottom: 15px; color: #666;">请将下方蓝色按钮<strong>拖动到书签栏</strong>：</p>
+            <a id="bookmarkletBtn" class="bookmarklet-btn" href="#">🎫 B2X 工单</a>
+            <p style="margin-top: 15px; font-size: 13px; color: #666;">
+                💡 提示：拖动到书签栏后，以后只需：<br>
+                1. 在本页面输入工单号<br>
+                2. 点击书签栏中的"B2X 工单"书签<br>
+                3. 自动打开 B2X 并跳转到工单详情
+            </p>
+        </div>
+
+        <div class="instructions">
+            <h3>📖 详细步骤</h3>
+
+            <div class="step">
+                <h4>步骤 1：首次设置（只需一次）</h4>
+                <p>1. 在上方输入任意工单号（如：TEST）</p>
+                <p>2. 点击"生成书签脚本"按钮</p>
+                <p>3. 将生成的蓝色按钮<strong>拖动到书签栏</strong></p>
+                <p>4. 设置完成！</p>
+            </div>
+
+            <div class="step">
+                <h4>步骤 2：日常使用（每次）</h4>
+                <p>1. 打开本页面，输入工单号</p>
+                <p>2. 点击书签栏中的"B2X 工单"书签</p>
+                <p>3. 自动打开 B2X → 登录 → 搜索 → 进入工单详情</p>
+            </div>
+        </div>
+
+        <div class="history" id="historySection" style="display: none;">
+            <h3>📋 最近访问</h3>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('jobHistory') || '[]');
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
+            if (history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+            historySection.style.display = 'block';
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item" onclick="fillJobNumber('${item.jobNumber}')">
+                    <span class="job-number">${item.jobNumber}</span>
+                    <span class="timestamp">${new Date(item.timestamp).toLocaleString('zh-CN')}</span>
+                </div>
+            `).join('');
+        }
+
+        function saveToHistory(jobNumber) {
+            let history = JSON.parse(localStorage.getItem('jobHistory') || '[]');
+            history = history.filter(item => item.jobNumber !== jobNumber);
+            history.unshift({ jobNumber, timestamp: new Date().toISOString() });
+            history = history.slice(0, 10);
+            localStorage.setItem('jobHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function fillJobNumber(jobNumber) {
+            document.getElementById('jobNumber').value = jobNumber;
+            document.getElementById('jobNumber').focus();
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        function generateBookmarklet() {
+            const jobNumber = document.getElementById('jobNumber').value.trim();
+            if (!jobNumber) {
+                showStatus('请先输入工单号', 'info');
+                return;
+            }
+
+            saveToHistory(jobNumber);
+
+            // 生成书签脚本
+            const bookmarkletCode = `javascript:(function(){
+                var jobNum='${jobNumber}';
+                var userName='rbouchlarhem';
+                var passWord='1LoveService##';
+
+                function waitAndClick(selector, callback, maxWait){
+                    var start=Date.now();
+                    var interval=setInterval(function(){
+                        var el=document.querySelector(selector);
+                        if(el){
+                            clearInterval(interval);
+                            callback(el);
+                        }else if(Date.now()-start>maxWait){
+                            clearInterval(interval);
+                        }
+                    },500);
+                }
+
+                // 打开登录页
+                var win=window.open('https://app-srt.b2x.com/ui/#!/login','_blank');
+
+                // 等待页面加载
+                var checkInterval=setInterval(function(){
+                    if(win&&win.document&&win.document.readyState==='complete'){
+                        clearInterval(checkInterval);
+                        setTimeout(function(){
+                            // 登录
+                            waitAndClick.call(win, 'input[name="userName"],input[name="username"]', function(userNameInput){
+                                userNameInput.value=userName;
+                                waitAndClick.call(win, 'input[name="passWord"],input[name="password"]', function(passInput){
+                                    passInput.value=passWord;
+                                    waitAndClick.call(win, 'button[type="submit"]', function(loginBtn){
+                                        loginBtn.click();
+                                        // 等待登录完成
+                                        setTimeout(function(){
+                                            win.location.hash='#!/reports/joblist';
+                                            setTimeout(function(){
+                                                waitAndClick.call(win, 'input[ng-model*="jobNumber"],input[name="jobNumber"]', function(jobInput){
+                                                    jobInput.value=jobNum;
+                                                    waitAndClick.call(win, 'button[ng-click*="search"],button', function(searchBtn){
+                                                        if(searchBtn.textContent.includes('Search')||searchBtn.textContent.includes('搜索')){
+                                                            searchBtn.click();
+                                                            setTimeout(function(){
+                                                                waitAndClick.call(win, 'a[ui-sref*="'+jobNum+'"],a[href*="'+jobNum+'"]', function(jobLink){
+                                                                    jobLink.click();
+                                                                }, 5000);
+                                                            }, 2000);
+                                                        }
+                                                    }, 3000);
+                                                }, 3000);
+                                            }, 2000);
+                                        }, 3000);
+                                    }, 3000);
+                                }, 3000);
+                            }, 5000);
+                        }, 2000);
+                    }
+                }, 500);
+            })();`;
+
+            // 显示书签按钮
+            const bookmarkletBtn = document.getElementById('bookmarkletBtn');
+            bookmarkletBtn.href = bookmarkletCode;
+            bookmarkletBtn.textContent = `🎫 B2X 工单：${jobNumber}`;
+            document.getElementById('bookmarkletBox').classList.add('show');
+
+            showStatus('✓ 书签脚本已生成！请拖动蓝色按钮到书签栏', 'success');
+
+            // 清空输入框
+            document.getElementById('jobNumber').value = '';
+        }
+
+        // 回车键触发
+        document.getElementById('jobNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateBookmarklet();
+            }
+        });
+
+        // 页面加载时加载历史记录
+        loadHistory();
+
+        // 自动聚焦到输入框
+        document.getElementById('jobNumber').focus();
+    </script>
+</body>
+</html>
