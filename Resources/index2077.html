@@ -388,11 +388,11 @@
           <div class="profile-info">
             <h2>李奕兴 · Kevin</h2>
             <div class="subtitle">应用工程师 · 集团信息化中心</div>
-            <p class="bio">2023年3月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
+            <p class="bio">2022 年 12 月加入纳恩博（Ninebot / Segway），任职于集团信息化中心海外销服系统部。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期，同时负责 SPP、B2X、Chat 在线客服等多个核心项目。擅长跨部门拉通、业务方案输出和技术问题终结。</p>
             <div class="profile-meta">
               <span>🏢 纳恩博（北京）科技有限公司</span>
               <span> 海外销服系统部</span>
-              <span>📅 2023年3月入职</span>
+              <span>📅 2022 年 12 月入职</span>
               <span>🌐 支持北美/欧洲/墨西哥</span>
             </div>
           </div>
@@ -554,12 +554,12 @@
         }
       }
       CAT_NAMES = Object.keys(catSet);
-      CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "\uD83D\uDCC4"; });
-      if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "\uD83D\uDEE0\uFE0F";
-      if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "\uD83D\uDC3E";
-      if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "\uD83C\uDFAE";
-      if (CAT_NAMES.indexOf("数据分析") !== -1) CAT_ICONS["数据分析"] = "\uD83D\uDCCA";
-      if (CAT_NAMES.indexOf("个人信息") !== -1) CAT_ICONS["个人信息"] = "\uD83D\uDC64";
+      CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "📄"; });
+      if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "🛠️";
+      if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "🐾";
+      if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "🎮";
+      if (CAT_NAMES.indexOf("数据分析") !== -1) CAT_ICONS["数据分析"] = "📊";
+      if (CAT_NAMES.indexOf("个人信息") !== -1) CAT_ICONS["个人信息"] = "👤";
       try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), cats: cats})); } catch(e) {}
       return cats;
     }
@@ -614,7 +614,7 @@
       try {
         var readmeCats;
         try { readmeCats = await fetchReadmeCategories(); }
-        catch(e) { console.warn("README 加载失败，使用兜底分类:", e.message); readmeCats = FALLBACK_CATS; CAT_NAMES = []; var s = {}; for (var k in readmeCats) { s[readmeCats[k]] = true; } CAT_NAMES = Object.keys(s); CAT_ICONS = {}; CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "📄"; }); if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "\uD83D\uDEE0\uFE0F"; if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "\uD83D\uDC3E"; if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "\uD83C\uDFAE"; }
+        catch(e) { console.warn("README 加载失败，使用兜底分类:", e.message); readmeCats = FALLBACK_CATS; CAT_NAMES = []; var s = {}; for (var k in readmeCats) { s[readmeCats[k]] = true; } CAT_NAMES = Object.keys(s); CAT_ICONS = {}; CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "📄"; }); if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "🛠️"; if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "🐾"; if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "🎮"; }
         var files = await fetchProjectFiles();
         allItems = files.map(function(f) {
           var name = f.name.replace(/\.html?$/i, "");
