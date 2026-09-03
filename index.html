@@ -107,7 +107,7 @@
     footer { padding: 28px 0; color: var(--muted); text-align: center; font-size: 13px; border-top: 1px solid var(--border); }
     footer a { color: var(--blue); }
 
-    @media (max-width: 900px) {
+    @media (max-width: 905px) {
       .profile-card { flex-direction: column; text-align: center; gap: 20px; }
       .profile-meta { justify-content: center; }
       .skills-grid { grid-template-columns: 1fr; }
@@ -461,8 +461,8 @@
           if (Date.now() - d.ts < 300000) return d.config;
         } catch(e) {}
       }
-      // project-config.json 现在在仓库根目录
-      var url = PAGES_BASE + "/project-config.json?v=" + Date.now();
+      // project-config.json 现在在 Tools/ 目录
+      var url = PAGES_BASE + "/Tools/project-config.json?v=" + Date.now();
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("无法加载 project-config.json (" + resp.status + ")");
       var config = await resp.json();
@@ -491,8 +491,8 @@
       var html = "";
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
-        // it.file 现在包含完整相对路径，如 "Tools/b2x-query/index.html"
-        var url = PAGES_BASE + "/" + it.file;
+        // it.file 现在是 Tools/ 下的相对路径，如 "b2x-query/index.html"
+        var url = PAGES_BASE + "/Tools/" + it.file;
         var icon = it.icon || "📄";
         html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
         html += '<div class="project-icon">' + esc(icon) + '</div>';
