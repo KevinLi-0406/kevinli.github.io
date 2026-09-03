@@ -40,8 +40,8 @@ Kevin 就职于**九号公司（Ninebot / Segway）**集团信息化中心海外
 
 | 项目 | 全称 | 区域 | 状态 | 技术栈 | Kevin 负责模块 |
 |------|------|------|------|--------|--------------|
-| **NA SDS** | Service Delivery System | 北美 | ✅ 已上线（2024.03） | D365 OP + 瑞泰 ServiceOne | **客服模块**（线上） |
-| **EU SPP** | Segway Partner Portal | 欧洲（全区域） | 🔧 进行中 | D365 SaaS | **维修中心工单**（线下）+ 结算 + 主数据 |
+| **NA SDS** | Service Delivery System | 北美 | ✅ 已上线（2024.03） | D365 OP + 瑞泰 ServiceOne | **线上模块** |
+| **EU SPP** | Segway Partner Portal | 欧洲（全区域） | 🔧 进行中 | D365 SaaS | **线下模块** + 备件 + 结算 + 主数据 |
 
 ### 2.2 工单交互方式（EU SPP 线下模块）
 
@@ -63,11 +63,11 @@ Kevin 就职于**九号公司（Ninebot / Segway）**集团信息化中心海外
 - **RC 直连**：不经过 B2X，直接跟维修中心对接，工单数据推送给下游备件系统（供应商：迈创）
 - **KA 直连**：与德国大客户 MediaMarkt（原 B2X 在德国的重要工单渠道之一）直接对接
 
-### 2.3 客服渠道演进
+### 2.3 线上渠道演进
 
 | 区域 | 历史方案 | 当前方案 | 问题 |
 |------|---------|---------|------|
-| 北美 | 瑞泰 ServiceOne | D365 OP + ServiceOne（客服工作台） | 多渠道稳定性差，延迟高，体验差 |
+| 北美 | 瑞泰 ServiceOne | D365 OP + ServiceOne（线上工作台） | 多渠道稳定性差，延迟高，体验差 |
 | 欧洲 | UDesk | Omni-channel + Copilot（微软原生） | 因 EU SPP 项目切换，UDesk 已停用 |
 
 > 注：Omni-channel 只是 EU SPP 线上模块的一个渠道（Chat + Phone + Email），不是独立项目。
@@ -108,7 +108,7 @@ Kevin 就职于**九号公司（Ninebot / Segway）**集团信息化中心海外
 
 | 指标 | 数值 |
 |------|------|
-| 入职时间 | 2023 年 3 月 |
+| 入职时间 | 2022 年 12 月 |
 | 参与项目数 | 10+ |
 | 日均处理消息 | 企微 100+ / Teams ~100 / 邮件 4-5 |
 | 日常会议 | 几乎每天都有 |
@@ -186,7 +186,7 @@ Kevin 就职于**九号公司（Ninebot / Segway）**集团信息化中心海外
 ├── 00-INDEX.md              # 知识库导航
 ├── 01-SPP-SDS/              # A. 业务规则
 │   ├── EU-SPP-线下工单流程.md
-│   ├── NA-SDS-客服模块.md
+│   ├── NA-SDS-线上模块.md
 │   ├── D365-配置文档.md
 │   ├── 结算规则.md
 │   └── B2X-RC-KA-直连方案.md
