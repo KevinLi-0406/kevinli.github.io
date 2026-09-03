@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 16:00 (UTC+8)
+- **修改文件**：`README.md`
+- **变更类型**：更新
+- **变更描述**：更新仓库结构描述。`project-config.json` 已移至 `Tools/` 目录，补充 `Integration/` 下缺失的 `progress-log.md` 和 `operation-log.md`，以及 `Resources/` 下缺失的 `index2077.html` 和 `portal-editor.html`。
+- **影响范围**：仓库结构说明文档
+- **关联请求**："README.md里面的仓库结构是不是要重新写了"
+
+### 2026-09-03 15:30 (UTC+8)
+- **修改文件**：`README.md`、`index.html`、`Resources/index2077.html`、`Integration/unified-platform.md`、`Knowledge/01-SPP-SDS/README.md`
+- **变更类型**：更新
+- **变更描述**：
+  1. 入职时间从"2023 年 3 月"改为"2022 年 12 月"
+  2. 统一模块称呼为"线上、线下、备件、结算、主数据"
+     - 原"客服"改为"线上"
+     - 原"维修中心工单"改为"线下"
+     - 新增"备件"模块
+- **影响范围**：个人简介、职业方向、工作数据、系统集成描述
+- **关联请求**："对于README.md，有几个要更新：1.我是2022年12月加入的公司 2.我负责的系统一般模块是：线上、线下、备件、结算、主数据"
+
+### 2026-09-03 15:00 (UTC+8)
+- **新增文件**：`Tools/project-config.json`
+- **删除文件**：`project-config.json`（根目录）
+- **修改文件**：`index.html`
+- **变更类型**：重构
+- **变更描述**：
+  1. 将 `project-config.json` 移至 `Tools/` 目录
+  2. 更新 `project-config.json` 中 `file` 字段格式，从 `Tools/b2x-query/index.html` 改为 `b2x-query/index.html`
+  3. 更新 `index.html` 加载路径，从 `PAGES_BASE + "/project-config.json"` 改为 `PAGES_BASE + "/Tools/project-config.json"`
+  4. 更新项目 URL 拼接逻辑，从 `PAGES_BASE + "/" + it.file` 改为 `PAGES_BASE + "/Tools/" + it.file`
+- **影响范围**：门户首页项目加载功能
+- **关联请求**："project-config.json跟其他html工具放在一起呀"
+
+### 2026-09-03 14:30 (UTC+8)
+- **删除目录**：`Integration/cherry-integration/`（整个目录）
+- **新增文件**：`Integration/requirements.md`、`Integration/tasks.md`、`Integration/progress-log.md`、`Integration/operation-log.md`、`Integration/wecom-integration.md`、`Integration/cherry-integration-overview.md`
+- **修改文件**：`Integration/README.md`
+- **变更类型**：重构
+- **变更描述**：扁平化 `Integration/` 目录结构。将 `cherry-integration/` 子目录下的所有文件提升到 `Integration/` 顶层，删除重复的 `unified-platform-design.md`（保留 `unified-platform.md`），更新 `README.md` 中的目录结构描述和链接路径。
+- **影响范围**：统一信息平台文档目录结构
+- **关联请求**："cherry-integration出现了两次"、"删除文件我来，其他的你来"
+
+## [Unreleased]
+
 ### 2026-08-19 22:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.2.0.html`、`Projects/project-config.json`
 - **变更类型**：新增
@@ -14,21 +57,21 @@ All notable changes to this project will be documented in this file.
 ### 2026-08-19 21:45 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.10.html`、`Projects/project-config.json`
 - **变更类型**：新增
-- **变更描述**：基于 v2.0.9 新增 v2.0.10；修复地图空白处点击后逆地理编码名称与完整地址相同的问题。门牌号后的场所名称会作为标题显示，无法识别独立场所时显示“地图选点”，完整地址继续保留在地址字段。
+- **变更描述**：基于 v2.0.9 新增 v2.0.10；修复地图空白处点击后逆地理编码名称与完整地址相同的问题。门牌号后的场所名称会作为标题显示，无法识别独立场所时显示"地图选点"，完整地址继续保留在地址字段。
 - **影响范围**：城市漫游行程助手 v2.0.10 的地图点击 POI 详情和新增地点名称。
 - **关联请求**："现在点击地图，名字和地址又一样了"
 
 ### 2026-08-19 21:35 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.9.html`
 - **变更类型**：新增
-- **变更描述**：基于 v2.0.8 新增 v2.0.9：地址型 POI 名称会移除门牌号及前置地址，地铁路线分段增加留白；补回地点列表“驾车”排序按钮图标，并恢复按当前位置 100km 范围检索。
+- **变更描述**：基于 v2.0.8 新增 v2.0.9：地址型 POI 名称会移除门牌号及前置地址，地铁路线分段增加留白；补回地点列表"驾车"排序按钮图标，并恢复按当前位置 100km 范围检索。
 - **影响范围**：城市漫游行程助手 v2.0.9 的 POI 添加名称、地点列表排序按钮、地点搜索和地铁路线详情显示。
-- **关联请求**："1.北京市海淀区东升镇前屯路71号悦茂购物中心 为什么名字会显示71号悦茂购物中心？我不要号 2.增加不同地铁线路模块之间的间距，现在所有的都糊在一块 3.地点列表的“驾车”按钮依然没有icon 4.现在搜索不基于当前地点了，又基于北京市中心了，之前的版本还可以的"、"确认"
+- **关联请求**："1.北京市海淀区东升镇前屯路71号悦茂购物中心 为什么名字会显示71号悦茂购物中心？我不要号 2.增加不同地铁线路模块之间的间距，现在所有的都糊在一块 3.地点列表的"驾车"按钮依然没有icon 4.现在搜索不基于当前地点了，又基于北京市中心了，之前的版本还可以的"、"确认"
 
 ### 2026-08-19 21:20 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.8.html`、`Projects/project-config.json`
 - **变更类型**：新增
-- **变更描述**：基于 v2.0.7 新增 v2.0.8；在搜索结果选中和地图点击 POI 添加地点时，规范高德返回的超长 POI 名称，去除行政区划、括号说明及枢纽后缀，保留如“朝阳站”的核心名称。完整地址继续保存至地址字段，便于识别与导航。
+- **变更描述**：基于 v2.0.7 新增 v2.0.8；在搜索结果选中和地图点击 POI 添加地点时，规范高德返回的超长 POI 名称，去除行政区划、括号说明及枢纽后缀，保留如"朝阳站"的核心名称。完整地址继续保存至地址字段，便于识别与导航。
 - **影响范围**：城市漫游行程助手 v2.0.8 的地点搜索、POI 添加、地点标记和地点编辑体验，以及首页旅行规划项目列表。
 - **关联请求**："为什么我从地图上看到是朝阳站，但是点开之后变成北京市朝阳区东风乡朝阳站(地铁站)朝阳站交通枢纽了，名字特别长，导致我的地图上面的名字特别长，我添加的时候删除文字也需要花很久"、"生成新版本"
 
@@ -42,7 +85,7 @@ All notable changes to this project will be documented in this file.
 ### 2026-08-19 21:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.7.html`、`Projects/project-config.json`
 - **变更类型**：新增
-- **变更描述**：基于 v2.0.6 新增 v2.0.7，地点详情的地铁分段严格读取高德 `bus.buslines[0]` 同层的 `departure_stop.name`、`arrival_stop.name`、`via_num`、`via_stops`、`distance` 和 `duration`。其中距离按米展示、耗时按秒转换为分钟；缺少有效数值时明确提示数据暂不可用，避免错误显示为“0米 · 1分钟”。
+- **变更描述**：基于 v2.0.6 新增 v2.0.7，地点详情的地铁分段严格读取高德 `bus.buslines[0]` 同层的 `departure_stop.name`、`arrival_stop.name`、`via_num`、`via_stops`、`distance` 和 `duration`。其中距离按米展示、耗时按秒转换为分钟；缺少有效数值时明确提示数据暂不可用，避免错误显示为"0米 · 1分钟"。
 - **影响范围**：城市漫游行程助手 v2.0.7 的地点详情地铁分段信息及首页旅行规划项目列表。
 - **关联请求**："type=地铁线路的时候，同一层的distance就是米数，duration就是时间（单位为秒，你需要转换为分钟）"、"执行以上修改，并生成新的版本"
 
