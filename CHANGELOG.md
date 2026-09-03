@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 19:00 (UTC+8)
+- **新增文件**：`Integration/integration-details.md`
+- **删除文件**：`Integration/tasks.md`、`Integration/progress-log.md`、`Integration/operation-log.md`、`Integration/wecom-integration.md`
+- **修改文件**：`Integration/README.md`、`README.md`
+- **变更类型**：重构
+- **变更描述**：将 Integration/ 下的 4 个文件（任务清单、进度日志、操作日志、企微集成详情）合并为一个 `integration-details.md`，消除重复内容，结构更清晰
+- **影响范围**：集成文档目录结构
+- **关联请求**："我觉得integration下面的任务清单、进度日志和操作日志，以及企微集成详情这四个文件完全可以合并成一个"
+
 ### 2026-09-03 18:45 (UTC+8)
 - **修改文件**：`Tools/travel-planner/travel-planner.html`
 - **变更类型**：修复

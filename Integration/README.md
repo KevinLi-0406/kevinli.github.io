@@ -8,13 +8,10 @@
 
 ```
 Integration/
-├── README.md              # 本文件
-├── unified-platform.md    # 统一平台架构设计（需求 + 方案 + 路线图）
-├── requirements.md        # 功能需求文档
-├── tasks.md               # 任务清单
-├── progress-log.md        # 进度日志
-├── operation-log.md       # 操作日志
-└── wecom-integration.md   # 企业微信集成详情
+├── README.md                 # 本文件
+├── unified-platform.md       # 统一平台架构设计（需求 + 方案 + 路线图）
+├── requirements.md           # 功能需求文档
+└── integration-details.md    # 集成详情（配置、功能状态、任务、进度、错误记录）
 ```
 
 ## 集成状态
@@ -29,7 +26,5 @@ Integration/
 ## 快速链接
 
 - [统一平台架构设计](unified-platform.md)
-- [企业微信集成详情](wecom-integration.md)
-- [项目任务清单](tasks.md)
-- [进度日志](progress-log.md)
-- [操作日志](operation-log.md)
+- [功能需求文档](requirements.md)
+- [集成详情](integration-details.md) — 配置信息、功能状态、任务清单、进度日志、错误记录

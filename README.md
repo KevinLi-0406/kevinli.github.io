@@ -41,10 +41,7 @@ kevinli.github.io/
 ├── Integration/            # 统一信息平台文档
 │   ├── unified-platform.md # 架构设计 + 需求 + 路线图
 │   ├── requirements.md     # 需求文档
-│   ├── tasks.md            # 任务清单
-│   ├── progress-log.md     # 进度日志
-│   ├── operation-log.md    # 操作日志
-│   └── wecom-integration.md# 企微集成详情
+│   └── integration-details.md # 集成详情（配置/功能/任务/进度/错误）
 │
 ├── Knowledge/              # 知识库
 │   ├── 00-INDEX.md         # 知识库导航
