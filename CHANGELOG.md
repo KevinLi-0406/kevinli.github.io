@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-03 18:45 (UTC+8)
+- **修改文件**：`Tools/travel-planner/travel-planner.html`
+- **变更类型**：修复
+- **变更描述**：替换为正确的 travel-planner 基础文件（95KB 高德地图版本）。之前推送的文件（15KB）内容不完整，缺少高德地图 API 集成。现版本与用户之前使用的 v2.2.0 功能一致
+- **影响范围**：城市漫游行程助手项目
+- **关联请求**："现在这个travel-planner和我之前能用的版本完全不一样"
+- **Commit**：`509fa2d` - 替换为正确的 travel-planner 基础文件（95KB 高德地图版本）
+
 ### 2026-09-03 18:20 (UTC+8)
 - **新增文件**：`Tools/travel-planner/travel-planner.html`、`Tools/travel-planner/travel-planner-v2.0.7.html`、`Tools/travel-planner/travel-planner-v2.0.8.html`
 - **变更类型**：修复
