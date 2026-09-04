@@ -128,7 +128,9 @@
   .btn-secondary:hover:not(:disabled) { background: var(--border); }
   .btn-success { background: var(--success); color: white; }
   .btn-danger { background: var(--danger); color: white; }
+  .btn-warning { background: var(--warning); color: white; }
   .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+  .btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
 
   .status-dot {
     width: 8px; height: 8px;
@@ -225,7 +227,6 @@
   }
   .model-chip.selected .check-mark { display: flex; }
 
-  /* ===== 【新增】搜索框样式 ===== */
   .search-box {
     position: relative;
     margin-bottom: 14px;
@@ -271,13 +272,8 @@
   .search-box .clear-btn:hover { color: var(--text-primary); }
   .search-box.has-value .clear-btn { display: block; }
 
-  /* ===== 标签筛选栏 ===== */
-  .tag-filter-section {
-    margin-bottom: 14px;
-  }
-  .tag-filter-group {
-    margin-bottom: 10px;
-  }
+  .tag-filter-section { margin-bottom: 14px; }
+  .tag-filter-group { margin-bottom: 10px; }
   .tag-filter-group-label {
     font-size: 11px;
     color: var(--text-muted);
@@ -341,66 +337,6 @@
     gap: 8px;
   }
 
-  .message {
-    display: flex;
-    gap: 12px;
-    animation: msgIn 0.3s ease;
-  }
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .message.user { flex-direction: row-reverse; }
-  .message .avatar {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .message.user .avatar { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-  .message.assistant .avatar { background: linear-gradient(135deg, var(--accent), #6347e0); }
-  .message .bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 14px;
-    font-size: 14px;
-    line-height: 1.7;
-    position: relative;
-  }
-  .message.user .bubble {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-  .message.assistant .bubble {
-    background: var(--bg-hover);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-  }
-  .message .meta {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .message .meta .speed-badge {
-    background: rgba(124,106,239,0.15);
-    color: var(--accent-light);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-weight: 600;
-  }
-  .message .meta .model-badge {
-    background: rgba(59,130,246,0.12);
-    color: #60a5fa;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-weight: 500;
-  }
-
   .message-round {
     display: flex;
     flex-direction: column;
@@ -411,6 +347,10 @@
     border-radius: 14px;
     animation: msgIn 0.3s ease;
   }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   .round-user-msg {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
@@ -418,10 +358,9 @@
     border-radius: 12px;
     font-size: 14px;
     line-height: 1.7;
-    align-self: center;
+    align-self: flex-start;
     max-width: 85%;
     word-break: break-word;
-    position: relative;
   }
   .round-user-msg .user-label {
     font-size: 11px;
@@ -431,6 +370,37 @@
     align-items: center;
     gap: 6px;
   }
+
+  .round-results-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .round-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .round-section-header:hover { background: var(--bg-hover); }
+  .round-section-header .section-icon { font-size: 14px; }
+  .round-section-header .section-count {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+  }
+  .round-section-header.success { color: var(--success); }
+  .round-section-header.failure { color: var(--danger); }
+
   .round-models-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -445,12 +415,8 @@
     background: var(--bg-card);
     transition: border-color 0.2s;
   }
-  .model-response-col:hover {
-    border-color: var(--border-light);
-  }
-  .model-response-col.col-error {
-    border-color: rgba(239,68,68,0.4);
-  }
+  .model-response-col:hover { border-color: var(--border-light); }
+  .model-response-col.col-error { border-color: rgba(239,68,68,0.4); }
   .model-response-header {
     display: flex;
     align-items: center;
@@ -491,9 +457,37 @@
     flex-direction: column;
     gap: 8px;
     min-height: 50px;
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
+    transition: max-height 0.3s ease;
   }
+  .model-response-body.collapsed {
+    max-height: 60px;
+    overflow: hidden;
+  }
+  .model-response-body.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--bg-card));
+    pointer-events: none;
+  }
+  .collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    background: var(--bg-input);
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .collapse-toggle:hover { color: var(--accent-light); }
   .model-response-bubble {
     background: var(--bg-hover);
     border: 1px solid var(--border);
@@ -518,10 +512,7 @@
     border-radius: 4px;
     font-size: 13px;
   }
-  .model-response-bubble pre code {
-    background: none;
-    padding: 0;
-  }
+  .model-response-bubble pre code { background: none; padding: 0; }
   .model-response-bubble p { margin: 4px 0; }
   .model-response-bubble ul, .model-response-bubble ol { margin: 4px 0; padding-left: 20px; }
   .model-response-meta {
@@ -584,10 +575,23 @@
     transform: translateY(-1px);
   }
   .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .typing-indicator {
-    display: flex; gap: 4px; padding: 4px 0;
+  .stop-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--danger);
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
   }
+  .stop-btn:hover { opacity: 0.9; }
+  .stop-btn.visible { display: flex; }
+
+  .typing-indicator { display: flex; gap: 4px; padding: 4px 0; }
   .typing-indicator span {
     width: 6px; height: 6px;
     border-radius: 50%;
@@ -672,14 +676,8 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  .selected-tag:hover {
-    background: rgba(124,106,239,0.25);
-  }
-  .selected-tag .remove {
-    font-size: 14px;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-  }
+  .selected-tag:hover { background: rgba(124,106,239,0.25); }
+  .selected-tag .remove { font-size: 14px; opacity: 0.6; transition: opacity 0.2s; }
   .selected-tag .remove:hover { opacity: 1; }
 
   .empty-state {
@@ -694,35 +692,59 @@
   .empty-state .icon { font-size: 48px; opacity: 0.4; }
   .empty-state p { font-size: 14px; }
 
+  .history-panel {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item:hover { background: var(--bg-hover); }
+  .history-item .history-text {
+    flex: 1;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .history-item .history-time {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .history-item .history-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .sort-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sort-btn:hover { background: var(--bg-hover); }
+  .sort-btn.active { border-color: var(--accent); color: var(--accent-light); }
+
   @media (max-width: 768px) {
     .model-grid { grid-template-columns: 1fr; }
-    .message .bubble { max-width: 85%; }
     .stat-row { grid-template-columns: repeat(2, 1fr); }
     .round-models-grid { grid-template-columns: 1fr; }
     .round-user-msg { max-width: 100%; }
   }
-
-  .bubble pre {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    overflow-x: auto;
-    margin: 8px 0;
-    font-size: 13px;
-  }
-  .bubble code {
-    background: rgba(0,0,0,0.2);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 13px;
-  }
-  .bubble pre code {
-    background: none;
-    padding: 0;
-  }
-  .bubble p { margin: 4px 0; }
-  .bubble ul, .bubble ol { margin: 4px 0; padding-left: 20px; }
 </style>
 </head>
 <body>
@@ -766,12 +788,15 @@
             <button onclick="toggleKeyVisibility()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;" id="eyeBtn">👁️</button>
           </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
           <button class="btn btn-primary" id="testBtn" onclick="testConnection()">
             <span id="testBtnIcon">📡</span> 测试连通
           </button>
           <button class="btn btn-secondary" onclick="fetchModels()">
             📋 获取模型
+          </button>
+          <button class="btn btn-warning" onclick="testAllModels()" id="testAllBtn" disabled>
+            🔍 批量测试
           </button>
         </div>
       </div>
@@ -786,7 +811,6 @@
       <button class="btn btn-sm btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">✅ 全选</button>
     </div>
     <div class="card-body">
-      <!-- 【新增】搜索框 -->
       <div class="search-box" id="searchBox">
         <span class="search-icon">🔍</span>
         <input type="text" id="modelSearch" placeholder="搜索模型名称..." oninput="handleSearch()">
@@ -824,13 +848,18 @@
         <div class="chat-input-area">
           <textarea id="chatInput" placeholder="输入消息... (Enter 发送, Shift+Enter 换行)" rows="1" onkeydown="handleInputKey(event)"></textarea>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>➤</button>
+          <button class="stop-btn" id="stopBtn" onclick="stopAllRequests()">⏹</button>
         </div>
       </div>
     </div>
 
-    <div class="card" style="width:320px;min-width:280px;">
+    <div class="card" style="width:360px;min-width:280px;">
       <div class="card-header">
         <span>📊</span> 性能统计
+        <div style="margin-left:auto;display:flex;gap:4px;">
+          <button class="sort-btn active" id="sortSpeedBtn" onclick="sortStats('speed')">⚡ 速度</button>
+          <button class="sort-btn" id="sortNameBtn" onclick="sortStats('name')">🔤 名称</button>
+        </div>
       </div>
       <div class="card-body">
         <div class="stat-row" id="statsGrid">
@@ -839,16 +868,16 @@
             <div class="lbl">总请求</div>
           </div>
           <div class="stat-item">
+            <div class="val" id="statSuccess">0</div>
+            <div class="lbl">成功</div>
+          </div>
+          <div class="stat-item">
+            <div class="val" id="statFailed">0</div>
+            <div class="lbl">失败</div>
+          </div>
+          <div class="stat-item">
             <div class="val" id="statAvgSpeed">-</div>
             <div class="lbl">平均耗时</div>
-          </div>
-          <div class="stat-item">
-            <div class="val" id="statFastest">-</div>
-            <div class="lbl">最快响应</div>
-          </div>
-          <div class="stat-item">
-            <div class="val" id="statSlowest">-</div>
-            <div class="lbl">最慢响应</div>
           </div>
         </div>
         <div style="margin-top:20px;">
@@ -857,13 +886,20 @@
             <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">暂无数据</div>
           </div>
         </div>
+        <div style="margin-top:20px;">
+          <div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+            消息历史（最近 10 条）
+          </div>
+          <div class="history-panel" id="historyPanel">
+            <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">暂无历史</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ==================== 标签配置 ====================
 const TAG_CONFIG = {
   'chat':      { label: '对话',     color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
   'reasoning': { label: '推理',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
@@ -905,16 +941,18 @@ function getModelTags(modelId) {
   return [...new Set(tags)];
 }
 
-// ==================== 状态 ====================
 const state = {
   models: [],
   selectedModels: new Set(),
-  chatHistory: [],
   requestLog: [],
+  messageHistory: [],  // 消息历史记录
   isConnected: false,
   isSending: false,
   activeTagFilters: new Set(),
-  searchQuery: '',  // 【新增】搜索关键词
+  searchQuery: '',
+  currentAbortController: null,  // 用于取消请求
+  statsSortBy: 'speed',  // 统计排序方式
+  modelConnectivity: new Map(),  // 模型连通性测试结果
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1030,6 +1068,7 @@ async function testConnection() {
       showToast(`连接成功！延迟 ${elapsed}ms`, 'success');
 
       localStorage.setItem('ai_test_api_base', getApiBase());
+      document.getElementById('testAllBtn').disabled = false;
 
       if (data.data) {
         state.models = data.data;
@@ -1078,6 +1117,7 @@ async function fetchModels() {
     state.models = data.data || [];
 
     localStorage.setItem('ai_test_api_base', getApiBase());
+    document.getElementById('testAllBtn').disabled = false;
 
     autoSelectAllModels();
     renderTagFilterBar();
@@ -1090,28 +1130,88 @@ async function fetchModels() {
   }
 }
 
+// 【新增】批量测试所有模型连通性
+async function testAllModels() {
+  if (state.models.length === 0) {
+    showToast('请先获取模型列表', 'warning');
+    return;
+  }
+  if (!getApiKey()) {
+    showToast('请先输入 API Key', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('testAllBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="status-dot testing" style="width:12px;height:12px;"></span> 测试中...';
+  showToast(`开始测试 ${state.models.length} 个模型的连通性...`, 'info');
+
+  state.modelConnectivity.clear();
+  let successCount = 0;
+  let failCount = 0;
+
+  const promises = state.models.map(async (model) => {
+    const modelId = model.id;
+    const startTime = performance.now();
+    try {
+      const resp = await fetch(`${getApiBase()}/v1/chat/completions`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          model: modelId,
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 5,
+        }),
+      });
+      const elapsed = Math.round(performance.now() - startTime);
+      if (resp.ok) {
+        state.modelConnectivity.set(modelId, { success: true, elapsed });
+        successCount++;
+      } else {
+        const err = await resp.json().catch(() => ({}));
+        state.modelConnectivity.set(modelId, { success: false, error: err.error?.message || `HTTP ${resp.status}` });
+        failCount++;
+      }
+    } catch (e) {
+      state.modelConnectivity.set(modelId, { success: false, error: e.message });
+      failCount++;
+    }
+  });
+
+  await Promise.all(promises);
+
+  btn.disabled = false;
+  btn.innerHTML = '🔍 批量测试';
+  showToast(`批量测试完成：${successCount} 成功，${failCount} 失败`, successCount > 0 ? 'success' : 'error');
+}
+
 function autoSelectAllModels() {
   state.selectedModels.clear();
-  state.models.forEach(m => {
+  getFilteredModels().forEach(m => {
     const id = m.id || 'unknown';
     state.selectedModels.add(id);
   });
 }
 
+// 【修改】全选按钮针对筛选结果
 function toggleSelectAll() {
-  if (state.selectedModels.size === state.models.length) {
-    state.selectedModels.clear();
-    showToast('已取消全选', 'info');
+  const filtered = getFilteredModels();
+  const allFilteredSelected = filtered.every(m => state.selectedModels.has(m.id));
+  
+  if (allFilteredSelected) {
+    // 取消选中筛选结果
+    filtered.forEach(m => state.selectedModels.delete(m.id));
+    showToast('已取消选中筛选结果', 'info');
   } else {
-    autoSelectAllModels();
-    showToast('已全选所有模型', 'success');
+    // 选中筛选结果
+    filtered.forEach(m => state.selectedModels.add(m.id));
+    showToast('已选中筛选结果', 'success');
   }
   renderModels();
   renderSelectedTags();
   updateSendBtnState();
 }
 
-// ==================== 【新增】搜索功能 ====================
 function handleSearch() {
   const input = document.getElementById('modelSearch');
   const searchBox = document.getElementById('searchBox');
@@ -1135,7 +1235,6 @@ function clearSearch() {
   renderModels();
 }
 
-// ==================== 标签筛选栏渲染 ====================
 function renderTagFilterBar() {
   const container = document.getElementById('tagFilterContainer');
   if (state.models.length === 0) {
@@ -1192,7 +1291,6 @@ function renderTagFilterBar() {
   container.style.display = hasTypeTags || hasStrengthTags ? 'block' : 'none';
 }
 
-// ==================== 标签筛选交互 ====================
 function toggleTagFilter(tag) {
   if (state.activeTagFilters.has(tag)) {
     state.activeTagFilters.delete(tag);
@@ -1209,7 +1307,27 @@ function clearTagFilters() {
   renderModels();
 }
 
-// ==================== 【修改】模型列表渲染（增加搜索 + 标签筛选） ====================
+function getFilteredModels() {
+  let filtered = state.models;
+  
+  if (state.searchQuery) {
+    filtered = filtered.filter(m => {
+      const id = (m.id || '').toLowerCase();
+      const owner = (m.owned_by || '').toLowerCase();
+      return id.includes(state.searchQuery) || owner.includes(state.searchQuery);
+    });
+  }
+  
+  if (state.activeTagFilters.size > 0) {
+    filtered = filtered.filter(m => {
+      const tags = getModelTags(m.id);
+      return [...state.activeTagFilters].some(f => tags.includes(f));
+    });
+  }
+  
+  return filtered;
+}
+
 function renderModels() {
   const container = document.getElementById('modelListContainer');
   const countEl = document.getElementById('modelCount');
@@ -1222,38 +1340,19 @@ function renderModels() {
     return;
   }
 
-  // 【修改】按搜索关键词和标签筛选
-  let filtered = state.models;
-  
-  // 搜索筛选
-  if (state.searchQuery) {
-    filtered = filtered.filter(m => {
-      const id = (m.id || '').toLowerCase();
-      const owner = (m.owned_by || '').toLowerCase();
-      return id.includes(state.searchQuery) || owner.includes(state.searchQuery);
-    });
-  }
-  
-  // 标签筛选（OR 逻辑）
-  if (state.activeTagFilters.size > 0) {
-    filtered = filtered.filter(m => {
-      const tags = getModelTags(m.id);
-      return [...state.activeTagFilters].some(f => tags.includes(f));
-    });
-  }
-
+  const filtered = getFilteredModels();
   const visibleCount = filtered.length;
   const totalCount = state.models.length;
   const filterInfo = (state.searchQuery || state.activeTagFilters.size > 0) 
     ? ` · 筛选显示 ${visibleCount}/${totalCount}` 
     : '';
+  
+  // 更新全选按钮文本
+  const allFilteredSelected = filtered.every(m => state.selectedModels.has(m.id));
+  selectAllBtn.textContent = allFilteredSelected ? '☑️ 取消全选' : '✅ 全选';
+  
   countEl.textContent = `共 ${totalCount} 个 · 已选 ${state.selectedModels.size} 个${filterInfo}`;
   selectAllBtn.style.display = '';
-  if (state.selectedModels.size === state.models.length) {
-    selectAllBtn.textContent = '☑️ 取消全选';
-  } else {
-    selectAllBtn.textContent = '✅ 全选';
-  }
 
   const sorted = [...filtered].sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
@@ -1269,6 +1368,17 @@ function renderModels() {
     const isSelected = state.selectedModels.has(id);
     const icon = getModelIcon(id);
     const tags = getModelTags(id);
+    
+    // 连通性状态
+    const connStatus = state.modelConnectivity.get(id);
+    let connBadge = '';
+    if (connStatus) {
+      if (connStatus.success) {
+        connBadge = `<span style="font-size:10px;color:var(--success);">✓ ${formatTime(connStatus.elapsed)}</span>`;
+      } else {
+        connBadge = `<span style="font-size:10px;color:var(--danger);" title="${connStatus.error}">✗ 失败</span>`;
+      }
+    }
 
     let tagsHtml = '';
     if (tags.length > 0) {
@@ -1279,7 +1389,10 @@ function renderModels() {
           tagsHtml += '<span class="model-tag" style="color:' + cfg.color + ';background:' + cfg.bg + ';">' + cfg.label + '</span>';
         }
       });
+      if (connBadge) tagsHtml += connBadge;
       tagsHtml += '</div>';
+    } else if (connBadge) {
+      tagsHtml = '<div class="model-tags">' + connBadge + '</div>';
     }
 
     html += `
@@ -1369,15 +1482,41 @@ function createRoundContainer() {
 }
 
 function createModelColumns(round, models) {
-  const grid = document.createElement('div');
-  grid.className = 'round-models-grid';
-  round.appendChild(grid);
-
+  // 创建成功和失败两个区域
+  const successSection = document.createElement('div');
+  successSection.className = 'round-results-section';
+  successSection.innerHTML = `
+    <div class="round-section-header success" onclick="toggleSection(this)">
+      <span class="section-icon">✅</span>
+      <span>成功响应</span>
+      <span class="section-count" id="success-count-${round.id}">0</span>
+      <span style="font-size:10px;margin-left:4px;">▼</span>
+    </div>
+    <div class="round-models-grid" id="success-grid-${round.id}"></div>
+  `;
+  
+  const failureSection = document.createElement('div');
+  failureSection.className = 'round-results-section';
+  failureSection.innerHTML = `
+    <div class="round-section-header failure" onclick="toggleSection(this)">
+      <span class="section-icon">❌</span>
+      <span>失败响应</span>
+      <span class="section-count" id="failure-count-${round.id}">0</span>
+      <span style="font-size:10px;margin-left:4px;">▼</span>
+    </div>
+    <div class="round-models-grid" id="failure-grid-${round.id}"></div>
+  `;
+  
+  round.appendChild(successSection);
+  round.appendChild(failureSection);
+  
+  // 为每个模型创建列（初始放在成功区域）
   models.forEach(function(model) {
     const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
     const col = document.createElement('div');
     col.className = 'model-response-col';
     col.id = 'col-' + safeId;
+    col.dataset.model = model;
     col.innerHTML =
       '<div class="model-response-header">' +
         '<div class="col-icon">' + getModelIcon(model) + '</div>' +
@@ -1386,12 +1525,38 @@ function createModelColumns(round, models) {
       '</div>' +
       '<div class="model-response-body" id="body-' + safeId + '">' +
         '<div class="typing-indicator" id="loading-' + safeId + '"><span></span><span></span><span></span></div>' +
-      '</div>';
-    grid.appendChild(col);
+      '</div>' +
+      '<div class="collapse-toggle" onclick="toggleCollapse(this)">收起 ▲</div>';
+    
+    // 初始放在成功区域
+    document.getElementById('success-grid-' + round.id).appendChild(col);
   });
 
   const messages = document.getElementById('chatMessages');
   messages.scrollTop = messages.scrollHeight;
+}
+
+function toggleSection(header) {
+  const grid = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  if (grid.style.display === 'none') {
+    grid.style.display = '';
+    arrow.textContent = '▼';
+  } else {
+    grid.style.display = 'none';
+    arrow.textContent = '▶';
+  }
+}
+
+function toggleCollapse(toggle) {
+  const body = toggle.previousElementSibling;
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    toggle.textContent = '收起 ▲';
+  } else {
+    body.classList.add('collapsed');
+    toggle.textContent = '展开 ▼';
+  }
 }
 
 function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -1413,6 +1578,7 @@ async function sendMessage() {
   input.value = '';
   input.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
+  document.getElementById('stopBtn').classList.add('visible');
 
   const messages = document.getElementById('chatMessages');
   if (messages.querySelector('.empty-state')) {
@@ -1420,32 +1586,60 @@ async function sendMessage() {
   }
 
   const round = createRoundContainer();
+  round.id = 'round-' + Date.now();
   addUserMessage(text, round);
-  state.chatHistory.push({ role: 'user', content: text });
-
+  
   const models = [...state.selectedModels];
   createModelColumns(round, models);
 
-  const promises = models.map(model => sendToModel(model, text));
+  // 创建 AbortController
+  state.currentAbortController = new AbortController();
+  const signal = state.currentAbortController.signal;
+
+  // 记录消息历史
+  const historyEntry = {
+    id: round.id,
+    text: text,
+    timestamp: Date.now(),
+    models: models,
+    results: new Map(),
+  };
+  state.messageHistory.unshift(historyEntry);
+  if (state.messageHistory.length > 10) {
+    state.messageHistory.pop();
+  }
+  renderHistory();
+
+  // 为每个选中模型发送请求
+  const promises = models.map(model => sendToModel(model, text, round.id, signal, historyEntry));
 
   await Promise.allSettled(promises);
 
   state.isSending = false;
+  state.currentAbortController = null;
+  document.getElementById('stopBtn').classList.remove('visible');
   updateSendBtnState();
   updateStats();
 }
 
+// 【新增】停止所有请求
+function stopAllRequests() {
+  if (state.currentAbortController) {
+    state.currentAbortController.abort();
+    showToast('已停止所有请求', 'warning');
+  }
+}
+
 function addUserMessage(text, round) {
-  const target = round || document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'round-user-msg';
   div.innerHTML = '<div class="user-label">👤 你 · ' + new Date().toLocaleTimeString() + '</div>' + esc(text);
-  target.appendChild(div);
+  round.insertBefore(div, round.firstChild);
   const messages = document.getElementById('chatMessages');
   messages.scrollTop = messages.scrollHeight;
 }
 
-function addAssistantMessage(model, text, elapsed) {
+function addAssistantMessage(model, text, elapsed, roundId) {
   const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
   const body = document.getElementById('body-' + safeId);
   if (!body) return;
@@ -1455,6 +1649,7 @@ function addAssistantMessage(model, text, elapsed) {
   bubble.innerHTML = renderMarkdown(text);
   body.appendChild(bubble);
 
+  // 立即显示速度
   const speedEl = document.getElementById('speed-' + safeId);
   if (speedEl) {
     speedEl.textContent = '⚡ ' + formatTime(elapsed);
@@ -1482,13 +1677,27 @@ function removeLoadingMessage(model) {
   if (el) el.remove();
 }
 
-function addErrorMessage(model, error) {
+function addErrorMessage(model, error, roundId) {
   const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
   const body = document.getElementById('body-' + safeId);
   if (!body) return;
 
   const col = document.getElementById('col-' + safeId);
-  if (col) col.classList.add('col-error');
+  if (col) {
+    col.classList.add('col-error');
+    // 移动到失败区域
+    const failureGrid = document.getElementById('failure-grid-' + roundId);
+    if (failureGrid) {
+      failureGrid.appendChild(col);
+      // 更新计数
+      const successCount = document.getElementById('success-grid-' + roundId).children.length;
+      const failureCount = document.getElementById('failure-grid-' + roundId).children.length;
+      const successCountEl = document.getElementById('success-count-' + roundId);
+      const failureCountEl = document.getElementById('failure-count-' + roundId);
+      if (successCountEl) successCountEl.textContent = successCount;
+      if (failureCountEl) failureCountEl.textContent = failureCount;
+    }
+  }
 
   const errDiv = document.createElement('div');
   errDiv.className = 'model-response-bubble';
@@ -1500,16 +1709,12 @@ function addErrorMessage(model, error) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-async function sendToModel(model, userText) {
+async function sendToModel(model, userText, roundId, signal, historyEntry) {
   addLoadingMessage(model);
   const startTime = performance.now();
 
   try {
-    const msgs = [];
-    const history = state.chatHistory.slice(-10);
-    for (const h of history) {
-      msgs.push({ role: h.role, content: h.content });
-    }
+    const msgs = [{ role: 'user', content: userText }];
 
     const resp = await fetch(`${getApiBase()}/v1/chat/completions`, {
       method: 'POST',
@@ -1520,6 +1725,7 @@ async function sendToModel(model, userText) {
         temperature: 0.7,
         max_tokens: 2048,
       }),
+      signal: signal,
     });
 
     const elapsed = Math.round(performance.now() - startTime);
@@ -1534,9 +1740,10 @@ async function sendToModel(model, userText) {
     const usage = data.usage;
 
     removeLoadingMessage(model);
-    addAssistantMessage(model, content, elapsed);
+    addAssistantMessage(model, content, elapsed, roundId);
 
-    state.chatHistory.push({ role: 'assistant', content, model });
+    // 记录结果
+    historyEntry.results.set(model, { success: true, elapsed, content });
 
     state.requestLog.push({
       model,
@@ -1548,12 +1755,20 @@ async function sendToModel(model, userText) {
     });
 
   } catch (e) {
-    const elapsed = Math.round(performance.now() - startTime);
-    removeLoadingMessage(model);
-    addErrorMessage(model, e.message);
+    if (e.name === 'AbortError') {
+      removeLoadingMessage(model);
+      addErrorMessage(model, '已取消', roundId);
+      historyEntry.results.set(model, { success: false, error: '已取消' });
+    } else {
+      const elapsed = Math.round(performance.now() - startTime);
+      removeLoadingMessage(model);
+      addErrorMessage(model, e.message, roundId);
+      historyEntry.results.set(model, { success: false, error: e.message, elapsed });
+    }
+    
     state.requestLog.push({
       model,
-      elapsed,
+      elapsed: performance.now() - startTime,
       error: true,
       timestamp: Date.now(),
     });
@@ -1574,8 +1789,8 @@ function handleInputKey(e) {
 }
 
 function clearChat() {
-  state.chatHistory = [];
   state.requestLog = [];
+  state.messageHistory = [];
   const messages = document.getElementById('chatMessages');
   messages.innerHTML = `
     <div class="empty-state">
@@ -1584,55 +1799,71 @@ function clearChat() {
     </div>
   `;
   updateStats();
+  renderHistory();
+}
+
+// 【修改】统计排序
+function sortStats(by) {
+  state.statsSortBy = by;
+  document.getElementById('sortSpeedBtn').classList.toggle('active', by === 'speed');
+  document.getElementById('sortNameBtn').classList.toggle('active', by === 'name');
+  updateStats();
 }
 
 function updateStats() {
-  const logs = state.requestLog.filter(l => !l.error);
-  const total = state.requestLog.length;
+  const logs = state.requestLog;
+  const successLogs = logs.filter(l => !l.error);
+  const failedLogs = logs.filter(l => l.error);
+  const total = logs.length;
 
   document.getElementById('statTotal').textContent = total;
+  document.getElementById('statSuccess').textContent = successLogs.length;
+  document.getElementById('statFailed').textContent = failedLogs.length;
 
-  if (logs.length === 0) {
+  if (successLogs.length === 0) {
     document.getElementById('statAvgSpeed').textContent = '-';
-    document.getElementById('statFastest').textContent = '-';
-    document.getElementById('statSlowest').textContent = '-';
     document.getElementById('modelStats').innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">暂无数据</div>';
     return;
   }
 
-  const times = logs.map(l => l.elapsed);
+  const times = successLogs.map(l => l.elapsed);
   const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-  const fastest = Math.min(...times);
-  const slowest = Math.max(...times);
-
   document.getElementById('statAvgSpeed').textContent = formatTime(avg);
-  document.getElementById('statFastest').textContent = formatTime(fastest);
-  document.getElementById('statSlowest').textContent = formatTime(slowest);
 
   const modelMap = new Map();
-  logs.forEach(l => {
+  successLogs.forEach(l => {
     if (!modelMap.has(l.model)) modelMap.set(l.model, []);
     modelMap.get(l.model).push(l.elapsed);
   });
 
-  let html = '';
-  const sorted = [...modelMap.entries()].sort((a, b) => {
-    const avgA = a[1].reduce((x, y) => x + y, 0) / a[1].length;
-    const avgB = b[1].reduce((x, y) => x + y, 0) / b[1].length;
-    return avgA - avgB;
-  });
+  let entries = [...modelMap.entries()];
+  
+  // 排序
+  if (state.statsSortBy === 'speed') {
+    entries.sort((a, b) => {
+      const avgA = a[1].reduce((x, y) => x + y, 0) / a[1].length;
+      const avgB = b[1].reduce((x, y) => x + y, 0) / b[1].length;
+      return avgA - avgB;
+    });
+  } else {
+    entries.sort((a, b) => a[0].localeCompare(b[0]));
+  }
 
-  sorted.forEach(([model, times]) => {
-    const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-    const min = Math.min(...times);
-    const max = Math.max(...times);
-    const count = times.length;
-    const barWidth = Math.max(10, Math.min(100, (1 - (avg - fastest) / (slowest - fastest || 1)) * 100));
+  const fastest = Math.min(...times);
+  const slowest = Math.max(...times);
+
+  let html = '';
+  entries.forEach(([model, modelTimes]) => {
+    const modelAvg = Math.round(modelTimes.reduce((a, b) => a + b, 0) / modelTimes.length);
+    const min = Math.min(...modelTimes);
+    const max = Math.max(...modelTimes);
+    const count = modelTimes.length;
+    const barWidth = Math.max(10, Math.min(100, (1 - (modelAvg - fastest) / (slowest - fastest || 1)) * 100));
     html += `
       <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;" title="${model}">${getModelIcon(model)} ${model}</span>
-          <span style="font-size:13px;font-weight:700;color:var(--accent-light);">${formatTime(avg)}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--accent-light);">${formatTime(modelAvg)}</span>
         </div>
         <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
           <div style="height:100%;width:${barWidth}%;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:2px;transition:width 0.5s;"></div>
@@ -1647,6 +1878,51 @@ function updateStats() {
   });
 
   document.getElementById('modelStats').innerHTML = html;
+}
+
+// 【新增】渲染消息历史
+function renderHistory() {
+  const panel = document.getElementById('historyPanel');
+  if (state.messageHistory.length === 0) {
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">暂无历史</div>';
+    return;
+  }
+
+  let html = '';
+  state.messageHistory.forEach((entry, index) => {
+    const successCount = [...entry.results.values()].filter(r => r.success).length;
+    const totalCount = entry.results.size;
+    html += `
+      <div class="history-item" onclick="scrollToRound('${entry.id}')">
+        <span class="history-text">${esc(entry.text)}</span>
+        <span class="history-time">${new Date(entry.timestamp).toLocaleTimeString()}</span>
+        <span style="font-size:11px;color:${successCount === totalCount ? 'var(--success)' : 'var(--warning)'};">${successCount}/${totalCount}</span>
+        <div class="history-actions">
+          <button class="btn btn-xs btn-secondary" onclick="event.stopPropagation();retryMessage(${index})">🔄</button>
+        </div>
+      </div>
+    `;
+  });
+  panel.innerHTML = html;
+}
+
+function scrollToRound(roundId) {
+  const round = document.getElementById(roundId);
+  if (round) {
+    round.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    round.style.boxShadow = '0 0 0 2px var(--accent)';
+    setTimeout(() => { round.style.boxShadow = ''; }, 2000);
+  }
+}
+
+// 【新增】重试消息
+function retryMessage(index) {
+  const entry = state.messageHistory[index];
+  if (!entry) return;
+  
+  document.getElementById('chatInput').value = entry.text;
+  updateSendBtnState();
+  showToast('已填充消息，点击发送重试', 'info');
 }
 
 const style = document.createElement('style');
