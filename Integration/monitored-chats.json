@@ -11,14 +11,13 @@
       "chat_name": "联合测试群",
       "chat_id": "oc_5e91be6f7b5f74639481f4a46af5c616",
       "added_at": "2026-09-04T10:50:00+08:00",
-      "enabled": false
+      "enabled": true
     },
     {
       "chat_name": "江宇歌测试群",
       "chat_id": "oc_210f2bdbf8560e0a2d77afdb4344bf72",
       "added_at": "2026-09-04T14:30:00+08:00",
       "enabled": true
-    },
-    {"chat_name": "联合测试群"}
+    }
   ]
 }
