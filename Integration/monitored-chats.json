@@ -12,6 +12,12 @@
       "chat_id": "oc_1ce3ee6e3e6b96bbd29f12d7e317c035",
       "added_at": "2026-09-04T10:30:00+08:00",
       "enabled": true
+    },
+    {
+      "chat_name": "联合测试群",
+      "chat_id": "oc_5e91be6f7b5f74639481f4a46af5c616",
+      "added_at": "2026-09-04T10:50:00+08:00",
+      "enabled": true
     }
   ]
 }
