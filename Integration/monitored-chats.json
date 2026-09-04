@@ -18,6 +18,12 @@
       "chat_id": "oc_210f2bdbf8560e0a2d77afdb4344bf72",
       "added_at": "2026-09-04T14:30:00+08:00",
       "enabled": true
+    },
+    {
+      "chat_name": "大润测试群",
+      "chat_id": "oc_992cab7015b11b470c2ac6d2fdb3854f",
+      "added_at": "2026-09-04T18:45:00+08:00",
+      "enabled": true
     }
   ]
 }
