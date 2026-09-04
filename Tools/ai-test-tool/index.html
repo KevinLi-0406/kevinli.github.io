@@ -15,8 +15,8 @@
     --accent-light: #a78bfa;
     --accent-glow: rgba(124,106,239,0.15);
     --text-primary: #e4e4ed;
-    --text-secondary: #8888a0;
-    --text-muted: #55556a;
+    --text-secondary: #9898b0;
+    --text-muted: #6a6a85;
     --border: #2a2b3d;
     --danger: #ef4444;
     --success: #22c55e;
@@ -50,38 +50,38 @@
     overflow: hidden;
   }
   .card-header {
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 12px;
   }
-  .card-body { padding: 8px; }
+  .card-body { padding: 10px; }
 
   .input-field {
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 5px 8px;
+    padding: 6px 10px;
     border-radius: 5px;
-    font-size: 11px;
+    font-size: 12px;
     outline: none;
   }
   .input-field:focus { border-color: var(--accent); }
 
   .btn {
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 5px;
     border: none;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
   }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary { background: linear-gradient(135deg, var(--accent), #6347e0); color: white; }
@@ -89,10 +89,9 @@
   .btn-danger { background: var(--danger); color: white; }
   .btn-warning { background: var(--warning); color: white; }
   .btn-success { background: var(--success); color: white; }
-  .btn-xs { padding: 2px 6px; font-size: 9px; }
-  .btn-icon { padding: 3px 6px; font-size: 11px; }
+  .btn-xs { padding: 3px 8px; font-size: 10px; }
 
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
   .status-dot.connected { background: var(--success); box-shadow: 0 0 5px rgba(34,197,94,0.5); }
   .status-dot.disconnected { background: var(--danger); }
   .status-dot.testing { background: var(--warning); animation: pulse 1s infinite; }
@@ -101,7 +100,7 @@
   /* 主布局 */
   .main-layout {
     display: flex;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 42px);
   }
   .left-panel {
     flex: 1;
@@ -111,17 +110,10 @@
     min-width: 0;
   }
   .right-panel {
-    width: 280px;
+    width: 300px;
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transition: width 0.2s, opacity 0.2s;
-  }
-  .right-panel.collapsed {
-    width: 0;
-    border-left: none;
-    opacity: 0;
     overflow: hidden;
   }
 
@@ -133,7 +125,7 @@
     transition: flex 0.2s;
   }
   .model-section.collapsed {
-    flex: 0 0 32px !important;
+    flex: 0 0 36px !important;
   }
   .model-section.collapsed .card-body,
   .model-section.collapsed .filter-bar {
@@ -158,7 +150,7 @@
   .resize-handle:hover { background: var(--accent); }
   .resize-handle::after {
     content: '⋯';
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-muted);
   }
 
@@ -173,18 +165,18 @@
   .model-group-header {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 6px;
+    gap: 5px;
+    padding: 5px 8px;
     background: var(--bg-input);
     border-radius: 4px;
-    margin-bottom: 4px;
-    font-size: 9px;
+    margin-bottom: 5px;
+    font-size: 10px;
     font-weight: 600;
   }
   .model-group-header .count {
     margin-left: auto;
-    font-size: 8px;
-    padding: 0px 4px;
+    font-size: 9px;
+    padding: 1px 5px;
     border-radius: 2px;
     background: rgba(255,255,255,0.05);
   }
@@ -193,31 +185,31 @@
 
   .model-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 5px;
   }
   .model-chip {
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 5px 6px;
-    font-size: 9px;
+    padding: 6px 8px;
+    font-size: 10px;
     cursor: pointer;
     transition: all 0.1s;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     position: relative;
   }
   .model-chip:hover { border-color: var(--accent); }
   .model-chip.selected { border-color: var(--accent); background: var(--accent-glow); }
   .model-chip.unavailable { opacity: 0.5; }
   .model-chip .icon {
-    width: 18px; height: 18px;
+    width: 20px; height: 20px;
     border-radius: 3px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 8px;
+    font-size: 9px;
     flex-shrink: 0;
   }
   .model-chip .info { overflow: hidden; flex: 1; }
@@ -226,74 +218,74 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 9px;
+    font-size: 10px;
   }
   .model-chip .meta {
-    font-size: 7px;
-    color: var(--text-muted);
+    font-size: 8px;
+    color: var(--text-secondary);
     display: flex;
-    gap: 2px;
+    gap: 3px;
     flex-wrap: wrap;
-    margin-top: 1px;
+    margin-top: 2px;
   }
   .model-tag {
-    font-size: 7px;
+    font-size: 8px;
     font-weight: 600;
-    padding: 0px 2px;
+    padding: 1px 3px;
     border-radius: 2px;
   }
   .model-chip .check {
     position: absolute;
-    top: 2px; right: 2px;
-    width: 10px; height: 10px;
+    top: 3px; right: 3px;
+    width: 12px; height: 12px;
     border-radius: 50%;
     background: var(--accent);
     display: none;
     align-items: center;
     justify-content: center;
-    font-size: 6px;
+    font-size: 7px;
   }
   .model-chip.selected .check { display: flex; }
 
   /* 筛选栏 */
   .filter-bar {
     display: flex;
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: 5px;
+    margin-bottom: 5px;
     flex-wrap: wrap;
   }
   .search-box {
     position: relative;
     flex: 1;
-    min-width: 80px;
+    min-width: 100px;
   }
   .search-box input {
     width: 100%;
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 4px 6px 4px 18px;
+    padding: 5px 8px 5px 22px;
     border-radius: 4px;
-    font-size: 9px;
+    font-size: 10px;
     outline: none;
   }
   .search-box input:focus { border-color: var(--accent); }
   .search-box .icon {
     position: absolute;
-    left: 5px; top: 50%;
+    left: 6px; top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 8px;
+    font-size: 9px;
   }
   .filter-btns {
     display: flex;
-    gap: 2px;
+    gap: 3px;
     flex-wrap: wrap;
   }
   .filter-btn {
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 600;
-    padding: 2px 5px;
+    padding: 3px 6px;
     border-radius: 3px;
     border: 1px solid var(--border);
     background: var(--bg-input);
@@ -308,9 +300,9 @@
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 3px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 9px;
+    font-size: 10px;
     outline: none;
     cursor: pointer;
   }
@@ -320,13 +312,13 @@
   .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 6px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
   .message-round {
-    padding: 6px;
+    padding: 8px;
     background: rgba(26,27,38,0.5);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -335,38 +327,38 @@
   .round-user-msg {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
-    padding: 5px 8px;
+    padding: 6px 10px;
     border-radius: 5px;
-    font-size: 10px;
+    font-size: 11px;
     max-width: 70%;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
   }
-  .round-user-msg .label { font-size: 7px; opacity: 0.7; margin-bottom: 1px; }
-  .result-section { margin-top: 3px; }
+  .round-user-msg .label { font-size: 8px; opacity: 0.7; margin-bottom: 2px; }
+  .result-section { margin-top: 4px; }
   .result-header {
     display: flex;
     align-items: center;
-    gap: 3px;
-    font-size: 8px;
+    gap: 4px;
+    font-size: 9px;
     font-weight: 600;
-    padding: 2px 5px;
+    padding: 3px 6px;
     background: var(--bg-input);
     border-radius: 3px;
     cursor: pointer;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
   .result-header:hover { background: var(--bg-hover); }
-  .result-header .count { margin-left: auto; font-size: 7px; }
+  .result-header .count { margin-left: auto; font-size: 8px; }
   .result-header.success { color: var(--success); }
   .result-header.failure { color: var(--danger); }
   .round-models-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 5px;
   }
   .model-response-col {
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 5px;
     overflow: hidden;
     background: var(--bg-card);
     cursor: pointer;
@@ -376,66 +368,66 @@
   .model-response-header {
     display: flex;
     align-items: center;
-    gap: 2px;
-    padding: 3px 5px;
+    gap: 3px;
+    padding: 4px 6px;
     background: var(--bg-input);
     border-bottom: 1px solid var(--border);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
   }
   .model-response-header .icon {
-    width: 12px; height: 12px;
+    width: 14px; height: 14px;
     border-radius: 2px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 6px;
+    font-size: 7px;
   }
   .model-response-header .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
   .model-response-header .speed {
-    font-size: 7px;
+    font-size: 8px;
     color: var(--accent-light);
     background: rgba(124,106,239,0.15);
-    padding: 0px 3px;
+    padding: 1px 4px;
     border-radius: 2px;
   }
   .model-response-body {
-    padding: 5px;
+    padding: 6px;
     max-height: 100px;
     overflow-y: auto;
-    font-size: 10px;
-    line-height: 1.3;
+    font-size: 11px;
+    line-height: 1.4;
   }
-  .model-response-body.collapsed { max-height: 25px; overflow: hidden; }
+  .model-response-body.collapsed { max-height: 28px; overflow: hidden; }
   .model-response-bubble {
     background: var(--bg-hover);
     border-radius: 3px;
-    padding: 4px;
+    padding: 5px;
     word-break: break-word;
   }
   .model-response-bubble pre {
     background: rgba(0,0,0,0.3);
     border-radius: 2px;
-    padding: 3px;
+    padding: 4px;
     overflow-x: auto;
-    margin: 2px 0;
-    font-size: 9px;
+    margin: 3px 0;
+    font-size: 10px;
   }
-  .model-response-bubble code { font-size: 9px; }
+  .model-response-bubble code { font-size: 10px; }
   .collapse-toggle {
     padding: 2px;
     background: var(--bg-input);
     border-top: 1px solid var(--border);
     cursor: pointer;
-    font-size: 7px;
+    font-size: 8px;
     color: var(--text-muted);
     text-align: center;
   }
 
   .chat-input-area {
     border-top: 1px solid var(--border);
-    padding: 6px;
+    padding: 8px;
     display: flex;
-    gap: 4px;
+    gap: 5px;
     align-items: flex-end;
   }
   .chat-input-area textarea {
@@ -443,33 +435,33 @@
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 5px 6px;
+    padding: 6px 8px;
     border-radius: 4px;
-    font-size: 10px;
+    font-size: 11px;
     outline: none;
     resize: none;
-    min-height: 28px;
-    max-height: 50px;
+    min-height: 30px;
+    max-height: 60px;
     font-family: inherit;
   }
   .send-btn {
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     border-radius: 4px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     border: none;
     color: white;
-    font-size: 11px;
+    font-size: 12px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
   .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .stop-btn {
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     border-radius: 4px;
     background: var(--danger);
     border: none;
     color: white;
-    font-size: 9px;
+    font-size: 10px;
     cursor: pointer;
     display: none;
     align-items: center; justify-content: center;
@@ -478,7 +470,7 @@
 
   .typing-indicator { display: flex; gap: 2px; padding: 2px 0; }
   .typing-indicator span {
-    width: 3px; height: 3px;
+    width: 4px; height: 4px;
     border-radius: 50%;
     background: var(--text-muted);
     animation: typing 1.4s infinite;
@@ -501,28 +493,28 @@
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 3px;
-    margin-bottom: 6px;
+    gap: 4px;
+    margin-bottom: 8px;
   }
   .stat-item {
     background: var(--bg-input);
     border-radius: 4px;
-    padding: 4px;
+    padding: 6px;
     text-align: center;
   }
   .stat-item .val {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     background: linear-gradient(135deg, var(--accent-light), #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .stat-item .lbl { font-size: 7px; color: var(--text-muted); }
+  .stat-item .lbl { font-size: 9px; color: var(--text-secondary); }
 
   .stats-controls {
     display: flex;
-    gap: 3px;
-    margin-bottom: 4px;
+    gap: 4px;
+    margin-bottom: 5px;
     flex-wrap: wrap;
     align-items: center;
   }
@@ -530,23 +522,23 @@
   .model-stat-item {
     background: var(--bg-input);
     border-radius: 4px;
-    padding: 4px 5px;
-    margin-bottom: 3px;
+    padding: 5px 6px;
+    margin-bottom: 4px;
   }
   .model-stat-item .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
   .model-stat-item .rank {
-    font-size: 8px;
-    color: var(--text-muted);
-    width: 14px;
+    font-size: 9px;
+    color: var(--text-secondary);
+    width: 16px;
     text-align: center;
   }
-  .model-stat-item .name { font-size: 9px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-  .model-stat-item .speed { font-size: 9px; font-weight: 700; color: var(--accent-light); }
+  .model-stat-item .name { font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .model-stat-item .speed { font-size: 10px; font-weight: 700; color: var(--accent-light); }
   .model-stat-item .bar {
     height: 2px;
     background: var(--border);
@@ -561,9 +553,30 @@
   .model-stat-item .meta {
     display: flex;
     justify-content: space-between;
-    font-size: 7px;
-    color: var(--text-muted);
-    margin-top: 1px;
+    font-size: 9px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* 历史页签 */
+  .history-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-tab {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+  }
+  .history-tab:hover { color: var(--text-primary); }
+  .history-tab.active {
+    color: var(--accent-light);
+    border-bottom-color: var(--accent);
   }
 
   .history-list {
@@ -575,20 +588,20 @@
   .history-item {
     display: flex;
     align-items: center;
-    gap: 3px;
-    padding: 4px 5px;
+    gap: 4px;
+    padding: 5px 6px;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
-    font-size: 9px;
+    font-size: 10px;
   }
   .history-item:last-child { border-bottom: none; }
   .history-item:hover { background: var(--bg-hover); }
   .history-item .text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .history-item .time { font-size: 7px; color: var(--text-muted); }
-  .history-item .result-count { font-size: 7px; }
+  .history-item .time { font-size: 8px; color: var(--text-secondary); }
+  .history-item .result-count { font-size: 8px; }
   .history-item .retry-btn {
-    font-size: 7px;
-    padding: 1px 4px;
+    font-size: 8px;
+    padding: 1px 5px;
     border-radius: 2px;
     background: var(--bg-hover);
     border: 1px solid var(--border);
@@ -598,18 +611,18 @@
   .history-item .retry-btn:hover { background: var(--accent-glow); color: var(--accent-light); }
 
   .toast-container {
-    position: fixed; top: 8px; right: 8px; z-index: 9999;
-    display: flex; flex-direction: column; gap: 3px;
+    position: fixed; top: 10px; right: 10px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 4px;
   }
   .toast {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 10px;
+    padding: 8px 12px;
+    font-size: 11px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.4);
     animation: toastIn 0.3s ease;
-    display: flex; align-items: center; gap: 4px;
+    display: flex; align-items: center; gap: 5px;
   }
   .toast.success { border-left: 2px solid var(--success); }
   .toast.error { border-left: 2px solid var(--danger); }
@@ -624,10 +637,10 @@
     justify-content: center;
     height: 100%;
     color: var(--text-muted);
-    gap: 3px;
+    gap: 4px;
   }
-  .empty-state .icon { font-size: 20px; opacity: 0.4; }
-  .empty-state p { font-size: 10px; }
+  .empty-state .icon { font-size: 22px; opacity: 0.4; }
+  .empty-state p { font-size: 11px; }
 
   /* 模型回复展开面板 */
   .expand-modal {
@@ -643,7 +656,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 16px;
+    padding: 18px;
     max-width: 80%;
     max-height: 80%;
     width: 700px;
@@ -652,24 +665,24 @@
   .expand-content .header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
   }
   .expand-content .header .icon {
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     border-radius: 5px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 15px;
   }
-  .expand-content .header .name { font-size: 14px; font-weight: 700; }
+  .expand-content .header .name { font-size: 15px; font-weight: 700; }
   .expand-content .header .speed {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--accent-light);
     background: rgba(124,106,239,0.15);
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 4px;
   }
   .expand-content .body {
@@ -679,9 +692,9 @@
   .expand-content .body pre {
     background: rgba(0,0,0,0.3);
     border-radius: 4px;
-    padding: 8px;
+    padding: 10px;
     overflow-x: auto;
-    margin: 6px 0;
+    margin: 8px 0;
     font-size: 11px;
   }
 
@@ -699,15 +712,39 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 16px;
+    padding: 18px;
     max-width: 600px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
   }
-  .analysis-content h3 { margin-bottom: 10px; font-size: 14px; }
-  .analysis-content .result { font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
-  .analysis-content .close-btn { margin-top: 12px; width: 100%; }
+  .analysis-content h3 { margin-bottom: 12px; font-size: 15px; }
+  .analysis-content .model-selector {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: var(--bg-input);
+    border-radius: 6px;
+  }
+  .analysis-content .model-selector label {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .analysis-content .model-selector select {
+    flex: 1;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    outline: none;
+  }
+  .analysis-content .result { font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+  .analysis-content .actions { margin-top: 14px; display: flex; gap: 8px; }
+  .analysis-content .actions .btn { flex: 1; }
 
   @media (max-width: 900px) {
     .right-panel { display: none; }
@@ -719,25 +756,24 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="top-bar">
-  <div style="display:flex;align-items:center;gap:6px;">
-    <span style="font-size:14px;">🤖</span>
-    <span style="font-size:12px;font-weight:700;">AI API 测试工具</span>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:15px;">🤖</span>
+    <span style="font-size:13px;font-weight:700;">AI API 测试工具</span>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;">
-    <label style="font-size:9px;color:var(--text-muted);">API地址:</label>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <label style="font-size:10px;color:var(--text-secondary);">API地址:</label>
     <input type="text" id="apiBase" class="input-field" style="width:200px;" value="https://ai-service.segway-ninebot.com" placeholder="API Base URL">
-    <label style="font-size:9px;color:var(--text-muted);">API Key:</label>
+    <label style="font-size:10px;color:var(--text-secondary);">API Key:</label>
     <div style="position:relative;">
-      <input type="password" id="apiKey" class="input-field" style="width:120px;padding-right:20px;" placeholder="Bearer Token">
-      <button onclick="toggleKeyVisibility()" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:9px;" id="eyeBtn">👁️</button>
+      <input type="password" id="apiKey" class="input-field" style="width:130px;padding-right:22px;" placeholder="Bearer Token">
+      <button onclick="toggleKeyVisibility()" style="position:absolute;right:3px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;" id="eyeBtn">👁️</button>
     </div>
     <button class="btn btn-primary" id="fetchBtn" onclick="fetchModels()">📡 获取模型</button>
-    <button class="btn btn-warning" onclick="testSelectedModels()" id="testSelBtn" disabled>🔍 测试选中</button>
-    <span id="connStatus" style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--text-muted);">
+    <span id="connStatus" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary);">
       <span class="status-dot disconnected" id="statusDot"></span>
       <span id="statusText">未连接</span>
     </span>
-    <span id="lastFetchTime" style="font-size:8px;color:var(--text-muted);margin-left:4px;"></span>
+    <span id="lastFetchTime" style="font-size:9px;color:var(--text-secondary);margin-left:4px;"></span>
   </div>
 </div>
 
@@ -748,10 +784,11 @@
     <div class="model-section card" id="modelSection" style="flex: 0 0 40%;">
       <div class="card-header">
         <span>🧠</span> 模型
-        <span id="modelCount" style="margin-left:auto;font-size:8px;color:var(--text-muted);"></span>
+        <span id="modelCount" style="margin-left:auto;font-size:9px;color:var(--text-secondary);"></span>
         <button class="btn btn-xs btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">全选</button>
         <button class="btn btn-xs btn-danger" id="clearUnavailableBtn" onclick="clearUnavailableModels()" style="display:none;">清除不可用</button>
-        <button class="btn btn-icon btn-secondary" onclick="toggleModelSection()" id="collapseModelBtn" title="收起/展开">▼</button>
+        <button class="btn btn-xs btn-warning" onclick="testSelectedModels()" id="testSelBtn" disabled style="display:none;">测试已选模型</button>
+        <button class="btn btn-xs btn-secondary" onclick="toggleModelSection()" id="collapseModelBtn" title="收起/展开模型区域">收起模型</button>
       </div>
       <div class="card-body">
         <div class="filter-bar">
@@ -765,7 +802,7 @@
           <div class="filter-btns" id="typeFilters"></div>
         </div>
         <div id="modelListContainer">
-          <div class="empty-state" style="height:40px;">
+          <div class="empty-state" style="height:50px;">
             <p>点击「获取模型」加载模型列表</p>
           </div>
         </div>
@@ -779,10 +816,9 @@
     <div class="chat-section card" style="margin:0 8px 8px;">
       <div class="card-header">
         <span>💬</span> 对话
-        <span id="chatModelHint" style="margin-left:3px;font-size:8px;color:var(--text-muted);"></span>
+        <span id="chatModelHint" style="margin-left:4px;font-size:9px;color:var(--text-secondary);"></span>
         <button class="btn btn-xs btn-secondary" style="margin-left:auto;" onclick="clearChat()">清空</button>
         <button class="btn btn-xs btn-success" onclick="aiAnalysis()" id="aiAnalysisBtn" disabled>🧠 AI分析</button>
-        <button class="btn btn-icon btn-secondary" onclick="toggleRightPanel()" id="toggleRightBtn" title="显示/隐藏侧边栏">◀</button>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="empty-state">
@@ -803,7 +839,7 @@
     <div class="right-section stats-section">
       <div class="card-header">
         <span>📊</span> 统计
-        <div style="margin-left:auto;display:flex;gap:2px;">
+        <div style="margin-left:auto;display:flex;gap:3px;">
           <button class="btn btn-xs btn-secondary active" id="sortAscBtn" onclick="setStatsSort('asc')" title="快→慢">⚡快→慢</button>
           <button class="btn btn-xs btn-secondary" id="sortDescBtn" onclick="setStatsSort('desc')" title="慢→快">⚡慢→快</button>
         </div>
@@ -816,7 +852,7 @@
           <div class="stat-item"><div class="val" id="statAvgSpeed">-</div><div class="lbl">平均</div></div>
         </div>
         <div class="stats-controls">
-          <div class="search-box" style="min-width:60px;">
+          <div class="search-box" style="min-width:70px;">
             <span class="icon">🔍</span>
             <input type="text" id="statsSearch" placeholder="搜索..." oninput="handleStatsSearch()">
           </div>
@@ -825,7 +861,7 @@
           </select>
         </div>
         <div id="modelStats" style="overflow-y:auto;flex:1;">
-          <div style="color:var(--text-muted);font-size:9px;text-align:center;padding:6px;">暂无数据</div>
+          <div style="color:var(--text-muted);font-size:10px;text-align:center;padding:8px;">暂无数据</div>
         </div>
       </div>
     </div>
@@ -833,11 +869,15 @@
     <div class="right-section history-section">
       <div class="card-header">
         <span>📜</span> 历史
-        <span style="margin-left:auto;font-size:7px;color:var(--text-muted);">最近10条</span>
+        <span style="margin-left:auto;font-size:8px;color:var(--text-secondary);">最近10条</span>
+      </div>
+      <div class="history-tabs">
+        <div class="history-tab active" onclick="switchHistoryTab('chat')" id="historyTabChat">对话历史</div>
+        <div class="history-tab" onclick="switchHistoryTab('analysis')" id="historyTabAnalysis">AI分析</div>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;overflow:hidden;">
         <div class="history-list" id="historyPanel">
-          <div style="color:var(--text-muted);font-size:9px;text-align:center;padding:8px;">暂无历史</div>
+          <div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无历史</div>
         </div>
       </div>
     </div>
@@ -889,23 +929,14 @@ function getVendor(modelId) {
 
 function getModelTypes(modelId) {
   const id = modelId.toLowerCase().replace(/^external\//, '');
-  // 嵌入模型
   if (/embed/i.test(id)) return ['embed'];
-  // 重排模型
   if (/rerank|rank/i.test(id)) return ['rerank'];
-  // 语音合成
   if (/tts|speech|voice|audio.*gen/i.test(id)) return ['tts'];
-  // 语音识别
   if (/whisper|stt|asr|speech.*recog|audio.*trans/i.test(id)) return ['stt'];
-  // 视觉模型
   if (/vision|vl|llava|gpt.*vision|claude.*vision/i.test(id)) return ['vision'];
-  // 图像生成
   if (/dall|image|flux|sdxl|stable.?diff|midjourney/i.test(id)) return ['image'];
-  // 代码模型
   if (/code|codex|deepseek-coder|coder/i.test(id)) return ['code'];
-  // 推理模型
   if (/^o1|^o3|^o4|deepseek-r1|qwq|reasoning/i.test(id)) return ['reasoning'];
-  // 对话模型（默认）
   if (/gpt|claude|gemini|llama|qwen|deepseek|glm|mistral|yi|baichuan|chat/i.test(id)) return ['chat'];
   return ['chat'];
 }
@@ -926,6 +957,7 @@ const state = {
   selectedModels: new Set(),
   requestLog: [],
   messageHistory: [],
+  analysisHistory: [],
   isConnected: false,
   isSending: false,
   searchQuery: '',
@@ -938,7 +970,7 @@ const state = {
   statsActiveVendor: '',
   lastFetchTime: null,
   modelSectionCollapsed: false,
-  rightPanelCollapsed: false,
+  currentHistoryTab: 'chat',
 };
 
 // ========== 初始化 ==========
@@ -949,11 +981,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('chatInput');
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 50) + 'px';
+    textarea.style.height = Math.min(textarea.scrollHeight, 60) + 'px';
     updateSendBtnState();
   });
 
-  // 拖拽调整高度
   initResizeHandle();
 });
 
@@ -1075,7 +1106,6 @@ async function fetchModels() {
       updateLastFetchTime();
       showToast(`获取成功！${modelCount} 个模型`, 'success');
       localStorage.setItem('ai_test_api_base', getApiBase());
-      document.getElementById('testSelBtn').disabled = false;
       document.getElementById('aiAnalysisBtn').disabled = false;
 
       if (data.data) {
@@ -1091,6 +1121,7 @@ async function fetchModels() {
         renderTypeFilters();
         renderModels();
         updateSendBtnState();
+        updateTestBtnVisibility();
       }
     } else {
       throw new Error(`HTTP ${resp.status}`);
@@ -1111,6 +1142,12 @@ function updateLastFetchTime() {
   if (state.lastFetchTime) {
     el.textContent = `🕐 ${state.lastFetchTime.toLocaleTimeString()}`;
   }
+}
+
+function updateTestBtnVisibility() {
+  const btn = document.getElementById('testSelBtn');
+  btn.style.display = state.models.length > 0 ? '' : 'none';
+  btn.disabled = state.selectedModels.size === 0;
 }
 
 // ========== 测试选中模型 ==========
@@ -1151,7 +1188,7 @@ async function testSelectedModels() {
   await Promise.all(promises);
 
   btn.disabled = false;
-  btn.innerHTML = '🔍 测试选中';
+  btn.innerHTML = '测试已选模型';
   const failCount = modelsToTest.length - successCount;
   showToast(`完成：${successCount} 可用，${failCount} 不可用`, successCount > 0 ? 'success' : 'error');
   renderModels();
@@ -1174,6 +1211,7 @@ function clearUnavailableModels() {
   renderTypeFilters();
   renderModels();
   updateSendBtnState();
+  updateTestBtnVisibility();
   showToast(`已清除 ${unavailableIds.length} 个不可用模型`, 'success');
 }
 
@@ -1183,14 +1221,13 @@ function toggleSelectAll() {
   const allSelected = filtered.length > 0 && filtered.every(m => state.selectedModels.has(m.id));
   
   if (allSelected) {
-    // 取消选中当前筛选条件下的模型
     filtered.forEach(m => state.selectedModels.delete(m.id));
   } else {
-    // 只选中当前筛选条件下的模型（不影响其他）
     filtered.forEach(m => state.selectedModels.add(m.id));
   }
   renderModels();
   updateSendBtnState();
+  updateTestBtnVisibility();
 }
 
 function handleSearch() {
@@ -1267,7 +1304,7 @@ function renderModels() {
   const clearBtn = document.getElementById('clearUnavailableBtn');
 
   if (state.models.length === 0) {
-    container.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:10px;">暂无模型</div>';
+    container.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:11px;">暂无模型</div>';
     countEl.textContent = '';
     selectAllBtn.style.display = 'none';
     clearBtn.style.display = 'none';
@@ -1296,7 +1333,6 @@ function renderModels() {
     }
   });
 
-  // 按响应速度排序（从快到慢）
   availableModels.sort((a, b) => {
     const connA = state.modelConnectivity.get(a.id);
     const connB = state.modelConnectivity.get(b.id);
@@ -1339,7 +1375,7 @@ function renderModels() {
   }
 
   if (unavailableModels.length > 0) {
-    html += `<div class="model-group-header unavailable" style="margin-top:6px;">❌ 不可用 <span class="count">${unavailableModels.length}</span></div>`;
+    html += `<div class="model-group-header unavailable" style="margin-top:8px;">❌ 不可用 <span class="count">${unavailableModels.length}</span></div>`;
     html += '<div class="model-grid">';
     unavailableModels.forEach(m => {
       const isSelected = state.selectedModels.has(m.id);
@@ -1353,7 +1389,7 @@ function renderModels() {
             <div class="name">${esc(m.id)}</div>
             <div class="meta">
               <span class="model-tag" style="color:${vendor.color};background:${vendor.color}22;">${vendor.label}</span>
-              <span style="color:var(--danger);">✗ ${esc(errorText.substring(0, 12))}</span>
+              <span style="color:var(--danger);">✗ ${esc(errorText.substring(0, 15))}</span>
             </div>
           </div>
           <div class="check">✓</div>
@@ -1375,6 +1411,7 @@ function toggleModel(id) {
   }
   renderModels();
   updateSendBtnState();
+  updateTestBtnVisibility();
 }
 
 function updateChatModelHint() {
@@ -1384,7 +1421,7 @@ function updateChatModelHint() {
     hint.style.color = 'var(--warning)';
   } else {
     hint.textContent = `— ${state.selectedModels.size} 个模型`;
-    hint.style.color = 'var(--text-muted)';
+    hint.style.color = 'var(--text-secondary)';
   }
 }
 
@@ -1394,16 +1431,7 @@ function toggleModelSection() {
   const btn = document.getElementById('collapseModelBtn');
   state.modelSectionCollapsed = !state.modelSectionCollapsed;
   section.classList.toggle('collapsed', state.modelSectionCollapsed);
-  btn.textContent = state.modelSectionCollapsed ? '▶' : '▼';
-}
-
-// ========== 右侧面板收起/展开 ==========
-function toggleRightPanel() {
-  const panel = document.getElementById('rightPanel');
-  const btn = document.getElementById('toggleRightBtn');
-  state.rightPanelCollapsed = !state.rightPanelCollapsed;
-  panel.classList.toggle('collapsed', state.rightPanelCollapsed);
-  btn.textContent = state.rightPanelCollapsed ? '▶' : '◀';
+  btn.textContent = state.modelSectionCollapsed ? '展开模型' : '收起模型';
 }
 
 // ========== 对话 ==========
@@ -1464,7 +1492,6 @@ function createModelColumns(round, models, roundId) {
         <div class="typing-indicator" id="loading-${safeId}"><span></span><span></span><span></span></div>
       </div>
     `;
-    // 点击展开
     col.addEventListener('click', (e) => {
       if (e.target.closest('.collapse-toggle')) return;
       expandModelResponse(model, roundId);
@@ -1494,7 +1521,7 @@ function expandModelResponse(model, roundId) {
         <span class="speed">⚡ ${formatTime(result.elapsed)}</span>
       </div>
       <div class="body">${renderMarkdown(result.content)}</div>
-      <button class="btn btn-primary close-btn" style="margin-top:12px;width:100%;" onclick="this.closest('.expand-modal').remove()">关闭</button>
+      <button class="btn btn-primary close-btn" style="margin-top:14px;width:100%;" onclick="this.closest('.expand-modal').remove()">关闭</button>
     </div>
   `;
   modal.addEventListener('click', (e) => {
@@ -1578,7 +1605,6 @@ function addAssistantMessage(model, text, elapsed, roundId) {
     speedEl.style.display = '';
   }
 
-  // 检查是否需要收起按钮
   setTimeout(() => {
     const col = document.getElementById('col-' + safeId);
     if (col && body.scrollHeight > body.clientHeight + 5) {
@@ -1619,7 +1645,7 @@ function addErrorMessage(model, error, roundId) {
   const errDiv = document.createElement('div');
   errDiv.className = 'model-response-bubble';
   errDiv.style.borderColor = 'rgba(239,68,68,0.3)';
-  errDiv.innerHTML = `<div style="color:var(--danger);font-size:9px;">❌ ${esc(error)}</div>`;
+  errDiv.innerHTML = `<div style="color:var(--danger);font-size:10px;">❌ ${esc(error)}</div>`;
   body.appendChild(errDiv);
 }
 
@@ -1704,7 +1730,7 @@ function updateStats() {
 
   if (successLogs.length === 0) {
     document.getElementById('statAvgSpeed').textContent = '-';
-    document.getElementById('modelStats').innerHTML = '<div style="color:var(--text-muted);font-size:9px;text-align:center;padding:6px;">暂无数据</div>';
+    document.getElementById('modelStats').innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:8px;">暂无数据</div>';
     return;
   }
 
@@ -1735,7 +1761,6 @@ function updateStats() {
   const fastest = Math.min(...times);
   const slowest = Math.max(...times);
 
-  // 更新供应商下拉
   const vendors = new Set();
   entries.forEach(([model]) => vendors.add(getVendor(model).label));
   const select = document.getElementById('statsVendorSelect');
@@ -1767,12 +1792,27 @@ function updateStats() {
 }
 
 // ========== 历史 ==========
+function switchHistoryTab(tab) {
+  state.currentHistoryTab = tab;
+  document.getElementById('historyTabChat').classList.toggle('active', tab === 'chat');
+  document.getElementById('historyTabAnalysis').classList.toggle('active', tab === 'analysis');
+  renderHistory();
+}
+
 function renderHistory() {
   const panel = document.getElementById('historyPanel');
   const scrollTop = panel.scrollTop;
 
+  if (state.currentHistoryTab === 'chat') {
+    renderChatHistory(panel, scrollTop);
+  } else {
+    renderAnalysisHistory(panel, scrollTop);
+  }
+}
+
+function renderChatHistory(panel, scrollTop) {
   if (state.messageHistory.length === 0) {
-    panel.innerHTML = '<div style="color:var(--text-muted);font-size:9px;text-align:center;padding:8px;">暂无历史</div>';
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无对话历史</div>';
     return;
   }
 
@@ -1794,6 +1834,32 @@ function renderHistory() {
   });
   panel.innerHTML = html;
   panel.scrollTop = scrollTop;
+}
+
+function renderAnalysisHistory(panel, scrollTop) {
+  if (state.analysisHistory.length === 0) {
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无AI分析历史</div>';
+    return;
+  }
+
+  let html = '';
+  state.analysisHistory.forEach((entry, index) => {
+    html += `
+      <div class="history-item" onclick="showAnalysisResult(${index})">
+        <span class="text">🧠 ${esc(entry.summary || 'AI分析')}</span>
+        <span class="time">${new Date(entry.timestamp).toLocaleTimeString()}</span>
+        <span style="font-size:8px;color:var(--text-secondary);">${esc(entry.model)}</span>
+      </div>
+    `;
+  });
+  panel.innerHTML = html;
+  panel.scrollTop = scrollTop;
+}
+
+function showAnalysisResult(index) {
+  const entry = state.analysisHistory[index];
+  if (!entry) return;
+  showAnalysisModal(entry.result, entry.model, true, index);
 }
 
 function scrollToRound(roundId) {
@@ -1875,7 +1941,7 @@ function reconstructRound(entry) {
       </div>
       <div class="model-response-body">
         <div class="model-response-bubble">
-          <div style="color:var(--danger);font-size:9px;">❌ ${esc(r.error || '未知错误')}</div>
+          <div style="color:var(--danger);font-size:10px;">❌ ${esc(r.error || '未知错误')}</div>
         </div>
       </div>
     `;
@@ -1883,7 +1949,7 @@ function reconstructRound(entry) {
   });
 
   const badge = document.createElement('div');
-  badge.style.cssText = 'font-size:8px;color:var(--accent-light);text-align:center;padding:3px;opacity:0.6;';
+  badge.style.cssText = 'font-size:9px;color:var(--accent-light);text-align:center;padding:4px;opacity:0.6;';
   badge.textContent = '📜 历史重建';
   round.appendChild(badge);
 
@@ -1934,10 +2000,8 @@ async function aiAnalysis() {
   btn.disabled = true;
   btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 分析中...';
 
-  // 构建分析数据 - 分析当前会话所有模型的回复
   let analysisData = '请分析以下AI模型测试结果，给出简短评价（200字以内）：\n\n';
   
-  // 获取当前会话的所有结果
   const currentSessionResults = [];
   state.messageHistory.forEach((entry) => {
     entry.results.forEach((result, model) => {
@@ -1952,7 +2016,6 @@ async function aiAnalysis() {
     return;
   }
 
-  // 按模型分组统计
   const modelStats = new Map();
   currentSessionResults.forEach(r => {
     if (!modelStats.has(r.model)) modelStats.set(r.model, { success: 0, failed: 0, totalTime: 0, contents: [] });
@@ -2003,7 +2066,17 @@ async function aiAnalysis() {
       throw new Error('API返回结果为空，请检查模型是否支持对话功能');
     }
     
-    showAnalysisModal(analysis, analysisModel);
+    // 保存到分析历史
+    state.analysisHistory.unshift({
+      timestamp: Date.now(),
+      model: analysisModel,
+      result: analysis,
+      summary: currentSessionResults[0]?.question?.substring(0, 20) || 'AI分析',
+    });
+    if (state.analysisHistory.length > 10) state.analysisHistory.pop();
+    renderHistory();
+    
+    showAnalysisModal(analysis, analysisModel, false);
   } catch (e) {
     showToast(`分析失败: ${e.message}`, 'error');
   }
@@ -2012,21 +2085,128 @@ async function aiAnalysis() {
   btn.innerHTML = '🧠 AI分析';
 }
 
-function showAnalysisModal(analysis, modelName) {
+function showAnalysisModal(analysis, modelName, isHistory = false, historyIndex = null) {
   const modal = document.createElement('div');
   modal.className = 'analysis-modal';
+  
+  // 构建模型选择器选项
+  const modelOptions = state.models.map(m => 
+    `<option value="${escAttr(m.id)}" ${m.id === modelName ? 'selected' : ''}>${esc(m.id)}</option>`
+  ).join('');
+  
   modal.innerHTML = `
     <div class="analysis-content">
       <h3>🧠 AI 分析结果</h3>
-      <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">分析模型: ${esc(modelName)}</div>
+      <div class="model-selector">
+        <label>分析模型:</label>
+        <select id="analysisModelSelect" ${isHistory ? '' : 'disabled'}>
+          ${modelOptions}
+        </select>
+        ${isHistory ? '<button class="btn btn-xs btn-primary" onclick="reanalyzeWithModel(' + historyIndex + ')">重新分析</button>' : ''}
+      </div>
+      <div style="font-size:10px;color:var(--text-secondary);margin-bottom:10px;">当前模型: ${esc(modelName)}</div>
       <div class="result">${renderMarkdown(analysis)}</div>
-      <button class="btn btn-primary close-btn" onclick="this.closest('.analysis-modal').remove()">关闭</button>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="this.closest('.analysis-modal').remove()">关闭</button>
+      </div>
     </div>
   `;
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.remove();
   });
   document.body.appendChild(modal);
+}
+
+async function reanalyzeWithModel(historyIndex) {
+  const entry = state.analysisHistory[historyIndex];
+  if (!entry) return;
+  
+  const newModel = document.getElementById('analysisModelSelect').value;
+  if (!newModel) {
+    showToast('请选择模型', 'warning');
+    return;
+  }
+  
+  // 关闭当前弹窗
+  document.querySelector('.analysis-modal')?.remove();
+  
+  const btn = document.getElementById('aiAnalysisBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 重新分析中...';
+  
+  // 使用相同的数据重新分析
+  let analysisData = '请分析以下AI模型测试结果，给出简短评价（200字以内）：\n\n';
+  
+  const currentSessionResults = [];
+  state.messageHistory.forEach((e) => {
+    e.results.forEach((result, model) => {
+      currentSessionResults.push({ model, ...result, question: e.text });
+    });
+  });
+  
+  const modelStats = new Map();
+  currentSessionResults.forEach(r => {
+    if (!modelStats.has(r.model)) modelStats.set(r.model, { success: 0, failed: 0, totalTime: 0, contents: [] });
+    const stats = modelStats.get(r.model);
+    if (r.success) {
+      stats.success++;
+      stats.totalTime += r.elapsed;
+      stats.contents.push(r.content);
+    } else {
+      stats.failed++;
+    }
+  });
+
+  analysisData += '【各模型统计】\n';
+  modelStats.forEach((stats, model) => {
+    const avgTime = stats.success > 0 ? Math.round(stats.totalTime / stats.success) : 0;
+    analysisData += `- ${model}: 成功${stats.success}次, 失败${stats.failed}次, 平均耗时${avgTime}ms\n`;
+    if (stats.contents.length > 0) {
+      const sample = stats.contents[0].substring(0, 100);
+      analysisData += `  回复示例: ${sample}...\n`;
+    }
+  });
+
+  analysisData += '\n请从以下维度评价：1) 各模型响应速度排名 2) 成功率对比 3) 回复质量评价 4) 推荐使用场景';
+
+  try {
+    const resp = await fetch(`${getApiBase()}/v1/chat/completions`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        model: newModel,
+        messages: [{ role: 'user', content: analysisData }],
+        temperature: 0.7,
+        max_tokens: 800,
+      }),
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const analysis = data.choices?.[0]?.message?.content;
+    
+    if (!analysis) {
+      throw new Error('API返回结果为空');
+    }
+    
+    // 更新历史记录
+    entry.model = newModel;
+    entry.result = analysis;
+    entry.timestamp = Date.now();
+    renderHistory();
+    
+    showAnalysisModal(analysis, newModel, true, historyIndex);
+    showToast('重新分析完成', 'success');
+  } catch (e) {
+    showToast(`重新分析失败: ${e.message}`, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🧠 AI分析';
 }
 </script>
 
