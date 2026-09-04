@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-04 14:15 (UTC+8)
+- **修改文件**：`Tools/ai-test-tool/index.html`（新增）、`Projects/AI API 测试工具.html`（删除）
+- **变更类型**：重构
+- **变更描述**：将 AI API 测试工具从 `Projects/` 目录移动到 `Tools/ai-test-tool/` 目录，与其他 HTML 项目（travel-planner、css-editor、photo-album 等）保持一致的目录结构
+- **影响范围**：AI API 测试工具的访问路径变更
+- **关联请求**：用户反馈"这个html的目录不太对，我记得别的html项目都是在tools下面的"
+
 ### 2026-09-04 14:10 (UTC+8)
 - **新增文件**：`Integration/feishu-bot/feishu-bot.js`、`Integration/feishu-bot/package.json`、`Integration/feishu-bot/.env.example`、`Integration/feishu-bot/README.md`、`Integration/feishu-bot/.gitignore`
 - **变更类型**：新增
