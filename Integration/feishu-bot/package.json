@@ -1,0 +1,17 @@
+{
+  "name": "feishu-bot",
+  "version": "1.0.0",
+  "description": "飞书实时监听机器人 - WebSocket 长连接模式",
+  "main": "feishu-bot.js",
+  "scripts": {
+    "start": "node feishu-bot.js",
+    "dev": "node --watch feishu-bot.js"
+  },
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}
