@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-04 13:50 (UTC+8)
+- **修改文件**：`Projects/AI API 测试工具.html`
+- **变更类型**：修复
+- **变更描述**：修复输入消息后无法发送的问题。根因：发送按钮 disabled 条件包含 `state.selectedModels.size === 0`，用户未手动选择模型时按钮永远灰色不可点击，且 `sendMessage()` 在无模型时静默 return 无任何提示。修复：1) 发送按钮只检查是否有文本；2) 获取模型/测试连通后自动全选所有模型；3) 无模型时点击发送给出 toast 警告；4) 新增全选/取消全选按钮；5) 模型卡片增加选中勾选标记；6) 对话区标题显示已选模型数量
+- **影响范围**：AI API 测试工具的发送交互流程
+- **关联请求**：用户反馈"对话测试的时候，输入内容之后没法发送"
+
 ### 2026-09-04 13:42 (UTC+8)
 - **新增文件**：`Projects/AI API 测试工具.html`
 - **变更类型**：新增
