@@ -197,6 +197,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .model-chip .check-mark {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: white;
+  }
+  .model-chip.selected .check-mark { display: flex; }
 
   /* 聊天区域 */
   .chat-container {
@@ -354,6 +368,7 @@
   .toast.success { border-left: 4px solid var(--success); }
   .toast.error { border-left: 4px solid var(--danger); }
   .toast.info { border-left: 4px solid var(--accent); }
+  .toast.warning { border-left: 4px solid var(--warning); }
   @keyframes toastIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -526,11 +541,12 @@
     <div class="card-header">
       <span>🧠</span> 可用模型
       <span id="modelCount" style="margin-left:auto;font-size:12px;color:var(--text-muted);font-weight:400;"></span>
+      <button class="btn btn-sm btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">✅ 全选</button>
     </div>
     <div class="card-body">
       <div id="modelListContainer">
         <div class="empty-state" style="height:120px;">
-          <p>👆 点击「获取模型」加载可用模型列表</p>
+          <p>👆 点击「获取模型」或「测试连通」加载可用模型列表</p>
         </div>
       </div>
       <div id="selectedModelsArea" class="hidden">
@@ -548,6 +564,7 @@
     <div class="card flex-1" style="min-width:400px;">
       <div class="card-header">
         <span>💬</span> 对话测试
+        <span id="chatModelHint" style="margin-left:4px;font-size:12px;color:var(--text-muted);font-weight:400;"></span>
         <button class="btn btn-sm btn-secondary" style="margin-left:auto;" onclick="clearChat()">🗑️ 清空</button>
       </div>
       <div class="chat-container">
@@ -624,9 +641,15 @@ document.addEventListener('DOMContentLoaded', () => {
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto';
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-    document.getElementById('sendBtn').disabled = !textarea.value.trim() || state.selectedModels.size === 0 || state.isSending;
+    updateSendBtnState();
   });
 });
+
+// ==================== 【修复】发送按钮状态：只检查是否有文本，不再强制要求已选模型 ====================
+function updateSendBtnState() {
+  const hasText = document.getElementById('chatInput').value.trim().length > 0;
+  document.getElementById('sendBtn').disabled = !hasText || state.isSending;
+}
 
 // ==================== 工具函数 ====================
 function getApiBase() {
@@ -658,7 +681,7 @@ function showToast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
   toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
@@ -678,15 +701,10 @@ function formatTime(ms) {
 function renderMarkdown(text) {
   if (!text) return '';
   let html = text
-    // 代码块
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="lang-$1">$2</code></pre>')
-    // 行内代码
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // 粗体
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // 斜体
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // 换行
     .replace(/\n/g, '<br>');
   return html;
 }
@@ -718,7 +736,6 @@ async function testConnection() {
       state.isConnected = true;
       dot.className = 'status-dot connected';
       text.textContent = `已连接 (${elapsed}ms)`;
-      result.className = '';
       result.style.display = 'block';
       result.style.background = 'rgba(34,197,94,0.08)';
       result.style.border = '1px solid rgba(34,197,94,0.2)';
@@ -727,14 +744,15 @@ async function testConnection() {
       result.classList.remove('hidden');
       showToast(`连接成功！延迟 ${elapsed}ms`, 'success');
 
-      // 保存 key
       localStorage.setItem('ai_test_api_key', getApiKey());
       localStorage.setItem('ai_test_api_base', getApiBase());
 
-      // 自动加载模型
+      // 【修复】自动加载模型并全选
       if (data.data) {
         state.models = data.data;
+        autoSelectAllModels();
         renderModels();
+        updateSendBtnState();
       }
     } else {
       throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
@@ -776,32 +794,67 @@ async function fetchModels() {
     const data = await resp.json();
     state.models = data.data || [];
 
-    // 保存 key
     localStorage.setItem('ai_test_api_key', getApiKey());
     localStorage.setItem('ai_test_api_base', getApiBase());
 
+    // 【修复】获取模型后自动全选
+    autoSelectAllModels();
     renderModels();
-    showToast(`获取到 ${state.models.length} 个模型`, 'success');
+    updateSendBtnState();
+    showToast(`获取到 ${state.models.length} 个模型，已自动全选`, 'success');
   } catch (e) {
     container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--danger);">❌ 获取失败: ${e.message}</div>`;
     showToast(`获取模型失败: ${e.message}`, 'error');
   }
 }
 
+// ==================== 【修复】新增：自动全选所有模型 ====================
+function autoSelectAllModels() {
+  state.selectedModels.clear();
+  state.models.forEach(m => {
+    const id = m.id || 'unknown';
+    state.selectedModels.add(id);
+  });
+}
+
+// ==================== 【修复】新增：全选/取消全选切换 ====================
+function toggleSelectAll() {
+  if (state.selectedModels.size === state.models.length) {
+    // 当前是全选状态 → 取消全选
+    state.selectedModels.clear();
+    showToast('已取消全选', 'info');
+  } else {
+    // 当前不是全选 → 全选
+    autoSelectAllModels();
+    showToast('已全选所有模型', 'success');
+  }
+  renderModels();
+  renderSelectedTags();
+  updateSendBtnState();
+}
+
 // ==================== 渲染模型列表 ====================
 function renderModels() {
   const container = document.getElementById('modelListContainer');
   const countEl = document.getElementById('modelCount');
+  const selectAllBtn = document.getElementById('selectAllBtn');
 
   if (state.models.length === 0) {
     container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">暂无模型</div>';
     countEl.textContent = '';
+    selectAllBtn.style.display = 'none';
     return;
   }
 
-  countEl.textContent = `共 ${state.models.length} 个`;
+  countEl.textContent = `共 ${state.models.length} 个 · 已选 ${state.selectedModels.size} 个`;
+  selectAllBtn.style.display = '';
+  // 更新全选按钮文字
+  if (state.selectedModels.size === state.models.length) {
+    selectAllBtn.textContent = '☑️ 取消全选';
+  } else {
+    selectAllBtn.textContent = '✅ 全选';
+  }
 
-  // 按名称排序
   const sorted = [...state.models].sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
   let html = '<div class="model-grid">';
@@ -810,17 +863,21 @@ function renderModels() {
     const isSelected = state.selectedModels.has(id);
     const icon = getModelIcon(id);
     html += `
-      <div class="model-chip ${isSelected ? 'selected' : ''}" onclick="toggleModel('${id}')" title="${id}">
+      <div class="model-chip ${isSelected ? 'selected' : ''}" onclick="toggleModel('${id.replace(/'/g, "\\'")}')" title="${id}">
         <div class="model-icon">${icon}</div>
-        <div style="overflow:hidden;">
+        <div style="overflow:hidden;flex:1;">
           <div class="model-name">${id}</div>
           <div class="model-id">${m.owned_by || m.object || 'model'}</div>
         </div>
+        <div class="check-mark">✓</div>
       </div>
     `;
   });
   html += '</div>';
   container.innerHTML = html;
+
+  // 更新对话区模型提示
+  updateChatModelHint();
 }
 
 function getModelIcon(id) {
@@ -850,7 +907,7 @@ function toggleModel(id) {
   }
   renderModels();
   renderSelectedTags();
-  document.getElementById('sendBtn').disabled = !document.getElementById('chatInput').value.trim() || state.selectedModels.size === 0 || state.isSending;
+  updateSendBtnState();
 }
 
 function renderSelectedTags() {
@@ -865,16 +922,38 @@ function renderSelectedTags() {
   area.classList.remove('hidden');
   let html = '';
   state.selectedModels.forEach(id => {
-    html += `<span class="selected-tag" onclick="toggleModel('${id}')">${id} <span class="remove">✕</span></span>`;
+    html += `<span class="selected-tag" onclick="toggleModel('${id.replace(/'/g, "\\'")}')">${id} <span class="remove">✕</span></span>`;
   });
   tags.innerHTML = html;
+
+  updateChatModelHint();
 }
 
-// ==================== 发送消息 ====================
+// ==================== 【修复】新增：更新对话区模型提示 ====================
+function updateChatModelHint() {
+  const hint = document.getElementById('chatModelHint');
+  if (state.selectedModels.size === 0) {
+    hint.textContent = '— 未选择模型';
+    hint.style.color = 'var(--warning)';
+  } else {
+    hint.textContent = `— ${state.selectedModels.size} 个模型已选中`;
+    hint.style.color = 'var(--text-muted)';
+  }
+}
+
+// ==================== 【修复】发送消息：没有选模型时给出明确提示 ====================
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
-  if (!text || state.selectedModels.size === 0 || state.isSending) return;
+  if (!text) return;
+
+  // 【修复】没有选择模型时，给出明确提示而不是静默失败
+  if (state.selectedModels.size === 0) {
+    showToast('⚠️ 请先在上方选择至少一个模型', 'warning');
+    return;
+  }
+
+  if (state.isSending) return;
 
   state.isSending = true;
   input.value = '';
@@ -898,7 +977,7 @@ async function sendMessage() {
   await Promise.allSettled(promises);
 
   state.isSending = false;
-  document.getElementById('sendBtn').disabled = !input.value.trim() || state.selectedModels.size === 0;
+  updateSendBtnState();
   updateStats();
 }
 
@@ -979,7 +1058,6 @@ async function sendToModel(model, userText) {
   const startTime = performance.now();
 
   try {
-    // 构建消息历史（只保留最近几轮）
     const msgs = [];
     const history = state.chatHistory.slice(-10);
     for (const h of history) {
@@ -1011,10 +1089,8 @@ async function sendToModel(model, userText) {
     removeLoadingMessage(model);
     addAssistantMessage(model, content, elapsed);
 
-    // 记录到历史
     state.chatHistory.push({ role: 'assistant', content, model });
 
-    // 记录请求日志
     state.requestLog.push({
       model,
       elapsed,
@@ -1089,7 +1165,6 @@ function updateStats() {
   document.getElementById('statFastest').textContent = formatTime(fastest);
   document.getElementById('statSlowest').textContent = formatTime(slowest);
 
-  // 各模型统计
   const modelMap = new Map();
   logs.forEach(l => {
     if (!modelMap.has(l.model)) modelMap.set(l.model, []);
@@ -1108,7 +1183,6 @@ function updateStats() {
     const min = Math.min(...times);
     const max = Math.max(...times);
     const count = times.length;
-    // 进度条
     const barWidth = Math.max(10, Math.min(100, (1 - (avg - fastest) / (slowest - fastest || 1)) * 100));
     html += `
       <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
