@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-04 10:30 (UTC+8)
+- **新增文件**：`Integration/monitored-chats.json`
+- **变更类型**：新增
+- **变更描述**：飞书消息监听群聊配置文件，用于记录需要监听的群聊列表（群名、群ID、添加时间、启用状态）
+- **影响范围**：定时任务 - 飞书消息监听
+- **关联请求**："添加，你在github库里增加一个需要监听的群聊的配置表吧"
+
 ### 2026-09-03 19:00 (UTC+8)
 - **新增文件**：`Integration/integration-details.md`
 - **删除文件**：`Integration/tasks.md`、`Integration/progress-log.md`、`Integration/operation-log.md`、`Integration/wecom-integration.md`
