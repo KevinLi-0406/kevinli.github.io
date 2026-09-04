@@ -1,0 +1,17 @@
+{
+  "description": "飞书消息监听配置 - 添加需要监听的群聊（只需填写群名，其他字段由系统自动补充）",
+  "monitored_chats": [
+    {
+      "chat_name": "CLI测试群",
+      "chat_id": "oc_a3154db1370d2421d74690a0dac270ed",
+      "added_at": "2026-09-04T10:30:00+08:00",
+      "enabled": true
+    },
+    {
+      "chat_name": "雨夏机器人测试",
+      "chat_id": "oc_1ce3ee6e3e6b96bbd29f12d7e317c035",
+      "added_at": "2026-09-04T10:30:00+08:00",
+      "enabled": true
+    }
+  ]
+}
