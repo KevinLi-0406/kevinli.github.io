@@ -142,9 +142,9 @@
 
   .model-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 10px;
-    max-height: 360px;
+    max-height: 420px;
     overflow-y: auto;
     padding: 4px;
   }
@@ -157,7 +157,7 @@
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     position: relative;
   }
@@ -176,6 +176,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px;
     flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .model-chip .model-info {
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
   }
   .model-chip .model-name {
     font-weight: 600;
@@ -189,6 +195,20 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .model-chip .model-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .model-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    line-height: 1.4;
   }
   .model-chip .check-mark {
     position: absolute;
@@ -205,6 +225,62 @@
   }
   .model-chip.selected .check-mark { display: flex; }
 
+  /* ===== 【新增】标签筛选栏 ===== */
+  .tag-filter-section {
+    margin-bottom: 14px;
+  }
+  .tag-filter-group {
+    margin-bottom: 10px;
+  }
+  .tag-filter-group-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .tag-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag-filter-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .tag-filter-btn:hover {
+    border-color: var(--border-light);
+    background: var(--bg-hover);
+  }
+  .tag-filter-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent-light);
+  }
+  .tag-filter-btn .tag-count {
+    font-size: 10px;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    min-width: 16px;
+    text-align: center;
+  }
+  .tag-filter-btn.active .tag-count {
+    background: rgba(124,106,239,0.3);
+  }
+
   .chat-container {
     display: flex;
     flex-direction: column;
@@ -219,7 +295,6 @@
     gap: 8px;
   }
 
-  /* ===== 旧消息样式（保留兼容） ===== */
   .message {
     display: flex;
     gap: 12px;
@@ -280,7 +355,6 @@
     font-weight: 500;
   }
 
-  /* ===== 【新增】轮次分块布局 ===== */
   .message-round {
     display: flex;
     flex-direction: column;
@@ -640,7 +714,7 @@
           <input type="text" id="apiBase" class="input-field" value="https://ai-service.segway-ninebot.com" placeholder="https://your-api-endpoint.com">
         </div>
         <div class="flex-1" style="min-width:250px;">
-          <label style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;">API Key</label>
+          <label style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;">API Key（仅本次使用，不保存）</label>
           <div style="position:relative;">
             <input type="password" id="apiKey" class="input-field" placeholder="sk-xxxx 或你的 API Key" style="padding-right:44px;">
             <button onclick="toggleKeyVisibility()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;" id="eyeBtn">👁️</button>
@@ -666,6 +740,7 @@
       <button class="btn btn-sm btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">✅ 全选</button>
     </div>
     <div class="card-body">
+      <div id="tagFilterContainer" style="display:none;"></div>
       <div id="modelListContainer">
         <div class="empty-state" style="height:120px;">
           <p>👆 点击「获取模型」或「测试连通」加载可用模型列表</p>
@@ -736,6 +811,64 @@
 </div>
 
 <script>
+// ==================== 【新增】标签配置 ====================
+const TAG_CONFIG = {
+  // 模型类型标签
+  'chat':      { label: '对话',     color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  'reasoning': { label: '推理',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  'vision':    { label: '视觉',     color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+  'embed':     { label: '嵌入',     color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+  'rerank':    { label: '重排',     color: '#f472b6', bg: 'rgba(244,114,182,0.12)' },
+  'tts':       { label: '语音合成', color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
+  'stt':       { label: '语音识别', color: '#34d399', bg: 'rgba(52,211,53,0.12)' },
+  'code':      { label: '代码',     color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
+  'image':     { label: '图像生成', color: '#e879f9', bg: 'rgba(232,121,249,0.12)' },
+  // 推理强度标签
+  'light':     { label: '轻量',     color: '#4ade80', bg: 'rgba(74,222,128,0.12)' },
+  'medium':    { label: '标准',     color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+  'heavy':     { label: '重度推理', color: '#f87171', bg: 'rgba(248,113,113,0.12)' },
+};
+
+// 模型名称 → 标签的自动匹配规则（按优先级顺序）
+const MODEL_TAG_RULES = [
+  // 嵌入模型
+  { pattern: /embed/i,                          tags: ['embed'] },
+  // 重排模型
+  { pattern: /rerank|rank/i,                    tags: ['rerank'] },
+  // 语音识别
+  { pattern: /whisper|asr|speech.*recog|stt/i,  tags: ['stt'] },
+  // 语音合成
+  { pattern: /tts|speech.*synth|voice/i,        tags: ['tts'] },
+  // 图像生成
+  { pattern: /dall|image.*gen|stable.*diff|flux|midjourney/i, tags: ['image'] },
+  // 视觉模型
+  { pattern: /vision|vl|llava|qwen.*vl|gpt.*vision|gemini.*vision/i, tags: ['vision'] },
+  // 代码模型
+  { pattern: /code|codex|deepseek-coder|starcoder/i, tags: ['code', 'chat'] },
+  // 推理模型（重度）
+  { pattern: /o1(?!.*mini)|o3(?!.*mini)|deepseek-r1|qwq|reasoning|thinking/i, tags: ['reasoning', 'heavy'] },
+  // 推理模型（标准）
+  { pattern: /o1-mini|o3-mini|o4-mini|qwen.*plus|qwen.*max/i, tags: ['reasoning', 'medium'] },
+  // 轻量模型
+  { pattern: /mini|nano|lite|tiny|flash|turbo|fast|haiku|gpt-4o-mini/i, tags: ['light'] },
+  // 标准对话模型（兜底）
+  { pattern: /gpt|claude|gemini|llama|qwen|deepseek|glm|mistral|mixtral|yi|baichuan|chat/i, tags: ['chat'] },
+];
+
+function getModelTags(modelId) {
+  const tags = [];
+  const id = modelId || '';
+  for (const rule of MODEL_TAG_RULES) {
+    if (rule.pattern.test(id)) {
+      tags.push(...rule.tags);
+      break; // 只匹配第一条规则
+    }
+  }
+  // 去重
+  return [...new Set(tags)];
+}
+
+// ==================== 状态 ====================
 const state = {
   models: [],
   selectedModels: new Set(),
@@ -743,12 +876,12 @@ const state = {
   requestLog: [],
   isConnected: false,
   isSending: false,
+  activeTagFilters: new Set(),  // 【新增】当前激活的标签筛选
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const savedKey = localStorage.getItem('ai_test_api_key');
+  // 【修改】不再从 localStorage 读取 API Key，每次手动输入
   const savedBase = localStorage.getItem('ai_test_api_base');
-  if (savedKey) document.getElementById('apiKey').value = savedKey;
   if (savedBase) document.getElementById('apiBase').value = savedBase;
 
   const textarea = document.getElementById('chatInput');
@@ -821,6 +954,11 @@ function renderMarkdown(text) {
 }
 
 async function testConnection() {
+  if (!getApiKey()) {
+    showToast('请先输入 API Key', 'error');
+    return;
+  }
+
   const btn = document.getElementById('testBtn');
   const dot = document.getElementById('statusDot');
   const text = document.getElementById('statusText');
@@ -854,12 +992,13 @@ async function testConnection() {
       result.classList.remove('hidden');
       showToast(`连接成功！延迟 ${elapsed}ms`, 'success');
 
-      localStorage.setItem('ai_test_api_key', getApiKey());
+      // 【修改】只保存 API 地址，不保存 Key
       localStorage.setItem('ai_test_api_base', getApiBase());
 
       if (data.data) {
         state.models = data.data;
         autoSelectAllModels();
+        renderTagFilterBar();
         renderModels();
         updateSendBtnState();
       }
@@ -902,10 +1041,11 @@ async function fetchModels() {
     const data = await resp.json();
     state.models = data.data || [];
 
-    localStorage.setItem('ai_test_api_key', getApiKey());
+    // 【修改】只保存 API 地址，不保存 Key
     localStorage.setItem('ai_test_api_base', getApiBase());
 
     autoSelectAllModels();
+    renderTagFilterBar();
     renderModels();
     updateSendBtnState();
     showToast(`获取到 ${state.models.length} 个模型，已自动全选`, 'success');
@@ -936,6 +1076,85 @@ function toggleSelectAll() {
   updateSendBtnState();
 }
 
+// ==================== 【新增】标签筛选栏渲染 ====================
+function renderTagFilterBar() {
+  const container = document.getElementById('tagFilterContainer');
+  if (state.models.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  // 统计每个标签下有多少模型
+  const tagCounts = {};
+  state.models.forEach(m => {
+    const tags = getModelTags(m.id);
+    tags.forEach(t => {
+      tagCounts[t] = (tagCounts[t] || 0) + 1;
+    });
+  });
+
+  // 按类别分组
+  const typeTags = ['chat', 'reasoning', 'vision', 'embed', 'rerank', 'code', 'image', 'tts', 'stt'];
+  const strengthTags = ['light', 'medium', 'heavy'];
+
+  let html = '<div class="tag-filter-section">';
+
+  // 类型标签
+  const hasTypeTags = typeTags.some(t => tagCounts[t]);
+  if (hasTypeTags) {
+    html += '<div class="tag-filter-group">';
+    html += '<div class="tag-filter-group-label">📂 模型类型</div>';
+    html += '<div class="tag-filter-bar">';
+    html += '<button class="tag-filter-btn' + (state.activeTagFilters.size === 0 ? ' active' : '') + '" onclick="clearTagFilters()">全部 <span class="tag-count">' + state.models.length + '</span></button>';
+    typeTags.forEach(t => {
+      if (!tagCounts[t]) return;
+      const cfg = TAG_CONFIG[t];
+      const isActive = state.activeTagFilters.has(t);
+      const style = isActive ? 'border-color:' + cfg.color + ';background:' + cfg.bg + ';color:' + cfg.color + ';' : '';
+      html += '<button class="tag-filter-btn' + (isActive ? ' active' : '') + '" style="' + style + '" onclick="toggleTagFilter(\'' + t + '\')">' + cfg.label + ' <span class="tag-count">' + tagCounts[t] + '</span></button>';
+    });
+    html += '</div></div>';
+  }
+
+  // 推理强度标签
+  const hasStrengthTags = strengthTags.some(t => tagCounts[t]);
+  if (hasStrengthTags) {
+    html += '<div class="tag-filter-group">';
+    html += '<div class="tag-filter-group-label">⚡ 推理强度</div>';
+    html += '<div class="tag-filter-bar">';
+    strengthTags.forEach(t => {
+      if (!tagCounts[t]) return;
+      const cfg = TAG_CONFIG[t];
+      const isActive = state.activeTagFilters.has(t);
+      const style = isActive ? 'border-color:' + cfg.color + ';background:' + cfg.bg + ';color:' + cfg.color + ';' : '';
+      html += '<button class="tag-filter-btn' + (isActive ? ' active' : '') + '" style="' + style + '" onclick="toggleTagFilter(\'' + t + '\')">' + cfg.label + ' <span class="tag-count">' + tagCounts[t] + '</span></button>';
+    });
+    html += '</div></div>';
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+  container.style.display = hasTypeTags || hasStrengthTags ? 'block' : 'none';
+}
+
+// ==================== 【新增】标签筛选交互 ====================
+function toggleTagFilter(tag) {
+  if (state.activeTagFilters.has(tag)) {
+    state.activeTagFilters.delete(tag);
+  } else {
+    state.activeTagFilters.add(tag);
+  }
+  renderTagFilterBar();
+  renderModels();
+}
+
+function clearTagFilters() {
+  state.activeTagFilters.clear();
+  renderTagFilterBar();
+  renderModels();
+}
+
+// ==================== 【修改】模型列表渲染（增加标签 + 筛选） ====================
 function renderModels() {
   const container = document.getElementById('modelListContainer');
   const countEl = document.getElementById('modelCount');
@@ -948,7 +1167,20 @@ function renderModels() {
     return;
   }
 
-  countEl.textContent = `共 ${state.models.length} 个 · 已选 ${state.selectedModels.size} 个`;
+  // 【新增】按标签筛选
+  let filtered = state.models;
+  if (state.activeTagFilters.size > 0) {
+    filtered = state.models.filter(m => {
+      const tags = getModelTags(m.id);
+      // 模型必须包含所有激活的筛选标签（AND 逻辑）
+      return [...state.activeTagFilters].every(f => tags.includes(f));
+    });
+  }
+
+  const visibleCount = filtered.length;
+  const totalCount = state.models.length;
+  const filterInfo = state.activeTagFilters.size > 0 ? ` · 筛选显示 ${visibleCount}/${totalCount}` : '';
+  countEl.textContent = `共 ${totalCount} 个 · 已选 ${state.selectedModels.size} 个${filterInfo}`;
   selectAllBtn.style.display = '';
   if (state.selectedModels.size === state.models.length) {
     selectAllBtn.textContent = '☑️ 取消全选';
@@ -956,19 +1188,40 @@ function renderModels() {
     selectAllBtn.textContent = '✅ 全选';
   }
 
-  const sorted = [...state.models].sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+  const sorted = [...filtered].sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+
+  if (sorted.length === 0) {
+    container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">没有匹配当前筛选条件的模型</div>';
+    updateChatModelHint();
+    return;
+  }
 
   let html = '<div class="model-grid">';
   sorted.forEach(m => {
     const id = m.id || 'unknown';
     const isSelected = state.selectedModels.has(id);
     const icon = getModelIcon(id);
+    const tags = getModelTags(id);
+
+    let tagsHtml = '';
+    if (tags.length > 0) {
+      tagsHtml = '<div class="model-tags">';
+      tags.forEach(t => {
+        const cfg = TAG_CONFIG[t];
+        if (cfg) {
+          tagsHtml += '<span class="model-tag" style="color:' + cfg.color + ';background:' + cfg.bg + ';">' + cfg.label + '</span>';
+        }
+      });
+      tagsHtml += '</div>';
+    }
+
     html += `
       <div class="model-chip ${isSelected ? 'selected' : ''}" onclick="toggleModel('${id.replace(/'/g, "\\'")}')" title="${id}">
         <div class="model-icon">${icon}</div>
-        <div style="overflow:hidden;flex:1;">
+        <div class="model-info">
           <div class="model-name">${id}</div>
           <div class="model-id">${m.owned_by || m.object || 'model'}</div>
+          ${tagsHtml}
         </div>
         <div class="check-mark">✓</div>
       </div>
@@ -1039,7 +1292,6 @@ function updateChatModelHint() {
   }
 }
 
-// ==================== 【重构】创建一轮对话容器 ====================
 function createRoundContainer() {
   const messages = document.getElementById('chatMessages');
   const round = document.createElement('div');
@@ -1049,7 +1301,6 @@ function createRoundContainer() {
   return round;
 }
 
-// ==================== 【重构】为模型创建并排列 ====================
 function createModelColumns(round, models) {
   const grid = document.createElement('div');
   grid.className = 'round-models-grid';
@@ -1079,7 +1330,6 @@ function createModelColumns(round, models) {
 function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escAttr(v) { return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// ==================== 【重构】发送消息 ====================
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
@@ -1102,7 +1352,6 @@ async function sendMessage() {
     messages.innerHTML = '';
   }
 
-  // 【重构】创建轮次容器 + 用户消息 + 模型列
   const round = createRoundContainer();
   addUserMessage(text, round);
   state.chatHistory.push({ role: 'user', content: text });
@@ -1110,7 +1359,6 @@ async function sendMessage() {
   const models = [...state.selectedModels];
   createModelColumns(round, models);
 
-  // 为每个选中模型发送请求
   const promises = models.map(model => sendToModel(model, text));
 
   await Promise.allSettled(promises);
@@ -1120,7 +1368,6 @@ async function sendMessage() {
   updateStats();
 }
 
-// ==================== 【重构】用户消息（在轮次容器内） ====================
 function addUserMessage(text, round) {
   const target = round || document.getElementById('chatMessages');
   const div = document.createElement('div');
@@ -1131,7 +1378,6 @@ function addUserMessage(text, round) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-// ==================== 【重构】助手回复（在模型列内） ====================
 function addAssistantMessage(model, text, elapsed) {
   const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
   const body = document.getElementById('body-' + safeId);
@@ -1142,14 +1388,12 @@ function addAssistantMessage(model, text, elapsed) {
   bubble.innerHTML = renderMarkdown(text);
   body.appendChild(bubble);
 
-  // 更新头部速度标签
   const speedEl = document.getElementById('speed-' + safeId);
   if (speedEl) {
     speedEl.textContent = '⚡ ' + formatTime(elapsed);
     speedEl.style.display = '';
   }
 
-  // 元信息
   const meta = document.createElement('div');
   meta.className = 'model-response-meta';
   meta.innerHTML = '<span class="speed-badge">⚡ ' + formatTime(elapsed) + '</span><span>' + new Date().toLocaleTimeString() + '</span>';
@@ -1159,7 +1403,6 @@ function addAssistantMessage(model, text, elapsed) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-// ==================== 【重构】加载动画（已在列创建时生成，此处仅确保可见） ====================
 function addLoadingMessage(model) {
   const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
   const el = document.getElementById('loading-' + safeId);
@@ -1172,13 +1415,11 @@ function removeLoadingMessage(model) {
   if (el) el.remove();
 }
 
-// ==================== 【重构】错误消息（在模型列内） ====================
 function addErrorMessage(model, error) {
   const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
   const body = document.getElementById('body-' + safeId);
   if (!body) return;
 
-  // 标记列错误状态
   const col = document.getElementById('col-' + safeId);
   if (col) col.classList.add('col-error');
 
