@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-04 13:42 (UTC+8)
+- **新增文件**：`Projects/AI API 测试工具.html`
+- **变更类型**：新增
+- **变更描述**：新增 AI API 测试工具页面，支持以下功能：1) 输入 API Key 和自定义 API 地址（默认 https://ai-service.segway-ninebot.com）；2) 一键测试 API 连通性，显示延迟和状态；3) 获取并展示可用模型列表，支持多选；4) 同时向多个模型发送同一条消息，对比回复内容和响应速度；5) 实时性能统计面板，显示总请求数、平均/最快/最慢耗时，以及各模型的独立耗时排行和进度条
+- **影响范围**：新增独立工具页面，不影响其他项目
+- **关联请求**：用户要求"生成一个html，输入key后获取模型列表，测试连通性，通过输入框让不同模型回复，看到回复内容和速度"
+
 ### 2026-09-04 10:30 (UTC+8)
 - **新增文件**：`Integration/monitored-chats.json`
 - **变更类型**：新增
@@ -178,7 +185,7 @@ All notable changes to this project will be documented in this file.
 ### 2026-08-19 19:00 (UTC+8)
 - **修改文件**：`Projects/travel-planner-v2.0.4.html`、`Projects/project-config.json`
 - **变更类型**：新增
-- **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.4。修复 v2.0.3 详情弹窗跨 iframe 重写后无法访问原页面词法状态的问题；保留原详情函数，并捕获其高德换乘原始响应，直接读取 `route.transits[].segments[].bus.buslines[]` 中地铁线路的上下车站、途经站数和途经站列表。
+- **变更描述**：新增不可覆盖的城市漫游行程助手 v2.0.4。修复 v2.0.3 详情弹窗跨 iframe 重写后无法访问原页面词法状态的问题；保留原详情函数，并捕获其高德换乘原始响应，直接读取 `route.transits[].segments[].bus.buslines[]` 中地铁线路的上下车站、途经站数、途经站列表。
 - **影响范围**：城市漫游行程助手 v2.0.4 地点详情弹窗、地铁路线详情及首页旅行规划项目列表
 - **关联请求**："地图上都画出来了，接口里也有，为什么你这显示没有地铁路线详情"
 
