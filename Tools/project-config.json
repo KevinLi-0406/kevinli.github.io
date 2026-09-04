@@ -1,27 +1,28 @@
 {
-  "_说明": "项目配置文件。file 字段为 Tools/ 下的子目录名。",
+  "_说明": "项目元数据配置文件。file 字段为 Tools/ 下的子目录名。此文件为可选补充，门户网站会自动扫描 Tools/ 目录发现项目。",
 
   "defaults": {
-    "icon": "",
+    "icon": "📄",
     "categories": {
-      "cat.fun":     { "label": "趣味互动", "icon": "" },
-      "cat.tool":    { "label": "工具应用", "icon": "️" },
+      "cat.fun":     { "label": "趣味互动", "icon": "🎮" },
+      "cat.tool":    { "label": "工具应用", "icon": "🔧" },
       "cat.data":    { "label": "数据图鉴", "icon": "📊" },
       "cat.photo":   { "label": "相册分享", "icon": "📷" },
       "cat.sport":   { "label": "体育运动", "icon": "🏎️" },
       "cat.travel":  { "label": "旅行规划", "icon": "🗺️" },
-      "cat.other":   { "label": "其他",     "icon": "" }
+      "cat.other":   { "label": "其他",     "icon": "📄" }
     }
   },
 
   "projects": [
-    { "file": "pokemon-pokedex/index.html",    "icon": "⚡",  "category": "cat.data" },
-    { "file": "squirts/index.html",            "icon": "🐢",  "category": "cat.fun" },
-    { "file": "chicks/index.html",             "icon": "🐣",  "category": "cat.fun" },
-    { "file": "f1-data/index.html",            "icon": "🏎️",  "category": "cat.data" },
-    { "file": "css-editor/index.html",         "icon": "🎨",  "category": "cat.tool" },
-    { "file": "photo-album/index.html",        "icon": "",  "category": "cat.photo" },
-    { "file": "b2x-query/index.html",          "icon": "🔎",  "category": "cat.tool" },
-    { "file": "travel-planner/index.html",     "icon": "🗺️",  "category": "cat.travel" }
+    { "file": "pokemon-pokedex/index.html",    "icon": "⚡",  "category": "cat.data",  "description": "宝可梦图鉴，查看宝可梦详细信息" },
+    { "file": "squirts/index.html",            "icon": "🐢",  "category": "cat.fun",   "description": "趣味水枪互动页面" },
+    { "file": "chicks/index.html",             "icon": "🐣",  "category": "cat.fun",   "description": "趣味小鸡互动页面" },
+    { "file": "f1-data/index.html",            "icon": "🏎️",  "category": "cat.data",  "description": "F1 赛车数据图鉴" },
+    { "file": "css-editor/index.html",         "icon": "🎨",  "category": "cat.tool",  "description": "在线 CSS 编辑器" },
+    { "file": "photo-album/index.html",        "icon": "📷",  "category": "cat.photo", "description": "共享相册" },
+    { "file": "b2x-query/index.html",          "icon": "🔎",  "category": "cat.tool",  "description": "B2X 数据查询工具" },
+    { "file": "travel-planner/index.html",     "icon": "🗺️",  "category": "cat.travel","description": "城市漫游行程助手，基于高德地图的智能行程规划" },
+    { "file": "ai-test-tool/index.html",       "icon": "🤖",  "category": "cat.tool",  "description": "AI API 测试工具，多模型对比与性能基准测试" }
   ]
 }
