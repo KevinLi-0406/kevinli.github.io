@@ -225,7 +225,53 @@
   }
   .model-chip.selected .check-mark { display: flex; }
 
-  /* ===== 【新增】标签筛选栏 ===== */
+  /* ===== 【新增】搜索框样式 ===== */
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 10px 16px 10px 40px;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .search-box .clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    display: none;
+  }
+  .search-box .clear-btn:hover { color: var(--text-primary); }
+  .search-box.has-value .clear-btn { display: block; }
+
+  /* ===== 标签筛选栏 ===== */
   .tag-filter-section {
     margin-bottom: 14px;
   }
@@ -740,6 +786,12 @@
       <button class="btn btn-sm btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">✅ 全选</button>
     </div>
     <div class="card-body">
+      <!-- 【新增】搜索框 -->
+      <div class="search-box" id="searchBox">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="modelSearch" placeholder="搜索模型名称..." oninput="handleSearch()">
+        <button class="clear-btn" onclick="clearSearch()">✕</button>
+      </div>
       <div id="tagFilterContainer" style="display:none;"></div>
       <div id="modelListContainer">
         <div class="empty-state" style="height:120px;">
@@ -811,9 +863,8 @@
 </div>
 
 <script>
-// ==================== 【新增】标签配置 ====================
+// ==================== 标签配置 ====================
 const TAG_CONFIG = {
-  // 模型类型标签
   'chat':      { label: '对话',     color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
   'reasoning': { label: '推理',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
   'vision':    { label: '视觉',     color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
@@ -823,35 +874,22 @@ const TAG_CONFIG = {
   'stt':       { label: '语音识别', color: '#34d399', bg: 'rgba(52,211,53,0.12)' },
   'code':      { label: '代码',     color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
   'image':     { label: '图像生成', color: '#e879f9', bg: 'rgba(232,121,249,0.12)' },
-  // 推理强度标签
   'light':     { label: '轻量',     color: '#4ade80', bg: 'rgba(74,222,128,0.12)' },
   'medium':    { label: '标准',     color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
   'heavy':     { label: '重度推理', color: '#f87171', bg: 'rgba(248,113,113,0.12)' },
 };
 
-// 模型名称 → 标签的自动匹配规则（按优先级顺序）
 const MODEL_TAG_RULES = [
-  // 嵌入模型
   { pattern: /embed/i,                          tags: ['embed'] },
-  // 重排模型
   { pattern: /rerank|rank/i,                    tags: ['rerank'] },
-  // 语音识别
   { pattern: /whisper|asr|speech.*recog|stt/i,  tags: ['stt'] },
-  // 语音合成
   { pattern: /tts|speech.*synth|voice/i,        tags: ['tts'] },
-  // 图像生成
   { pattern: /dall|image.*gen|stable.*diff|flux|midjourney/i, tags: ['image'] },
-  // 视觉模型
   { pattern: /vision|vl|llava|qwen.*vl|gpt.*vision|gemini.*vision/i, tags: ['vision'] },
-  // 代码模型
   { pattern: /code|codex|deepseek-coder|starcoder/i, tags: ['code', 'chat'] },
-  // 推理模型（重度）
   { pattern: /o1(?!.*mini)|o3(?!.*mini)|deepseek-r1|qwq|reasoning|thinking/i, tags: ['reasoning', 'heavy'] },
-  // 推理模型（标准）
   { pattern: /o1-mini|o3-mini|o4-mini|qwen.*plus|qwen.*max/i, tags: ['reasoning', 'medium'] },
-  // 轻量模型
   { pattern: /mini|nano|lite|tiny|flash|turbo|fast|haiku|gpt-4o-mini/i, tags: ['light'] },
-  // 标准对话模型（兜底）
   { pattern: /gpt|claude|gemini|llama|qwen|deepseek|glm|mistral|mixtral|yi|baichuan|chat/i, tags: ['chat'] },
 ];
 
@@ -861,10 +899,9 @@ function getModelTags(modelId) {
   for (const rule of MODEL_TAG_RULES) {
     if (rule.pattern.test(id)) {
       tags.push(...rule.tags);
-      break; // 只匹配第一条规则
+      break;
     }
   }
-  // 去重
   return [...new Set(tags)];
 }
 
@@ -876,11 +913,11 @@ const state = {
   requestLog: [],
   isConnected: false,
   isSending: false,
-  activeTagFilters: new Set(),  // 【新增】当前激活的标签筛选
+  activeTagFilters: new Set(),
+  searchQuery: '',  // 【新增】搜索关键词
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 【修改】不再从 localStorage 读取 API Key，每次手动输入
   const savedBase = localStorage.getItem('ai_test_api_base');
   if (savedBase) document.getElementById('apiBase').value = savedBase;
 
@@ -992,7 +1029,6 @@ async function testConnection() {
       result.classList.remove('hidden');
       showToast(`连接成功！延迟 ${elapsed}ms`, 'success');
 
-      // 【修改】只保存 API 地址，不保存 Key
       localStorage.setItem('ai_test_api_base', getApiBase());
 
       if (data.data) {
@@ -1041,7 +1077,6 @@ async function fetchModels() {
     const data = await resp.json();
     state.models = data.data || [];
 
-    // 【修改】只保存 API 地址，不保存 Key
     localStorage.setItem('ai_test_api_base', getApiBase());
 
     autoSelectAllModels();
@@ -1076,7 +1111,31 @@ function toggleSelectAll() {
   updateSendBtnState();
 }
 
-// ==================== 【新增】标签筛选栏渲染 ====================
+// ==================== 【新增】搜索功能 ====================
+function handleSearch() {
+  const input = document.getElementById('modelSearch');
+  const searchBox = document.getElementById('searchBox');
+  state.searchQuery = input.value.trim().toLowerCase();
+  
+  if (state.searchQuery) {
+    searchBox.classList.add('has-value');
+  } else {
+    searchBox.classList.remove('has-value');
+  }
+  
+  renderModels();
+}
+
+function clearSearch() {
+  const input = document.getElementById('modelSearch');
+  const searchBox = document.getElementById('searchBox');
+  input.value = '';
+  state.searchQuery = '';
+  searchBox.classList.remove('has-value');
+  renderModels();
+}
+
+// ==================== 标签筛选栏渲染 ====================
 function renderTagFilterBar() {
   const container = document.getElementById('tagFilterContainer');
   if (state.models.length === 0) {
@@ -1084,7 +1143,6 @@ function renderTagFilterBar() {
     return;
   }
 
-  // 统计每个标签下有多少模型
   const tagCounts = {};
   state.models.forEach(m => {
     const tags = getModelTags(m.id);
@@ -1093,13 +1151,11 @@ function renderTagFilterBar() {
     });
   });
 
-  // 按类别分组
   const typeTags = ['chat', 'reasoning', 'vision', 'embed', 'rerank', 'code', 'image', 'tts', 'stt'];
   const strengthTags = ['light', 'medium', 'heavy'];
 
   let html = '<div class="tag-filter-section">';
 
-  // 类型标签
   const hasTypeTags = typeTags.some(t => tagCounts[t]);
   if (hasTypeTags) {
     html += '<div class="tag-filter-group">';
@@ -1116,7 +1172,6 @@ function renderTagFilterBar() {
     html += '</div></div>';
   }
 
-  // 推理强度标签
   const hasStrengthTags = strengthTags.some(t => tagCounts[t]);
   if (hasStrengthTags) {
     html += '<div class="tag-filter-group">';
@@ -1137,7 +1192,7 @@ function renderTagFilterBar() {
   container.style.display = hasTypeTags || hasStrengthTags ? 'block' : 'none';
 }
 
-// ==================== 【新增】标签筛选交互 ====================
+// ==================== 标签筛选交互 ====================
 function toggleTagFilter(tag) {
   if (state.activeTagFilters.has(tag)) {
     state.activeTagFilters.delete(tag);
@@ -1154,7 +1209,7 @@ function clearTagFilters() {
   renderModels();
 }
 
-// ==================== 【修改】模型列表渲染（增加标签 + 筛选） ====================
+// ==================== 【修改】模型列表渲染（增加搜索 + 标签筛选） ====================
 function renderModels() {
   const container = document.getElementById('modelListContainer');
   const countEl = document.getElementById('modelCount');
@@ -1167,19 +1222,31 @@ function renderModels() {
     return;
   }
 
-  // 【新增】按标签筛选
+  // 【修改】按搜索关键词和标签筛选
   let filtered = state.models;
+  
+  // 搜索筛选
+  if (state.searchQuery) {
+    filtered = filtered.filter(m => {
+      const id = (m.id || '').toLowerCase();
+      const owner = (m.owned_by || '').toLowerCase();
+      return id.includes(state.searchQuery) || owner.includes(state.searchQuery);
+    });
+  }
+  
+  // 标签筛选（OR 逻辑）
   if (state.activeTagFilters.size > 0) {
-    filtered = state.models.filter(m => {
+    filtered = filtered.filter(m => {
       const tags = getModelTags(m.id);
-      // 模型必须包含所有激活的筛选标签（AND 逻辑）
-      return [...state.activeTagFilters].every(f => tags.includes(f));
+      return [...state.activeTagFilters].some(f => tags.includes(f));
     });
   }
 
   const visibleCount = filtered.length;
   const totalCount = state.models.length;
-  const filterInfo = state.activeTagFilters.size > 0 ? ` · 筛选显示 ${visibleCount}/${totalCount}` : '';
+  const filterInfo = (state.searchQuery || state.activeTagFilters.size > 0) 
+    ? ` · 筛选显示 ${visibleCount}/${totalCount}` 
+    : '';
   countEl.textContent = `共 ${totalCount} 个 · 已选 ${state.selectedModels.size} 个${filterInfo}`;
   selectAllBtn.style.display = '';
   if (state.selectedModels.size === state.models.length) {
