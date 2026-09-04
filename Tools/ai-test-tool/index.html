@@ -29,15 +29,16 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     height: 100vh;
     overflow: hidden;
+    font-size: 13px;
   }
-  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
   .top-bar {
     background: rgba(18,19,26,0.95);
     border-bottom: 1px solid var(--border);
-    padding: 6px 12px;
+    padding: 8px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -46,42 +47,42 @@
   .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
   }
   .card-header {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 14px;
   }
-  .card-body { padding: 10px; }
+  .card-body { padding: 12px; }
 
   .input-field {
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
     outline: none;
   }
   .input-field:focus { border-color: var(--accent); }
 
   .btn {
-    padding: 6px 12px;
-    border-radius: 5px;
+    padding: 8px 14px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary { background: linear-gradient(135deg, var(--accent), #6347e0); color: white; }
@@ -89,10 +90,10 @@
   .btn-danger { background: var(--danger); color: white; }
   .btn-warning { background: var(--warning); color: white; }
   .btn-success { background: var(--success); color: white; }
-  .btn-xs { padding: 3px 8px; font-size: 10px; }
+  .btn-xs { padding: 4px 10px; font-size: 11px; }
 
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .status-dot.connected { background: var(--success); box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .status-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
   .status-dot.disconnected { background: var(--danger); }
   .status-dot.testing { background: var(--warning); animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -100,7 +101,7 @@
   /* 主布局 */
   .main-layout {
     display: flex;
-    height: calc(100vh - 42px);
+    height: calc(100vh - 48px);
   }
   .left-panel {
     flex: 1;
@@ -110,7 +111,7 @@
     min-width: 0;
   }
   .right-panel {
-    width: 300px;
+    width: 320px;
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -125,7 +126,7 @@
     transition: flex 0.2s;
   }
   .model-section.collapsed {
-    flex: 0 0 36px !important;
+    flex: 0 0 42px !important;
   }
   .model-section.collapsed .card-body,
   .model-section.collapsed .filter-bar {
@@ -138,19 +139,19 @@
 
   /* 拖拽分隔条 */
   .resize-handle {
-    height: 6px;
+    height: 8px;
     background: var(--border);
     cursor: ns-resize;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 8px;
-    border-radius: 3px;
+    margin: 0 10px;
+    border-radius: 4px;
   }
   .resize-handle:hover { background: var(--accent); }
   .resize-handle::after {
     content: '⋯';
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
   }
 
@@ -165,19 +166,19 @@
   .model-group-header {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 8px;
+    gap: 6px;
+    padding: 6px 10px;
     background: var(--bg-input);
-    border-radius: 4px;
-    margin-bottom: 5px;
-    font-size: 10px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    font-size: 11px;
     font-weight: 600;
   }
   .model-group-header .count {
     margin-left: auto;
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 2px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
     background: rgba(255,255,255,0.05);
   }
   .model-group-header.available { color: var(--success); }
@@ -185,31 +186,31 @@
 
   .model-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 6px;
   }
   .model-chip {
     background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 6px 8px;
-    font-size: 10px;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
     cursor: pointer;
     transition: all 0.1s;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     position: relative;
   }
   .model-chip:hover { border-color: var(--accent); }
   .model-chip.selected { border-color: var(--accent); background: var(--accent-glow); }
   .model-chip.unavailable { opacity: 0.5; }
   .model-chip .icon {
-    width: 20px; height: 20px;
-    border-radius: 3px;
+    width: 22px; height: 22px;
+    border-radius: 4px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 9px;
+    font-size: 10px;
     flex-shrink: 0;
   }
   .model-chip .info { overflow: hidden; flex: 1; }
@@ -218,75 +219,75 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 10px;
+    font-size: 11px;
   }
   .model-chip .meta {
-    font-size: 8px;
+    font-size: 9px;
     color: var(--text-secondary);
     display: flex;
-    gap: 3px;
+    gap: 4px;
     flex-wrap: wrap;
-    margin-top: 2px;
+    margin-top: 3px;
   }
   .model-tag {
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 600;
-    padding: 1px 3px;
-    border-radius: 2px;
+    padding: 1px 4px;
+    border-radius: 3px;
   }
   .model-chip .check {
     position: absolute;
-    top: 3px; right: 3px;
-    width: 12px; height: 12px;
+    top: 4px; right: 4px;
+    width: 14px; height: 14px;
     border-radius: 50%;
     background: var(--accent);
     display: none;
     align-items: center;
     justify-content: center;
-    font-size: 7px;
+    font-size: 8px;
   }
   .model-chip.selected .check { display: flex; }
 
   /* 筛选栏 */
   .filter-bar {
     display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
+    gap: 6px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
   }
   .search-box {
     position: relative;
     flex: 1;
-    min-width: 100px;
+    min-width: 120px;
   }
   .search-box input {
     width: 100%;
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 5px 8px 5px 22px;
-    border-radius: 4px;
-    font-size: 10px;
+    padding: 6px 10px 6px 26px;
+    border-radius: 5px;
+    font-size: 11px;
     outline: none;
   }
   .search-box input:focus { border-color: var(--accent); }
   .search-box .icon {
     position: absolute;
-    left: 6px; top: 50%;
+    left: 8px; top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 9px;
+    font-size: 10px;
   }
   .filter-btns {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     flex-wrap: wrap;
   }
   .filter-btn {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
-    padding: 3px 6px;
-    border-radius: 3px;
+    padding: 4px 8px;
+    border-radius: 4px;
     border: 1px solid var(--border);
     background: var(--bg-input);
     color: var(--text-secondary);
@@ -300,9 +301,9 @@
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 11px;
     outline: none;
     cursor: pointer;
   }
@@ -312,53 +313,53 @@
   .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 8px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
   .message-round {
-    padding: 8px;
+    padding: 10px;
     background: rgba(26,27,38,0.5);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
   }
   .message-round.reconstructed { border-color: var(--accent); border-style: dashed; }
   .round-user-msg {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 11px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
     max-width: 70%;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
-  .round-user-msg .label { font-size: 8px; opacity: 0.7; margin-bottom: 2px; }
-  .result-section { margin-top: 4px; }
+  .round-user-msg .label { font-size: 9px; opacity: 0.7; margin-bottom: 3px; }
+  .result-section { margin-top: 5px; }
   .result-header {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 9px;
+    gap: 5px;
+    font-size: 10px;
     font-weight: 600;
-    padding: 3px 6px;
+    padding: 4px 8px;
     background: var(--bg-input);
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
   }
   .result-header:hover { background: var(--bg-hover); }
-  .result-header .count { margin-left: auto; font-size: 8px; }
+  .result-header .count { margin-left: auto; font-size: 9px; }
   .result-header.success { color: var(--success); }
   .result-header.failure { color: var(--danger); }
   .round-models-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 6px;
   }
   .model-response-col {
     border: 1px solid var(--border);
-    border-radius: 5px;
+    border-radius: 6px;
     overflow: hidden;
     background: var(--bg-card);
     cursor: pointer;
@@ -368,66 +369,66 @@
   .model-response-header {
     display: flex;
     align-items: center;
-    gap: 3px;
-    padding: 4px 6px;
+    gap: 4px;
+    padding: 5px 8px;
     background: var(--bg-input);
     border-bottom: 1px solid var(--border);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
   }
   .model-response-header .icon {
-    width: 14px; height: 14px;
-    border-radius: 2px;
+    width: 16px; height: 16px;
+    border-radius: 3px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 7px;
+    font-size: 8px;
   }
   .model-response-header .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
   .model-response-header .speed {
-    font-size: 8px;
+    font-size: 9px;
     color: var(--accent-light);
     background: rgba(124,106,239,0.15);
-    padding: 1px 4px;
-    border-radius: 2px;
+    padding: 2px 5px;
+    border-radius: 3px;
   }
   .model-response-body {
-    padding: 6px;
-    max-height: 100px;
+    padding: 8px;
+    max-height: 120px;
     overflow-y: auto;
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 12px;
+    line-height: 1.5;
   }
-  .model-response-body.collapsed { max-height: 28px; overflow: hidden; }
+  .model-response-body.collapsed { max-height: 32px; overflow: hidden; }
   .model-response-bubble {
     background: var(--bg-hover);
-    border-radius: 3px;
-    padding: 5px;
+    border-radius: 4px;
+    padding: 6px;
     word-break: break-word;
   }
   .model-response-bubble pre {
     background: rgba(0,0,0,0.3);
-    border-radius: 2px;
-    padding: 4px;
+    border-radius: 3px;
+    padding: 5px;
     overflow-x: auto;
-    margin: 3px 0;
-    font-size: 10px;
+    margin: 4px 0;
+    font-size: 11px;
   }
-  .model-response-bubble code { font-size: 10px; }
+  .model-response-bubble code { font-size: 11px; }
   .collapse-toggle {
-    padding: 2px;
+    padding: 3px;
     background: var(--bg-input);
     border-top: 1px solid var(--border);
     cursor: pointer;
-    font-size: 8px;
+    font-size: 9px;
     color: var(--text-muted);
     text-align: center;
   }
 
   .chat-input-area {
     border-top: 1px solid var(--border);
-    padding: 8px;
+    padding: 10px;
     display: flex;
-    gap: 5px;
+    gap: 6px;
     align-items: flex-end;
   }
   .chat-input-area textarea {
@@ -435,42 +436,42 @@
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 11px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 12px;
     outline: none;
     resize: none;
-    min-height: 30px;
-    max-height: 60px;
+    min-height: 36px;
+    max-height: 70px;
     font-family: inherit;
   }
   .send-btn {
-    width: 30px; height: 30px;
-    border-radius: 4px;
+    width: 34px; height: 34px;
+    border-radius: 5px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     border: none;
     color: white;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
   .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .stop-btn {
-    width: 30px; height: 30px;
-    border-radius: 4px;
+    width: 34px; height: 34px;
+    border-radius: 5px;
     background: var(--danger);
     border: none;
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     cursor: pointer;
     display: none;
     align-items: center; justify-content: center;
   }
   .stop-btn.visible { display: flex; }
 
-  .typing-indicator { display: flex; gap: 2px; padding: 2px 0; }
+  .typing-indicator { display: flex; gap: 3px; padding: 3px 0; }
   .typing-indicator span {
-    width: 4px; height: 4px;
+    width: 5px; height: 5px;
     border-radius: 50%;
     background: var(--text-muted);
     animation: typing 1.4s infinite;
@@ -493,69 +494,69 @@
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: 5px;
+    margin-bottom: 10px;
   }
   .stat-item {
     background: var(--bg-input);
-    border-radius: 4px;
-    padding: 6px;
+    border-radius: 5px;
+    padding: 8px;
     text-align: center;
   }
   .stat-item .val {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     background: linear-gradient(135deg, var(--accent-light), #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .stat-item .lbl { font-size: 9px; color: var(--text-secondary); }
+  .stat-item .lbl { font-size: 10px; color: var(--text-secondary); }
 
   .stats-controls {
     display: flex;
-    gap: 4px;
-    margin-bottom: 5px;
+    gap: 5px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
     align-items: center;
   }
 
   .model-stat-item {
     background: var(--bg-input);
-    border-radius: 4px;
-    padding: 5px 6px;
-    margin-bottom: 4px;
+    border-radius: 5px;
+    padding: 6px 8px;
+    margin-bottom: 5px;
   }
   .model-stat-item .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
   }
   .model-stat-item .rank {
-    font-size: 9px;
+    font-size: 10px;
     color: var(--text-secondary);
-    width: 16px;
+    width: 18px;
     text-align: center;
   }
-  .model-stat-item .name { font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-  .model-stat-item .speed { font-size: 10px; font-weight: 700; color: var(--accent-light); }
+  .model-stat-item .name { font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .model-stat-item .speed { font-size: 11px; font-weight: 700; color: var(--accent-light); }
   .model-stat-item .bar {
-    height: 2px;
+    height: 3px;
     background: var(--border);
-    border-radius: 1px;
+    border-radius: 2px;
     overflow: hidden;
   }
   .model-stat-item .bar-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--accent), var(--accent-light));
-    border-radius: 1px;
+    border-radius: 2px;
   }
   .model-stat-item .meta {
     display: flex;
     justify-content: space-between;
-    font-size: 9px;
+    font-size: 10px;
     color: var(--text-secondary);
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   /* 历史页签 */
@@ -565,8 +566,8 @@
   }
   .history-tab {
     flex: 1;
-    padding: 6px 10px;
-    font-size: 10px;
+    padding: 8px 12px;
+    font-size: 11px;
     font-weight: 600;
     text-align: center;
     cursor: pointer;
@@ -581,28 +582,28 @@
 
   .history-list {
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 5px;
     overflow-y: auto;
     flex: 1;
   }
   .history-item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 5px 6px;
+    gap: 5px;
+    padding: 6px 8px;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
   }
   .history-item:last-child { border-bottom: none; }
   .history-item:hover { background: var(--bg-hover); }
   .history-item .text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .history-item .time { font-size: 8px; color: var(--text-secondary); }
-  .history-item .result-count { font-size: 8px; }
+  .history-item .time { font-size: 9px; color: var(--text-secondary); }
+  .history-item .result-count { font-size: 9px; }
   .history-item .retry-btn {
-    font-size: 8px;
-    padding: 1px 5px;
-    border-radius: 2px;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
     background: var(--bg-hover);
     border: 1px solid var(--border);
     color: var(--text-secondary);
@@ -611,18 +612,18 @@
   .history-item .retry-btn:hover { background: var(--accent-glow); color: var(--accent-light); }
 
   .toast-container {
-    position: fixed; top: 10px; right: 10px; z-index: 9999;
-    display: flex; flex-direction: column; gap: 4px;
+    position: fixed; top: 12px; right: 12px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 5px;
   }
   .toast {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 11px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.4);
     animation: toastIn 0.3s ease;
-    display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; gap: 6px;
   }
   .toast.success { border-left: 2px solid var(--success); }
   .toast.error { border-left: 2px solid var(--danger); }
@@ -637,10 +638,10 @@
     justify-content: center;
     height: 100%;
     color: var(--text-muted);
-    gap: 4px;
+    gap: 5px;
   }
-  .empty-state .icon { font-size: 22px; opacity: 0.4; }
-  .empty-state p { font-size: 11px; }
+  .empty-state .icon { font-size: 24px; opacity: 0.4; }
+  .empty-state p { font-size: 12px; }
 
   /* 模型回复展开面板 */
   .expand-modal {
@@ -655,47 +656,47 @@
   .expand-content {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
+    border-radius: 12px;
+    padding: 20px;
     max-width: 80%;
     max-height: 80%;
-    width: 700px;
+    width: 750px;
     overflow-y: auto;
   }
   .expand-content .header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-    padding-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
   }
   .expand-content .header .icon {
-    width: 30px; height: 30px;
-    border-radius: 5px;
+    width: 32px; height: 32px;
+    border-radius: 6px;
     background: linear-gradient(135deg, var(--accent), #6347e0);
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
+    font-size: 16px;
   }
-  .expand-content .header .name { font-size: 15px; font-weight: 700; }
+  .expand-content .header .name { font-size: 16px; font-weight: 700; }
   .expand-content .header .speed {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--accent-light);
     background: rgba(124,106,239,0.15);
-    padding: 3px 10px;
-    border-radius: 4px;
+    padding: 4px 12px;
+    border-radius: 5px;
   }
   .expand-content .body {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.7;
   }
   .expand-content .body pre {
     background: rgba(0,0,0,0.3);
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: 5px;
+    padding: 12px;
     overflow-x: auto;
-    margin: 8px 0;
-    font-size: 11px;
+    margin: 10px 0;
+    font-size: 12px;
   }
 
   /* AI分析结果弹窗 */
@@ -711,25 +712,25 @@
   .analysis-content {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
-    max-width: 600px;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 650px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
   }
-  .analysis-content h3 { margin-bottom: 12px; font-size: 15px; }
+  .analysis-content h3 { margin-bottom: 14px; font-size: 16px; }
   .analysis-content .model-selector {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 12px;
-    padding: 10px;
+    margin-bottom: 14px;
+    padding: 12px;
     background: var(--bg-input);
-    border-radius: 6px;
+    border-radius: 8px;
   }
   .analysis-content .model-selector label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
   }
   .analysis-content .model-selector select {
@@ -737,13 +738,13 @@
     background: var(--bg-hover);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 5px 8px;
-    border-radius: 4px;
-    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 12px;
     outline: none;
   }
-  .analysis-content .result { font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
-  .analysis-content .actions { margin-top: 14px; display: flex; gap: 8px; }
+  .analysis-content .result { font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+  .analysis-content .actions { margin-top: 16px; display: flex; gap: 10px; }
   .analysis-content .actions .btn { flex: 1; }
 
   @media (max-width: 900px) {
@@ -756,24 +757,27 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="top-bar">
-  <div style="display:flex;align-items:center;gap:8px;">
-    <span style="font-size:15px;">🤖</span>
-    <span style="font-size:13px;font-weight:700;">AI API 测试工具</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-size:16px;">🤖</span>
+    <span style="font-size:14px;font-weight:700;">AI API 测试工具</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <label style="font-size:10px;color:var(--text-secondary);">API地址:</label>
-    <input type="text" id="apiBase" class="input-field" style="width:200px;" value="https://ai-service.segway-ninebot.com" placeholder="API Base URL">
-    <label style="font-size:10px;color:var(--text-secondary);">API Key:</label>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <label style="font-size:11px;color:var(--text-secondary);">API地址:</label>
+    <input type="text" id="apiBase" class="input-field" style="width:220px;" value="https://ai-service.segway-ninebot.com" placeholder="API Base URL">
+    <label style="font-size:11px;color:var(--text-secondary);">API Key:</label>
     <div style="position:relative;">
-      <input type="password" id="apiKey" class="input-field" style="width:130px;padding-right:22px;" placeholder="Bearer Token">
-      <button onclick="toggleKeyVisibility()" style="position:absolute;right:3px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;" id="eyeBtn">👁️</button>
+      <input type="password" id="apiKey" class="input-field" style="width:140px;padding-right:24px;" placeholder="Bearer Token">
+      <button onclick="toggleKeyVisibility()" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;" id="eyeBtn">👁️</button>
     </div>
     <button class="btn btn-primary" id="fetchBtn" onclick="fetchModels()">📡 获取模型</button>
-    <span id="connStatus" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary);">
+    <span id="connStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
       <span class="status-dot disconnected" id="statusDot"></span>
       <span id="statusText">未连接</span>
     </span>
-    <span id="lastFetchTime" style="font-size:9px;color:var(--text-secondary);margin-left:4px;"></span>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-left:6px;">
+      <span id="lastFetchTime" style="font-size:9px;color:var(--text-secondary);"></span>
+      <span id="lastTestTime" style="font-size:9px;color:var(--text-secondary);"></span>
+    </div>
   </div>
 </div>
 
@@ -784,11 +788,11 @@
     <div class="model-section card" id="modelSection" style="flex: 0 0 40%;">
       <div class="card-header">
         <span>🧠</span> 模型
-        <span id="modelCount" style="margin-left:auto;font-size:9px;color:var(--text-secondary);"></span>
+        <span id="modelCount" style="margin-left:auto;font-size:10px;color:var(--text-secondary);"></span>
         <button class="btn btn-xs btn-secondary" id="selectAllBtn" onclick="toggleSelectAll()" style="display:none;">全选</button>
         <button class="btn btn-xs btn-danger" id="clearUnavailableBtn" onclick="clearUnavailableModels()" style="display:none;">清除不可用</button>
         <button class="btn btn-xs btn-warning" onclick="testSelectedModels()" id="testSelBtn" disabled style="display:none;">测试已选模型</button>
-        <button class="btn btn-xs btn-secondary" onclick="toggleModelSection()" id="collapseModelBtn" title="收起/展开模型区域">收起模型</button>
+        <button class="btn btn-xs btn-secondary" onclick="toggleModelSection()" id="collapseModelBtn" title="收起/展开模型区域">⬆️收起模型列表</button>
       </div>
       <div class="card-body">
         <div class="filter-bar">
@@ -802,7 +806,7 @@
           <div class="filter-btns" id="typeFilters"></div>
         </div>
         <div id="modelListContainer">
-          <div class="empty-state" style="height:50px;">
+          <div class="empty-state" style="height:60px;">
             <p>点击「获取模型」加载模型列表</p>
           </div>
         </div>
@@ -813,12 +817,12 @@
     <div class="resize-handle" id="resizeHandle"></div>
 
     <!-- 对话 -->
-    <div class="chat-section card" style="margin:0 8px 8px;">
+    <div class="chat-section card" style="margin:0 10px 10px;">
       <div class="card-header">
         <span>💬</span> 对话
-        <span id="chatModelHint" style="margin-left:4px;font-size:9px;color:var(--text-secondary);"></span>
+        <span id="chatModelHint" style="margin-left:5px;font-size:10px;color:var(--text-secondary);"></span>
         <button class="btn btn-xs btn-secondary" style="margin-left:auto;" onclick="clearChat()">清空</button>
-        <button class="btn btn-xs btn-success" onclick="aiAnalysis()" id="aiAnalysisBtn" disabled>🧠 AI分析</button>
+        <button class="btn btn-xs btn-success" onclick="aiAnalysis()" id="aiAnalysisBtn" disabled>🧠 AI分析结果（试用）</button>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="empty-state">
@@ -839,7 +843,7 @@
     <div class="right-section stats-section">
       <div class="card-header">
         <span>📊</span> 统计
-        <div style="margin-left:auto;display:flex;gap:3px;">
+        <div style="margin-left:auto;display:flex;gap:4px;">
           <button class="btn btn-xs btn-secondary active" id="sortAscBtn" onclick="setStatsSort('asc')" title="快→慢">⚡快→慢</button>
           <button class="btn btn-xs btn-secondary" id="sortDescBtn" onclick="setStatsSort('desc')" title="慢→快">⚡慢→快</button>
         </div>
@@ -852,7 +856,7 @@
           <div class="stat-item"><div class="val" id="statAvgSpeed">-</div><div class="lbl">平均</div></div>
         </div>
         <div class="stats-controls">
-          <div class="search-box" style="min-width:70px;">
+          <div class="search-box" style="min-width:80px;">
             <span class="icon">🔍</span>
             <input type="text" id="statsSearch" placeholder="搜索..." oninput="handleStatsSearch()">
           </div>
@@ -861,7 +865,7 @@
           </select>
         </div>
         <div id="modelStats" style="overflow-y:auto;flex:1;">
-          <div style="color:var(--text-muted);font-size:10px;text-align:center;padding:8px;">暂无数据</div>
+          <div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px;">暂无数据</div>
         </div>
       </div>
     </div>
@@ -869,7 +873,7 @@
     <div class="right-section history-section">
       <div class="card-header">
         <span>📜</span> 历史
-        <span style="margin-left:auto;font-size:8px;color:var(--text-secondary);">最近10条</span>
+        <span style="margin-left:auto;font-size:9px;color:var(--text-secondary);">最近10条</span>
       </div>
       <div class="history-tabs">
         <div class="history-tab active" onclick="switchHistoryTab('chat')" id="historyTabChat">对话历史</div>
@@ -877,7 +881,7 @@
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;overflow:hidden;">
         <div class="history-list" id="historyPanel">
-          <div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无历史</div>
+          <div style="color:var(--text-muted);font-size:11px;text-align:center;padding:12px;">暂无历史</div>
         </div>
       </div>
     </div>
@@ -969,6 +973,7 @@ const state = {
   statsSearchQuery: '',
   statsActiveVendor: '',
   lastFetchTime: null,
+  lastTestTime: null,
   modelSectionCollapsed: false,
   currentHistoryTab: 'chat',
 };
@@ -981,7 +986,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('chatInput');
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 60) + 'px';
+    textarea.style.height = Math.min(textarea.scrollHeight, 70) + 'px';
     updateSendBtnState();
   });
 
@@ -1006,7 +1011,7 @@ function initResizeHandle() {
   document.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
     const delta = e.clientY - startY;
-    const newHeight = Math.max(100, Math.min(startHeight + delta, window.innerHeight - 200));
+    const newHeight = Math.max(120, Math.min(startHeight + delta, window.innerHeight - 220));
     modelSection.style.flex = `0 0 ${newHeight}px`;
   });
 
@@ -1086,7 +1091,7 @@ async function fetchModels() {
   const text = document.getElementById('statusText');
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 获取中...';
+  btn.innerHTML = '<span class="status-dot testing" style="width:9px;height:9px;"></span> 获取中...';
   dot.className = 'status-dot testing';
   text.textContent = '获取中...';
 
@@ -1140,7 +1145,14 @@ async function fetchModels() {
 function updateLastFetchTime() {
   const el = document.getElementById('lastFetchTime');
   if (state.lastFetchTime) {
-    el.textContent = `🕐 ${state.lastFetchTime.toLocaleTimeString()}`;
+    el.textContent = `上次获取模型: ${state.lastFetchTime.toLocaleTimeString()}`;
+  }
+}
+
+function updateLastTestTime() {
+  const el = document.getElementById('lastTestTime');
+  if (state.lastTestTime) {
+    el.textContent = `上次测试模型: ${state.lastTestTime.toLocaleTimeString()}`;
   }
 }
 
@@ -1157,7 +1169,7 @@ async function testSelectedModels() {
 
   const btn = document.getElementById('testSelBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 测试中...';
+  btn.innerHTML = '<span class="status-dot testing" style="width:9px;height:9px;"></span> 测试中...';
 
   const modelsToTest = [...state.selectedModels];
   showToast(`测试 ${modelsToTest.length} 个选中模型...`, 'info');
@@ -1186,6 +1198,9 @@ async function testSelectedModels() {
   });
 
   await Promise.all(promises);
+
+  state.lastTestTime = new Date();
+  updateLastTestTime();
 
   btn.disabled = false;
   btn.innerHTML = '测试已选模型';
@@ -1304,7 +1319,7 @@ function renderModels() {
   const clearBtn = document.getElementById('clearUnavailableBtn');
 
   if (state.models.length === 0) {
-    container.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:11px;">暂无模型</div>';
+    container.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:12px;">暂无模型</div>';
     countEl.textContent = '';
     selectAllBtn.style.display = 'none';
     clearBtn.style.display = 'none';
@@ -1375,7 +1390,7 @@ function renderModels() {
   }
 
   if (unavailableModels.length > 0) {
-    html += `<div class="model-group-header unavailable" style="margin-top:8px;">❌ 不可用 <span class="count">${unavailableModels.length}</span></div>`;
+    html += `<div class="model-group-header unavailable" style="margin-top:10px;">❌ 不可用 <span class="count">${unavailableModels.length}</span></div>`;
     html += '<div class="model-grid">';
     unavailableModels.forEach(m => {
       const isSelected = state.selectedModels.has(m.id);
@@ -1431,7 +1446,7 @@ function toggleModelSection() {
   const btn = document.getElementById('collapseModelBtn');
   state.modelSectionCollapsed = !state.modelSectionCollapsed;
   section.classList.toggle('collapsed', state.modelSectionCollapsed);
-  btn.textContent = state.modelSectionCollapsed ? '展开模型' : '收起模型';
+  btn.textContent = state.modelSectionCollapsed ? '⬇️展开模型列表' : '⬆️收起模型列表';
 }
 
 // ========== 对话 ==========
@@ -1521,7 +1536,7 @@ function expandModelResponse(model, roundId) {
         <span class="speed">⚡ ${formatTime(result.elapsed)}</span>
       </div>
       <div class="body">${renderMarkdown(result.content)}</div>
-      <button class="btn btn-primary close-btn" style="margin-top:14px;width:100%;" onclick="this.closest('.expand-modal').remove()">关闭</button>
+      <button class="btn btn-primary close-btn" style="margin-top:16px;width:100%;" onclick="this.closest('.expand-modal').remove()">关闭</button>
     </div>
   `;
   modal.addEventListener('click', (e) => {
@@ -1645,7 +1660,7 @@ function addErrorMessage(model, error, roundId) {
   const errDiv = document.createElement('div');
   errDiv.className = 'model-response-bubble';
   errDiv.style.borderColor = 'rgba(239,68,68,0.3)';
-  errDiv.innerHTML = `<div style="color:var(--danger);font-size:10px;">❌ ${esc(error)}</div>`;
+  errDiv.innerHTML = `<div style="color:var(--danger);font-size:11px;">❌ ${esc(error)}</div>`;
   body.appendChild(errDiv);
 }
 
@@ -1730,7 +1745,7 @@ function updateStats() {
 
   if (successLogs.length === 0) {
     document.getElementById('statAvgSpeed').textContent = '-';
-    document.getElementById('modelStats').innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:8px;">暂无数据</div>';
+    document.getElementById('modelStats').innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px;">暂无数据</div>';
     return;
   }
 
@@ -1758,9 +1773,6 @@ function updateStats() {
     entries = entries.filter(([model]) => model.toLowerCase().includes(state.statsSearchQuery));
   }
 
-  const fastest = Math.min(...times);
-  const slowest = Math.max(...times);
-
   const vendors = new Set();
   entries.forEach(([model]) => vendors.add(getVendor(model).label));
   const select = document.getElementById('statsVendorSelect');
@@ -1770,12 +1782,14 @@ function updateStats() {
     select.innerHTML += `<option value="${v}" ${v === currentVal ? 'selected' : ''}>${v}</option>`;
   });
 
+  // 进度条：越快越短，越慢越长，以1s为刻度单位
   let html = '';
   entries.forEach(([model, modelTimes], index) => {
     const modelAvg = Math.round(modelTimes.reduce((a, b) => a + b, 0) / modelTimes.length);
     const min = Math.min(...modelTimes);
     const max = Math.max(...modelTimes);
-    const barWidth = Math.max(10, Math.min(100, (1 - (modelAvg - fastest) / (slowest - fastest || 1)) * 100));
+    // 以1s为刻度单位，进度条宽度 = 平均耗时(ms) / 1000 * 100px
+    const barWidth = Math.max(10, (modelAvg / 1000) * 100);
     html += `
       <div class="model-stat-item">
         <div class="header">
@@ -1783,7 +1797,7 @@ function updateStats() {
           <span class="name" title="${esc(model)}">${getModelIcon(model)} ${esc(model)}</span>
           <span class="speed">${formatTime(modelAvg)}</span>
         </div>
-        <div class="bar"><div class="bar-fill" style="width:${barWidth}%;"></div></div>
+        <div class="bar"><div class="bar-fill" style="width:${barWidth}px;"></div></div>
         <div class="meta"><span>最快 ${formatTime(min)}</span><span>${modelTimes.length}次</span><span>最慢 ${formatTime(max)}</span></div>
       </div>
     `;
@@ -1812,7 +1826,7 @@ function renderHistory() {
 
 function renderChatHistory(panel, scrollTop) {
   if (state.messageHistory.length === 0) {
-    panel.innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无对话历史</div>';
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:12px;">暂无对话历史</div>';
     return;
   }
 
@@ -1838,7 +1852,7 @@ function renderChatHistory(panel, scrollTop) {
 
 function renderAnalysisHistory(panel, scrollTop) {
   if (state.analysisHistory.length === 0) {
-    panel.innerHTML = '<div style="color:var(--text-muted);font-size:10px;text-align:center;padding:10px;">暂无AI分析历史</div>';
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:12px;">暂无AI分析历史</div>';
     return;
   }
 
@@ -1848,7 +1862,7 @@ function renderAnalysisHistory(panel, scrollTop) {
       <div class="history-item" onclick="showAnalysisResult(${index})">
         <span class="text">🧠 ${esc(entry.summary || 'AI分析')}</span>
         <span class="time">${new Date(entry.timestamp).toLocaleTimeString()}</span>
-        <span style="font-size:8px;color:var(--text-secondary);">${esc(entry.model)}</span>
+        <span style="font-size:9px;color:var(--text-secondary);">${esc(entry.model)}</span>
       </div>
     `;
   });
@@ -1941,7 +1955,7 @@ function reconstructRound(entry) {
       </div>
       <div class="model-response-body">
         <div class="model-response-bubble">
-          <div style="color:var(--danger);font-size:10px;">❌ ${esc(r.error || '未知错误')}</div>
+          <div style="color:var(--danger);font-size:11px;">❌ ${esc(r.error || '未知错误')}</div>
         </div>
       </div>
     `;
@@ -1949,7 +1963,7 @@ function reconstructRound(entry) {
   });
 
   const badge = document.createElement('div');
-  badge.style.cssText = 'font-size:9px;color:var(--accent-light);text-align:center;padding:4px;opacity:0.6;';
+  badge.style.cssText = 'font-size:10px;color:var(--accent-light);text-align:center;padding:5px;opacity:0.6;';
   badge.textContent = '📜 历史重建';
   round.appendChild(badge);
 
@@ -1998,7 +2012,7 @@ async function aiAnalysis() {
 
   const btn = document.getElementById('aiAnalysisBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 分析中...';
+  btn.innerHTML = '<span class="status-dot testing" style="width:9px;height:9px;"></span> 分析中...';
 
   let analysisData = '请分析以下AI模型测试结果，给出简短评价（200字以内）：\n\n';
   
@@ -2012,7 +2026,7 @@ async function aiAnalysis() {
   if (currentSessionResults.length === 0) {
     showToast('没有可分析的结果', 'warning');
     btn.disabled = false;
-    btn.innerHTML = '🧠 AI分析';
+    btn.innerHTML = '🧠 AI分析结果（试用）';
     return;
   }
 
@@ -2082,12 +2096,13 @@ async function aiAnalysis() {
   }
 
   btn.disabled = false;
-  btn.innerHTML = '🧠 AI分析';
+  btn.innerHTML = '🧠 AI分析结果（试用）';
 }
 
 function showAnalysisModal(analysis, modelName, isHistory = false, historyIndex = null) {
   const modal = document.createElement('div');
   modal.className = 'analysis-modal';
+  modal.id = 'analysisModal';
   
   // 构建模型选择器选项
   const modelOptions = state.models.map(m => 
@@ -2099,42 +2114,43 @@ function showAnalysisModal(analysis, modelName, isHistory = false, historyIndex 
       <h3>🧠 AI 分析结果</h3>
       <div class="model-selector">
         <label>分析模型:</label>
-        <select id="analysisModelSelect" ${isHistory ? '' : 'disabled'}>
+        <select id="analysisModelSelect">
           ${modelOptions}
         </select>
-        ${isHistory ? '<button class="btn btn-xs btn-primary" onclick="reanalyzeWithModel(' + historyIndex + ')">重新分析</button>' : ''}
+        <button class="btn btn-xs btn-primary" onclick="reanalyzeWithModel(${historyIndex !== null ? historyIndex : 'null'})">重新分析</button>
       </div>
-      <div style="font-size:10px;color:var(--text-secondary);margin-bottom:10px;">当前模型: ${esc(modelName)}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;">当前模型: ${esc(modelName)}</div>
       <div class="result">${renderMarkdown(analysis)}</div>
       <div class="actions">
-        <button class="btn btn-secondary" onclick="this.closest('.analysis-modal').remove()">关闭</button>
+        <button class="btn btn-secondary" onclick="closeAnalysisModal()">关闭</button>
       </div>
     </div>
   `;
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.remove();
+    if (e.target === modal) closeAnalysisModal();
   });
   document.body.appendChild(modal);
 }
 
+function closeAnalysisModal() {
+  const modal = document.getElementById('analysisModal');
+  if (modal) modal.remove();
+}
+
 async function reanalyzeWithModel(historyIndex) {
-  const entry = state.analysisHistory[historyIndex];
-  if (!entry) return;
-  
   const newModel = document.getElementById('analysisModelSelect').value;
   if (!newModel) {
     showToast('请选择模型', 'warning');
     return;
   }
   
-  // 关闭当前弹窗
-  document.querySelector('.analysis-modal')?.remove();
+  // 更新弹窗显示状态
+  const resultDiv = document.querySelector('.analysis-content .result');
+  const modelInfoDiv = document.querySelector('.analysis-content div[style*="color:var(--text-secondary)"]');
+  if (resultDiv) resultDiv.innerHTML = '<div style="text-align:center;padding:20px;"><span class="status-dot testing" style="width:10px;height:10px;display:inline-block;"></span> 分析中...</div>';
+  if (modelInfoDiv) modelInfoDiv.textContent = `当前模型: ${newModel} (分析中...)`;
   
-  const btn = document.getElementById('aiAnalysisBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="status-dot testing" style="width:8px;height:8px;"></span> 重新分析中...';
-  
-  // 使用相同的数据重新分析
+  // 构建分析数据
   let analysisData = '请分析以下AI模型测试结果，给出简短评价（200字以内）：\n\n';
   
   const currentSessionResults = [];
@@ -2193,20 +2209,32 @@ async function reanalyzeWithModel(historyIndex) {
       throw new Error('API返回结果为空');
     }
     
-    // 更新历史记录
-    entry.model = newModel;
-    entry.result = analysis;
-    entry.timestamp = Date.now();
+    // 更新弹窗内容
+    if (resultDiv) resultDiv.innerHTML = renderMarkdown(analysis);
+    if (modelInfoDiv) modelInfoDiv.textContent = `当前模型: ${newModel}`;
+    
+    // 更新或添加历史记录
+    if (historyIndex !== null && state.analysisHistory[historyIndex]) {
+      state.analysisHistory[historyIndex].model = newModel;
+      state.analysisHistory[historyIndex].result = analysis;
+      state.analysisHistory[historyIndex].timestamp = Date.now();
+    } else {
+      state.analysisHistory.unshift({
+        timestamp: Date.now(),
+        model: newModel,
+        result: analysis,
+        summary: currentSessionResults[0]?.question?.substring(0, 20) || 'AI分析',
+      });
+      if (state.analysisHistory.length > 10) state.analysisHistory.pop();
+    }
     renderHistory();
     
-    showAnalysisModal(analysis, newModel, true, historyIndex);
     showToast('重新分析完成', 'success');
   } catch (e) {
+    if (resultDiv) resultDiv.innerHTML = `<div style="color:var(--danger);">分析失败: ${esc(e.message)}</div>`;
+    if (modelInfoDiv) modelInfoDiv.textContent = `当前模型: ${newModel} (失败)`;
     showToast(`重新分析失败: ${e.message}`, 'error');
   }
-
-  btn.disabled = false;
-  btn.innerHTML = '🧠 AI分析';
 }
 </script>
 
