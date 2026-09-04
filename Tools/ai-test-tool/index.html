@@ -208,7 +208,7 @@
   .chat-container {
     display: flex;
     flex-direction: column;
-    height: 520px;
+    height: 600px;
   }
   .chat-messages {
     flex: 1;
@@ -216,8 +216,10 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
   }
+
+  /* ===== 旧消息样式（保留兼容） ===== */
   .message {
     display: flex;
     gap: 12px;
@@ -276,6 +278,146 @@
     padding: 2px 8px;
     border-radius: 6px;
     font-weight: 500;
+  }
+
+  /* ===== 【新增】轮次分块布局 ===== */
+  .message-round {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(26,27,38,0.5);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    animation: msgIn 0.3s ease;
+  }
+  .round-user-msg {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    align-self: center;
+    max-width: 85%;
+    word-break: break-word;
+    position: relative;
+  }
+  .round-user-msg .user-label {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .round-models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+  .model-response-col {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    transition: border-color 0.2s;
+  }
+  .model-response-col:hover {
+    border-color: var(--border-light);
+  }
+  .model-response-col.col-error {
+    border-color: rgba(239,68,68,0.4);
+  }
+  .model-response-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .model-response-header .col-icon {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), #6347e0);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .model-response-header .col-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .model-response-header .col-speed {
+    font-size: 11px;
+    color: var(--accent-light);
+    background: rgba(124,106,239,0.15);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .model-response-body {
+    padding: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 50px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .model-response-bubble {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    word-break: break-word;
+  }
+  .model-response-bubble pre {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .model-response-bubble code {
+    background: rgba(0,0,0,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .model-response-bubble pre code {
+    background: none;
+    padding: 0;
+  }
+  .model-response-bubble p { margin: 4px 0; }
+  .model-response-bubble ul, .model-response-bubble ol { margin: 4px 0; padding-left: 20px; }
+  .model-response-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 0 2px 4px;
+  }
+  .model-response-meta .speed-badge {
+    background: rgba(124,106,239,0.15);
+    color: var(--accent-light);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
   }
 
   .chat-input-area {
@@ -436,6 +578,8 @@
     .model-grid { grid-template-columns: 1fr; }
     .message .bubble { max-width: 85%; }
     .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .round-models-grid { grid-template-columns: 1fr; }
+    .round-user-msg { max-width: 100%; }
   }
 
   .bubble pre {
@@ -895,6 +1039,47 @@ function updateChatModelHint() {
   }
 }
 
+// ==================== 【重构】创建一轮对话容器 ====================
+function createRoundContainer() {
+  const messages = document.getElementById('chatMessages');
+  const round = document.createElement('div');
+  round.className = 'message-round';
+  messages.appendChild(round);
+  messages.scrollTop = messages.scrollHeight;
+  return round;
+}
+
+// ==================== 【重构】为模型创建并排列 ====================
+function createModelColumns(round, models) {
+  const grid = document.createElement('div');
+  grid.className = 'round-models-grid';
+  round.appendChild(grid);
+
+  models.forEach(function(model) {
+    const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
+    const col = document.createElement('div');
+    col.className = 'model-response-col';
+    col.id = 'col-' + safeId;
+    col.innerHTML =
+      '<div class="model-response-header">' +
+        '<div class="col-icon">' + getModelIcon(model) + '</div>' +
+        '<span class="col-name" title="' + escAttr(model) + '">' + esc(model) + '</span>' +
+        '<span class="col-speed" id="speed-' + safeId + '" style="display:none;"></span>' +
+      '</div>' +
+      '<div class="model-response-body" id="body-' + safeId + '">' +
+        '<div class="typing-indicator" id="loading-' + safeId + '"><span></span><span></span><span></span></div>' +
+      '</div>';
+    grid.appendChild(col);
+  });
+
+  const messages = document.getElementById('chatMessages');
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(v) { return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ==================== 【重构】发送消息 ====================
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
@@ -917,10 +1102,15 @@ async function sendMessage() {
     messages.innerHTML = '';
   }
 
-  addUserMessage(text);
+  // 【重构】创建轮次容器 + 用户消息 + 模型列
+  const round = createRoundContainer();
+  addUserMessage(text, round);
   state.chatHistory.push({ role: 'user', content: text });
 
   const models = [...state.selectedModels];
+  createModelColumns(round, models);
+
+  // 为每个选中模型发送请求
   const promises = models.map(model => sendToModel(model, text));
 
   await Promise.allSettled(promises);
@@ -930,75 +1120,75 @@ async function sendMessage() {
   updateStats();
 }
 
-function addUserMessage(text) {
-  const messages = document.getElementById('chatMessages');
+// ==================== 【重构】用户消息（在轮次容器内） ====================
+function addUserMessage(text, round) {
+  const target = round || document.getElementById('chatMessages');
   const div = document.createElement('div');
-  div.className = 'message user';
-  div.innerHTML = `
-    <div class="avatar">👤</div>
-    <div class="bubble">${escapeHtml(text)}</div>
-  `;
-  messages.appendChild(div);
+  div.className = 'round-user-msg';
+  div.innerHTML = '<div class="user-label">👤 你 · ' + new Date().toLocaleTimeString() + '</div>' + esc(text);
+  target.appendChild(div);
+  const messages = document.getElementById('chatMessages');
   messages.scrollTop = messages.scrollHeight;
 }
 
+// ==================== 【重构】助手回复（在模型列内） ====================
 function addAssistantMessage(model, text, elapsed) {
+  const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
+  const body = document.getElementById('body-' + safeId);
+  if (!body) return;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'model-response-bubble';
+  bubble.innerHTML = renderMarkdown(text);
+  body.appendChild(bubble);
+
+  // 更新头部速度标签
+  const speedEl = document.getElementById('speed-' + safeId);
+  if (speedEl) {
+    speedEl.textContent = '⚡ ' + formatTime(elapsed);
+    speedEl.style.display = '';
+  }
+
+  // 元信息
+  const meta = document.createElement('div');
+  meta.className = 'model-response-meta';
+  meta.innerHTML = '<span class="speed-badge">⚡ ' + formatTime(elapsed) + '</span><span>' + new Date().toLocaleTimeString() + '</span>';
+  body.appendChild(meta);
+
   const messages = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'message assistant';
-  div.innerHTML = `
-    <div class="avatar">${getModelIcon(model)}</div>
-    <div>
-      <div class="bubble">${renderMarkdown(text)}</div>
-      <div class="meta">
-        <span class="model-badge">${model}</span>
-        <span class="speed-badge">⚡ ${formatTime(elapsed)}</span>
-        <span>${new Date().toLocaleTimeString()}</span>
-      </div>
-    </div>
-  `;
-  messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
 
+// ==================== 【重构】加载动画（已在列创建时生成，此处仅确保可见） ====================
 function addLoadingMessage(model) {
-  const messages = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'message assistant';
-  div.id = `loading-${model.replace(/[^a-zA-Z0-9]/g, '_')}`;
-  div.innerHTML = `
-    <div class="avatar">${getModelIcon(model)}</div>
-    <div>
-      <div class="bubble">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${model}</div>
-        <div class="typing-indicator"><span></span><span></span><span></span></div>
-      </div>
-    </div>
-  `;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  return div;
+  const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
+  const el = document.getElementById('loading-' + safeId);
+  if (el) el.style.display = 'flex';
 }
 
 function removeLoadingMessage(model) {
-  const id = `loading-${model.replace(/[^a-zA-Z0-9]/g, '_')}`;
-  const el = document.getElementById(id);
+  const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
+  const el = document.getElementById('loading-' + safeId);
   if (el) el.remove();
 }
 
+// ==================== 【重构】错误消息（在模型列内） ====================
 function addErrorMessage(model, error) {
+  const safeId = model.replace(/[^a-zA-Z0-9]/g, '_');
+  const body = document.getElementById('body-' + safeId);
+  if (!body) return;
+
+  // 标记列错误状态
+  const col = document.getElementById('col-' + safeId);
+  if (col) col.classList.add('col-error');
+
+  const errDiv = document.createElement('div');
+  errDiv.className = 'model-response-bubble';
+  errDiv.style.borderColor = 'rgba(239,68,68,0.3)';
+  errDiv.innerHTML = '<div style="color:var(--danger);font-size:13px;">❌ ' + esc(error) + '</div>';
+  body.appendChild(errDiv);
+
   const messages = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'message assistant';
-  div.innerHTML = `
-    <div class="avatar">${getModelIcon(model)}</div>
-    <div>
-      <div class="bubble" style="border-color:rgba(239,68,68,0.3);">
-        <div style="color:var(--danger);font-size:13px;">❌ ${model}: ${escapeHtml(error)}</div>
-      </div>
-    </div>
-  `;
-  messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
 
