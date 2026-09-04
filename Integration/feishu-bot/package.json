@@ -1,14 +1,16 @@
 {
   "name": "feishu-bot",
-  "version": "1.0.0",
-  "description": "飞书实时监听机器人 - WebSocket 长连接模式",
+  "version": "1.1.0",
+  "description": "飞书实时监听机器人 - WebSocket 长连接模式（含邮件功能）",
   "main": "feishu-bot.js",
   "scripts": {
     "start": "node feishu-bot.js",
     "dev": "node --watch feishu-bot.js"
   },
   "dependencies": {
-    "@larksuiteoapi/node-sdk": "^1.40.0"
+    "@larksuiteoapi/node-sdk": "^1.40.0",
+    "imapflow": "^1.0.171",
+    "nodemailer": "^6.9.16"
   },
   "engines": {
     "node": ">=18.0.0"
