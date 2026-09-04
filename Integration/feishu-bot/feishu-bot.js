@@ -242,9 +242,10 @@ function getSenderInfo(data) {
 }
 
 /**
- * 发送回复消息（post 格式，支持 @提问人）
+ * 发送回复消息（基于原消息回复，形成消息串）
+ * 使用 im.v1.message.reply API，回复会挂在原消息下方
  */
-async function sendReply(client, chatId, senderOpenId, replyText) {
+async function sendReply(client, messageId, senderOpenId, replyText) {
   const content = {
     zh_cn: {
       title: '',
@@ -258,15 +259,14 @@ async function sendReply(client, chatId, senderOpenId, replyText) {
   };
 
   try {
-    await client.im.v1.message.create({
-      params: { receive_id_type: 'chat_id' },
+    await client.im.v1.message.reply({
+      path: { message_id: messageId },
       data: {
-        receive_id: chatId,
         content: JSON.stringify(content),
         msg_type: 'post',
       },
     });
-    console.log(`  ✅ 回复已发送`);
+    console.log(`  ✅ 回复已发送（引用原消息）`);
   } catch (e) {
     console.error(`  ❌ 回复发送失败：${e.message}`);
   }
@@ -406,8 +406,8 @@ async function main() {
         // ⑥ 调用 AI 生成回复
         const replyText = await generateReply(questionText, senderOpenId);
 
-        // ⑦ 发送回复（@提问人）
-        await sendReply(client, chatId, senderOpenId, replyText);
+        // ⑦ 发送回复（基于原消息回复，@提问人）
+        await sendReply(client, messageId, senderOpenId, replyText);
       },
     }),
   });
