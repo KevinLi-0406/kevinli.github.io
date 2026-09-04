@@ -24,6 +24,12 @@
       "chat_id": "oc_992cab7015b11b470c2ac6d2fdb3854f",
       "added_at": "2026-09-04T18:45:00+08:00",
       "enabled": true
+    },
+    {
+      "chat_name": "内部测试群-李奕兴",
+      "chat_id": "oc_1db4209f398c2383b3eb87f63f1ae427",
+      "added_at": "2026-09-04T18:55:00+08:00",
+      "enabled": true
     }
   ]
 }
