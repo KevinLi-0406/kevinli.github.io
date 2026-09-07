@@ -30,10 +30,14 @@
 
 ### D365 MCP 配置（SPP 运维助手）
 
-| 环境 | 标识 | 风险等级 | 用途 |
-|------|------|---------|------|
-| 生产环境 | dataverse-prd | 🔴 高风险 | 承载正式业务数据（EU SPP 项目） |
-| 测试环境 | dataverse-uat2 | 🟢 低风险 | 验证和调试 |
+| 环境 | 标识 | Dataverse URL | 风险等级 | 用途 |
+|------|------|--------------|---------|------|
+| 生产环境 | dataverse-prd | `https://eusegwayspp.crm4.dynamics.com` | 🔴 高风险 | 承载正式业务数据（EU SPP 项目） |
+| 测试环境 | dataverse-uat2 | `https://eubvuat2.crm4.dynamics.com` | 🟢 低风险 | 验证和调试 |
+
+> 🔑 **完整 MCP JSON 配置**（含 CLIENT_ID / TENANT_ID）：[d365-mcp-config.json](d365-mcp-config.json)
+>
+> ⚠️ `DATAVERSE_CLIENT_SECRET` 已脱敏，使用前需在本地替换 `<REPLACE_ME>` 为真实值。真实 Secret 不得提交到公开仓库。
 
 ---
 
@@ -106,6 +110,7 @@
 - [x] 操作分类菜单交互验证（铁律 2）
 - [x] 高危操作二次确认流程验证（铁律 3）
 - [x] 用户偏好记录：选项式参数收集（AskUserQuestion 替代手动输入）
+- [x] MCP 配置模板归档（d365-mcp-config.json，secret 已脱敏）
 - [ ] 表结构查询优化：list_entities 返回 1777 个表，需按 prefix 分组筛选
 - [ ] create_attribute 完整流程验证
 
@@ -115,8 +120,8 @@
 |------|--------|--------|--------|--------|--------|
 | 第一阶段 | 5 | 5 | 0 | 0 | 100% |
 | 第二阶段 | 8 | 5 | 0 | 3 | 63% |
-| 第三阶段 | 8 | 6 | 0 | 2 | 75% |
-| **总计** | **21** | **16** | **0** | **5** | **76%** |
+| 第三阶段 | 9 | 7 | 0 | 2 | 78% |
+| **总计** | **22** | **17** | **0** | **5** | **77%** |
 
 ---
 
@@ -177,6 +182,7 @@
 - **工具限制**：Cherry Studio 环境无 jq，无法快速提取 prefix 进行分组
 - **交互偏好**：用户明确要求所有涉及选项的参数必须使用 AskUserQuestion 工具点选，不允许手动输入。已记录到 USER.md
 - **高危操作确认**：铁律 3 的二次确认机制设计合理，DDL 操作需明确环境、操作、对象、影响
+- **配置归档**：MCP JSON 配置模板已归档到 `d365-mcp-config.json`，client_secret 已脱敏
 
 **待解决：**
 - 大表数量下的 entityName 选择交互优化（需提取 custom entity prefix 列表）
