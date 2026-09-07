@@ -2,7 +2,7 @@
 
 本目录包含**统一信息平台**项目的所有技术文档。
 
-> 核心理念：**一个大脑，四个触角** —— Cherry Studio AI 整合企微、飞书、Teams、邮箱
+> 核心理念：**一个大脑，五个触角** —— Cherry Studio AI 整合企微、飞书、Teams、邮箱、D365
 
 ## 目录结构
 
@@ -22,9 +22,11 @@ Integration/
 | 企业微信 | wecom-cli v1.2.0 | ❌ (需启用) | ✅ (aibot) | ✅ | ✅ | ✅ |
 | Teams | 待开发 |  | ⏳ | ⏳ |  | ⏳ |
 | 邮箱 | 待开发 | ⏳ | ⏳ | - | - | - |
+| **D365 MCP** | **SPP 运维助手** | **-** | **-** | **-** | **-** | **✅ (1777 表)** |
 
 ## 快速链接
 
 - [统一平台架构设计](unified-platform.md)
 - [功能需求文档](requirements.md)
 - [集成详情](integration-details.md) — 配置信息、功能状态、任务清单、进度日志、错误记录
+  - [D365 MCP 集成详情](integration-details.md#六d365-mcp-集成详情spp-运维助手) — SPP 运维助手环境配置、操作分类、铁律机制
