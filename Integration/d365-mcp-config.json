@@ -1,0 +1,42 @@
+{
+  "_doc": "D365 Dataverse MCP (SPP) 配置模板",
+  "_usage": "使用前请将 <REPLACE_ME> 替换为真实的 DATAVERSE_CLIENT_SECRET",
+  "_security": "真实的 client_secret 不得提交到公开仓库，仅在本地使用",
+  "_tool": "@wcg-hieule/dataverse-mcp",
+
+  "production": {
+    "_name": "生产环境 (dataverse-prd)",
+    "_risk": "高风险，影响正式业务数据（EU SPP 项目）",
+    "_mcp_prefix": "mcp__1ef94522-4afe-4997-9c03-3145aa460b10__",
+    "mcpServers": {
+      "dataverse": {
+        "command": "npx",
+        "args": ["-y", "@wcg-hieule/dataverse-mcp"],
+        "env": {
+          "DATAVERSE_URL": "https://eusegwayspp.crm4.dynamics.com",
+          "DATAVERSE_CLIENT_ID": "24964dd9-a12e-492a-b101-c58f419f0ac4",
+          "DATAVERSE_CLIENT_SECRET": "<REPLACE_ME>",
+          "DATAVERSE_TENANT_ID": "ca77266c-5191-4c43-b511-fc1e4bd3b740"
+        }
+      }
+    }
+  },
+
+  "uat2": {
+    "_name": "测试环境 (dataverse-uat2)",
+    "_risk": "低风险，用于验证和调试",
+    "_mcp_prefix": "mcp__2de134c2-404e-465f-8170-8f6abb4ef943__",
+    "mcpServers": {
+      "dataverse": {
+        "command": "npx",
+        "args": ["-y", "@wcg-hieule/dataverse-mcp"],
+        "env": {
+          "DATAVERSE_URL": "https://eubvuat2.crm4.dynamics.com",
+          "DATAVERSE_CLIENT_ID": "e34fa6e9-f641-4e32-afb5-adae56d19dfd",
+          "DATAVERSE_CLIENT_SECRET": "<REPLACE_ME>",
+          "DATAVERSE_TENANT_ID": "ca77266c-5191-4c43-b511-fc1e4bd3b740"
+        }
+      }
+    }
+  }
+}
