@@ -1,5 +1,7 @@
 {
   "description": "飞书消息监听配置 - 添加需要监听的群聊（只需填写群名，其他字段由系统自动补充）",
+  "monitor_mode": "all",
+  "monitor_mode_description": "监听模式开关：'all' = 监听机器人所在的所有群（默认）；'whitelist' = 仅监听下方 monitored_chats 列表中 enabled=true 的群",
   "monitored_chats": [
     {
       "chat_name": "雨夏机器人测试",
