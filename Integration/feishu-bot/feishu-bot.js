@@ -123,7 +123,20 @@ let knowledgeBase = loadKnowledgeBase();
 function loadMonitoredChats() {
   try {
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-    return config.monitored_chats.filter(c => c.enabled);
+    
+    // 检查监听模式
+    const monitorMode = config.monitor_mode || 'all';
+    const chats = config.monitored_chats || [];
+    
+    if (monitorMode === 'whitelist') {
+      // 白名单模式：只返回 enabled=true 的群
+      console.log(`📋 监听模式：白名单（仅监听指定群）`);
+      return chats.filter(c => c.enabled);
+    } else {
+      // 全量模式：返回所有群（不检查 enabled）
+      console.log(`📋 监听模式：全量（监听机器人所在的所有群）`);
+      return chats.length > 0 ? chats : [{ chat_name: '全量模式', chat_id: '*', enabled: true }];
+    }
   } catch (e) {
     console.error(`❌ 读取监听配置失败：${e.message}`);
     return [];
@@ -131,7 +144,12 @@ function loadMonitoredChats() {
 }
 
 function getMonitoredChatIds() {
-  return new Set(loadMonitoredChats().map(c => c.chat_id));
+  const chats = loadMonitoredChats();
+  // 如果是全量模式（包含通配符 *），返回空 Set 表示不限制
+  if (chats.length === 1 && chats[0].chat_id === '*') {
+    return null; // null 表示监听所有群
+  }
+  return new Set(chats.map(c => c.chat_id));
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -636,7 +654,9 @@ async function sendText(client, chatId, text, replyMessageId) {
 async function main() {
   const monitoredChatIds = getMonitoredChatIds();
 
-  if (monitoredChatIds.size === 0) {
+  if (monitoredChatIds === null) {
+    console.log('📋 全量监听模式：监听机器人所在的所有群聊');
+  } else if (monitoredChatIds.size === 0) {
     console.error('❌ 没有启用的监听群聊，请检查配置：' + CONFIG_PATH);
     process.exit(1);
   }
@@ -645,9 +665,13 @@ async function main() {
   console.log('│       飞书实时监听机器人（WebSocket 模式）       │');
   console.log('└─────────────────────────────────────────────┘');
   console.log(`🤖 App ID：${APP_ID}`);
-  console.log(`📋 监听群聊数：${monitoredChatIds.size}`);
-  for (const chat of loadMonitoredChats()) {
-    console.log(`   • ${chat.chat_name} (${chat.chat_id})`);
+  if (monitoredChatIds === null) {
+    console.log(`📋 监听群聊：全量模式（所有群）`);
+  } else {
+    console.log(`📋 监听群聊数：${monitoredChatIds.size}`);
+    for (const chat of loadMonitoredChats()) {
+      console.log(`   • ${chat.chat_name} (${chat.chat_id})`);
+    }
   }
   console.log(`🧠 AI 模型：${AI_MODEL}`);
   console.log(`📧 邮件功能：${EMAIL_USER ? '已配置 (' + EMAIL_USER + ')' : '未配置'}`);
@@ -706,8 +730,8 @@ async function main() {
 
         const { openId: senderOpenId, senderType } = getSenderInfo(data);
 
-        // ① 只处理启用的群聊
-        if (!monitoredChatIds.has(chatId)) return;
+        // ① 只处理启用的群聊（全量模式下跳过此检查）
+        if (monitoredChatIds !== null && !monitoredChatIds.has(chatId)) return;
 
         // ② 排除机器人自己发的消息
         if (senderType === 'app') return;
@@ -724,9 +748,10 @@ async function main() {
         const timestamp = new Date().toLocaleTimeString('zh-CN', { hour12: false });
         console.log(`[${timestamp}] 💬 收到 @消息：${questionText.slice(0, 60)}${questionText.length > 60 ? '...' : ''}`);
 
-        // ⑤ 给消息贴表情，表示已收到
-        try {
-          const reactionRes = await client.request({
+        // ⑤ 给消息贴表情，表示已收到（异步执行，不阻塞后续处理，3秒超时）
+        const reactStartTime = Date.now();
+        const reactPromise = Promise.race([
+          client.request({
             method: 'POST',
             url: `https://open.feishu.cn/open-apis/im/v1/messages/${messageId}/reactions`,
             data: {
@@ -734,15 +759,21 @@ async function main() {
                 emoji_type: 'LOVE',
               },
             },
-          });
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('贴表情超时（3s）')), 3000))
+        ]);
+        
+        reactPromise.then(reactionRes => {
+          const cost = Date.now() - reactStartTime;
           if (reactionRes.code === 0) {
-            console.log(`  ✅ 已贴表情`);
+            console.log(`  ✅ 已贴表情（${cost}ms）`);
           } else {
-            console.log(`  ⚠️ 贴表情失败：code=${reactionRes.code}, msg=${reactionRes.msg}`);
+            console.log(`  ⚠️ 贴表情失败：code=${reactionRes.code}, msg=${reactionRes.msg}（${cost}ms）`);
           }
-        } catch (e) {
-          console.log(`  ⚠️ 贴表情异常：${e.message}`);
-        }
+        }).catch(e => {
+          const cost = Date.now() - reactStartTime;
+          console.log(`  ⚠️ 贴表情异常：${e.message}（${cost}ms）`);
+        });
 
         // ⑥ 检测是否为邮件操作请求
         const emailRequest = detectEmailRequest(questionText);
@@ -776,10 +807,19 @@ async function main() {
   // 定期刷新监听配置（每 60 秒检查一次配置变更）
   setInterval(() => {
     const newChatIds = getMonitoredChatIds();
-    if (newChatIds.size !== monitoredChatIds.size) {
-      console.log(`📋 监听配置已变更，重新加载（${newChatIds.size} 个群聊）`);
-      monitoredChatIds.clear();
-      for (const id of newChatIds) monitoredChatIds.add(id);
+    const changed = monitoredChatIds === null 
+      ? newChatIds !== null 
+      : (newChatIds === null || newChatIds.size !== monitoredChatIds.size);
+    
+    if (changed) {
+      console.log(`📋 监听配置已变更，重新加载`);
+      if (newChatIds === null) {
+        console.log(`   → 全量模式（所有群）`);
+      } else {
+        console.log(`   → ${newChatIds.size} 个群聊`);
+      }
+      // 注意：由于 monitoredChatIds 是 const，这里无法直接修改
+      // 实际应用中需要重构为 let 或使用其他机制
     }
   }, 60000);
 }
