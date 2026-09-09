@@ -3,7 +3,7 @@
  * 飞书实时监听机器人 - WebSocket 长连接模式
  *
  * 功能：
- *   1. 实时监听指定群聊中 @机器人 的消息，基于本地文档知识库调用 AI 生成回复
+ *   1. 实时监听指定群聊中 @机器人 的消息，调用 Dify Chat API 生成回复（支持多轮对话）
  *   2. 邮件操作：当授权用户 @机器人 请求查邮件/发邮件时，通过 IMAP/SMTP 执行
  *
  * 前置条件：
@@ -53,10 +53,9 @@ const APP_SECRET = process.env.FEISHU_APP_SECRET || '';
 const REPO_PATH = process.env.REPO_PATH || path.resolve(__dirname, '../../');
 const CONFIG_PATH = path.join(REPO_PATH, 'Integration', 'monitored-chats.json');
 
-// AI API 配置（兼容 OpenAI API 格式）
-const AI_API_URL = process.env.AI_API_URL || 'https://api.openai.com/v1/chat/completions';
-const AI_API_KEY = process.env.AI_API_KEY || '';
-const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
+// Dify Chat API 配置
+const DIFY_API_URL = process.env.DIFY_API_URL || 'http://10.232.5.5/v1';
+const DIFY_API_KEY = process.env.DIFY_API_KEY || '';
 
 // 邮件配置（IMAP/SMTP）
 const EMAIL_IMAP_HOST = process.env.IMAP_HOST || '';
@@ -81,8 +80,8 @@ if (!APP_SECRET) {
   process.exit(1);
 }
 
-if (!AI_API_KEY) {
-  console.warn('⚠️  AI_API_KEY 未配置，将使用固定提示回复（无法生成智能回答）');
+if (!DIFY_API_KEY) {
+  console.warn('⚠️  DIFY_API_KEY 未配置，将使用固定提示回复（无法生成智能回答）');
 }
 
 if (!EMAIL_USER || !EMAIL_PASS) {
@@ -115,6 +114,47 @@ function loadKnowledgeBase() {
 }
 
 let knowledgeBase = loadKnowledgeBase();
+
+// ────────────────────────────────────────────────────────────────
+// 多轮对话管理（Dify conversation_id）
+// ────────────────────────────────────────────────────────────────
+
+const conversations = new Map(); // key: user_id, value: { conversation_id, last_active }
+const CONVERSATION_TTL_MS = 30 * 60 * 1000; // 30 分钟无活动则重置会话
+
+function getConversationId(userId) {
+  if (!userId) return null;
+  const entry = conversations.get(userId);
+  if (!entry) return null;
+  if (Date.now() - entry.last_active > CONVERSATION_TTL_MS) {
+    conversations.delete(userId);
+    return null;
+  }
+  return entry.conversation_id;
+}
+
+function setConversationId(userId, conversationId) {
+  if (!userId || !conversationId) return;
+  conversations.set(userId, {
+    conversation_id: conversationId,
+    last_active: Date.now(),
+  });
+}
+
+// 每小时清理一次过期的会话记录，避免内存泄漏
+setInterval(() => {
+  const now = Date.now();
+  let cleaned = 0;
+  for (const [userId, entry] of conversations.entries()) {
+    if (now - entry.last_active > CONVERSATION_TTL_MS) {
+      conversations.delete(userId);
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) {
+    console.log(`🧹 已清理 ${cleaned} 条过期会话记录（剩余 ${conversations.size} 条）`);
+  }
+}, 60 * 60 * 1000);
 
 // ────────────────────────────────────────────────────────────────
 // 监听配置加载
@@ -462,61 +502,57 @@ async function handleEmailRequest(client, messageId, senderOpenId, text) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// AI 回复生成
+// AI 回复生成（Dify Chat API）
 // ────────────────────────────────────────────────────────────────
 
-async function generateReply(question, senderName) {
-  if (!AI_API_KEY) {
-    return `你好 ${senderName}，AI API 密钥未配置，暂时无法回答你的问题。请联系管理员配置 AI_API_KEY。`;
+async function generateReply(question, senderId) {
+  if (!DIFY_API_KEY) {
+    return `你好，Dify API 密钥未配置，暂时无法回答你的问题。请联系管理员配置 DIFY_API_KEY。`;
   }
 
   try {
-    const response = await fetch(AI_API_URL, {
+    const conversation_id = getConversationId(senderId);
+
+    const requestBody = {
+      inputs: {},
+      query: question,
+      response_mode: 'blocking',
+      user: senderId || 'default-user',
+    };
+    if (conversation_id) {
+      requestBody.conversation_id = conversation_id;
+    }
+
+    console.log(`  🧠 调用 Dify API（${conversation_id ? '多轮' : '首轮'}，user=${senderId}）...`);
+    const startTime = Date.now();
+
+    const response = await fetch(`${DIFY_API_URL}/chat-messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AI_API_KEY}`,
+        'Authorization': `Bearer ${DIFY_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: [
-              '你是"李奕兴的智能助手"，一个在飞书群聊中工作的项目助理机器人。',
-              '你的职责是基于以下项目文档回答团队成员的问题。',
-              '',
-              '回答规则：',
-              '1. 只基于文档中的事实信息回答，不推测',
-              '2. 如果问题超出文档范围，回复"这个问题我还需要确认，稍后回复你"',
-              '3. 回答简洁明了，控制在 200 字以内',
-              '4. 使用中文回复，保持友好专业的语气',
-              '5. 不要使用 markdown 格式（飞书消息不支持）',
-              '',
-              '--- 项目文档 ---',
-              knowledgeBase,
-            ].join('\n'),
-          },
-          {
-            role: 'user',
-            content: `${senderName} 提问：${question}`,
-          },
-        ],
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`❌ AI API 错误 [${response.status}]：${errText}`);
-      return `抱歉，AI 服务暂时不可用，请稍后再试。`;
+      console.error(`❌ Dify API 错误 [${response.status}]：${errText}`);
+      return `抱歉，AI 服务暂时不可用（错误码 ${response.status}），请稍后再试。`;
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || '抱歉，我暂时无法回答这个问题。';
+    const cost = Date.now() - startTime;
+    console.log(`  ✅ Dify 响应完成（${cost}ms）`);
+
+    // 保存 conversation_id 用于后续多轮对话
+    if (data.conversation_id) {
+      setConversationId(senderId, data.conversation_id);
+    }
+
+    return data.answer || '抱歉，我暂时无法回答这个问题。';
   } catch (e) {
-    console.error(`❌ AI 调用异常：${e.message}`);
+    console.error(`❌ Dify 调用异常：${e.message}`);
     return `抱歉，处理你的问题时遇到了错误，请稍后再试。`;
   }
 }
@@ -673,7 +709,7 @@ async function main() {
       console.log(`   • ${chat.chat_name} (${chat.chat_id})`);
     }
   }
-  console.log(`🧠 AI 模型：${AI_MODEL}`);
+  console.log(`🧠 Dify 端点：${DIFY_API_URL}`);
   console.log(`📧 邮件功能：${EMAIL_USER ? '已配置 (' + EMAIL_USER + ')' : '未配置'}`);
   console.log(`🔐 邮件授权用户：${EMAIL_AUTHORIZED_IDS.length ? EMAIL_AUTHORIZED_IDS.join(', ') : '（未限制）'}`);
   console.log(`📡 连接模式：WebSocket 长连接`);
@@ -783,7 +819,7 @@ async function main() {
           return;
         }
 
-        // ⑦ 调用 AI 生成回复
+        // ⑦ 调用 Dify 生成回复（支持多轮对话）
         const replyText = await generateReply(questionText, senderOpenId);
 
         // ⑧ 发送回复（基于原消息回复，@提问人）
