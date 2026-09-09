@@ -1,5 +1,7 @@
 # Cherry 与飞书、企微打通 - 需求文档
 
+> **最后更新**：2026-09-09（新增 F11 Dify AI 引擎集成、同步 F1.1/F1.2 WebSocket 实时模式、F2.1 飞书邮件已激活）
+
 ## 1. 项目背景
 
 ### 1.1 现状分析
@@ -10,27 +12,30 @@
 - 缺乏统一的消息总结和检索
 
 ### 1.2 解决方案
-通过 Cherry Studio AI 助手作为中枢，整合所有平台的消息，提供：
+通过 Cherry Studio AI 助手作为本地操作中枢 + Dify 作为云端 AI 引擎，整合所有平台的消息，提供：
 - 统一的消息查看界面
 - AI 智能总结和分类
 - 跨平台待办管理
 - 一键式消息检索
+- 群聊 @机器人 实时问答（WebSocket + Dify 多轮对话）
 
 ## 2. 功能需求
 
 ### 2.1 核心功能
 
 #### F1: 消息读取
-- **F1.1**: 读取飞书所有群聊消息 ✅
-- **F1.2**: 读取飞书私聊消息 ✅
+- **F1.1**: 飞书群消息读取 ✅ **实时 WebSocket + Dify 多轮对话**（feishu-bot @机器人 触发）
+- **F1.2**: 飞书私聊消息读取 ✅ **实时 WebSocket**（feishu-bot）
 - **F1.3**: 读取企业微信消息 ⚠️ (需公司启用)
-- **F1.4**: 读取微信消息 (后续)
+- **F1.4**: 企微群聊 @机器人 实时问答 ✅ **WebSocket + Dify 流式回复**（wecom-bot）
+- **F1.5**: 读取微信消息 (后续)
 
 #### F2: 邮件集成
-- **F2.1**: 读取飞书邮件收件箱 ⚠️ (需权限)
-- **F2.2**: 获取邮件摘要（发件人、主题、时间）
-- **F2.3**: 读取邮件正文内容
-- **F2.4**: 发送邮件（后续）
+- **F2.1**: 读取飞书邮件收件箱 ✅ **已通过飞书 Bot IMAP 激活**（feishu-bot 集成 IMAP/SMTP）
+- **F2.2**: 获取邮件摘要（发件人、主题、时间） ✅ IMAP 原生支持
+- **F2.3**: 读取邮件正文内容 ✅ IMAP FETCH source
+- **F2.4**: 发送邮件（后续） ✅ **已通过 SMTP 激活**（飞书 Bot 支持授权白名单）
+- **F2.5**: SMTP 定时邮件任务 ✅ **Mysav 集成日志自动化**（UAT2 → Excel → 附件 SMTP 发送）
 
 #### F3: 待办管理
 - **F3.1**: 读取飞书待办事项 ⚠️ (需权限)
@@ -60,6 +65,14 @@
 - **F7.2**: 企业微信会议创建 ✅
 - **F7.3**: 会议链接生成 ✅
 
+#### F11: Dify AI 引擎集成（2026-09-09 新增）
+- **F11.1**: 飞书 Bot 接入 Dify Chat API ✅ Blocking 模式
+- **F11.2**: 企微 Bot 接入 Dify Chat API ✅ Streaming 模式（流式回复）
+- **F11.3**: 多轮对话支持（conversation_id 按用户维度维护，30 分钟超时重置） ✅
+- **F11.4**: 知识库接入（Markdown 文档 + 业务 PDF/Office 文档） ✅
+- **F11.5**: 两端共用同一个 Dify 应用，通过 user 字段区分提问来源 ✅
+- **F11.6**: 知识库热重载（文档变更后自动 reload） ✅
+
 ### 2.2 高级功能（后续版本）
 
 #### F8: 实时通知
@@ -73,7 +86,7 @@
 - **F9.3**: 工作时间分析
 
 #### F10: 自动化
-- **F10.1**: 自动回复（基于 AI）
+- **F10.1**: 自动回复（基于 AI） ✅ **已通过 Dify 实现**
 - **F10.2**: 消息自动分类
 - **F10.3**: 工作流自动化
 
@@ -83,15 +96,20 @@
 - 消息读取延迟：< 5 秒
 - 搜索响应时间：< 3 秒
 - 摘要生成时间：< 10 秒
+- Bot 问答响应时间：< 10 秒（Dify 响应）
+- WebSocket 事件延迟：< 3 秒
 
 ### 3.2 安全需求
 - 用户凭证加密存储
 - API 访问权限最小化
 - 敏感信息不记录到日志
+- Dify API Key 不得提交到公开仓库
+- 邮件操作需授权白名单（EMAIL_AUTHORIZED_OPEN_IDS）
 
 ### 3.3 可用性需求
 - 支持命令行操作
 - 支持 Cherry Studio MCP 调用
+- 支持 Bot WebSocket 实时监听
 - 提供清晰的错误提示
 
 ## 4. 权限需求
@@ -100,11 +118,13 @@
 
 | 权限 | 用途 | 优先级 | 状态 |
 |------|------|--------|------|
-| `im:chat:read` | 读取群组列表 | P0 |  审核中 |
+| `im:chat:read` | 读取群组列表 | P0 | ⏳ 审核中 |
 | `im:message.group_msg:get_as_user` | 读取群消息 | P0 | ⏳ 审核中 |
 | `im:message.p2p_msg:get_as_user` | 读取私聊消息 | P0 | ⏳ 审核中 |
-| `mail:user_mailbox:readonly` | 读取邮件 | P1 | ⏳ 审核中 |
-| `task:task:read` | 读取待办 | P1 |  审核中 |
+| `im:message` | 获取与发送单聊、群组消息 | P0 | ✅ 已授予（Bot 使用） |
+| `im:message:send_as_bot` | 以应用身份发送消息 | P0 | ✅ 已授予（Bot 使用） |
+| `mail:user_mailbox:readonly` | 读取邮件 | P1 | ⏳ 审核中（Bot 已走 IMAP 绕过） |
+| `task:task:read` | 读取待办 | P1 | ⏳ 审核中 |
 | `search:message` | 搜索消息 | P2 | ✅ 已授予 |
 
 ### 4.2 企业微信权限
@@ -117,8 +137,17 @@
 | 待办管理 | ✅ | 默认可用 |
 | 文档管理 | ✅ | 默认可用 |
 | 消息发送 (aibot) | ✅ | 默认可用 |
+| 消息发送 (Bot WebSocket) | ✅ | wecom-bot 已接入 Dify 流式回复 |
 | 消息读取 | ⚠️ | 需公司启用 |
 | 消息发送 (应用) | ️ | 需公司启用 |
+
+### 4.3 Dify 权限
+
+| 项 | 状态 | 说明 |
+|-----|------|------|
+| Dify Chat API 访问 | ✅ | 九号内网 http://10.232.5.5/v1 |
+| API Key 生成 | ✅ | Dify 应用 → 访问 API → API 密钥 |
+| 知识库上传 | ✅ | Markdown + PDF/Office 已上传 |
 
 ## 5. 技术约束
 
@@ -126,11 +155,13 @@
 - 微信个人号 API 受限，可能需要第三方方案
 - 企业微信部分功能需要管理员权限
 - 飞书权限需要管理员审批
+- Dify 服务仅限九号内网访问
 
 ### 5.2 数据限制
 - GitHub 单文件最大 100MB
 - 飞书 API 速率限制：5000 次/小时
 - 邮件附件大小限制
+- Dify conversation_id 30 分钟无活动自动过期
 
 ## 6. 验收标准
 
@@ -144,15 +175,17 @@
 
 ### 6.2 第二阶段（进行中）🔄
 - [ ] 飞书权限审批通过
-- [ ] 飞书邮件读取功能正常
+- [ ] 飞书邮件读取功能正常（CLI 侧，Bot 侧已走 IMAP）
 - [ ] 飞书待办事项读取功能正常
 - [ ] 企业微信消息读取功能正常
-- [ ] 每日摘要生成功能正常
+- [x] 每日摘要生成功能正常（Dify 多轮对话 + 知识库）
+- [x] 飞书 / 企微 Bot 实时监听 + Dify 接入（2026-09-09 完成）
 
 ### 6.3 第三阶段（待开始）⏳
-- [ ] Cherry Studio MCP 集成完成
+- [x] Cherry Studio MCP 集成完成（D365 sppprd / sppuat2）
 - [ ] 实时通知功能正常
 - [ ] 数据分析功能正常
+- [ ] Teams Graph API 对接
 
 ## 7. 风险与应对
 
@@ -172,10 +205,16 @@
 - **风险**：公司未启用消息 API
 - **应对**：使用 aibot 方式发送消息，功能受限但可用
 
+### 7.5 Dify 服务风险
+- **风险**：Dify 内网服务不稳定 / 模型响应慢
+- **应对**：Bot 侧设置超时、返回友好错误提示；备用降级到固定提示回复
+
 ## 8. 参考资料
 
 - 飞书开放平台文档：https://open.feishu.cn/document
-- lark-cli 文档：https://github.com/larksuite/cli
+- lark-cli 文档：https://github.com/larksuiteoapi/cli
 - 企业微信开放平台：https://open.work.weixin.qq.com
 - wecom-cli 文档：https://github.com/WecomTeam/wecom-cli
 - Cherry Studio MCP 文档：https://docs.cherry-ai.com/mcp
+- Dify 官方文档：https://docs.dify.ai
+- Dify Chat API：`POST {DIFY_API_URL}/chat-messages`
