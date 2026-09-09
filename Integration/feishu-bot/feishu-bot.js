@@ -163,11 +163,11 @@ setInterval(() => {
 function loadMonitoredChats() {
   try {
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-    
+
     // 检查监听模式
     const monitorMode = config.monitor_mode || 'all';
     const chats = config.monitored_chats || [];
-    
+
     if (monitorMode === 'whitelist') {
       // 白名单模式：只返回 enabled=true 的群
       console.log(`📋 监听模式：白名单（仅监听指定群）`);
@@ -798,7 +798,7 @@ async function main() {
           }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('贴表情超时（3s）')), 3000))
         ]);
-        
+
         reactPromise.then(reactionRes => {
           const cost = Date.now() - reactStartTime;
           if (reactionRes.code === 0) {
@@ -843,10 +843,10 @@ async function main() {
   // 定期刷新监听配置（每 60 秒检查一次配置变更）
   setInterval(() => {
     const newChatIds = getMonitoredChatIds();
-    const changed = monitoredChatIds === null 
-      ? newChatIds !== null 
+    const changed = monitoredChatIds === null
+      ? newChatIds !== null
       : (newChatIds === null || newChatIds.size !== monitoredChatIds.size);
-    
+
     if (changed) {
       console.log(`📋 监听配置已变更，重新加载`);
       if (newChatIds === null) {
