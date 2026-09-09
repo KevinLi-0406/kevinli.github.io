@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-09 12:15 (UTC+8)
+- **修改文件**：`Knowledge/03-Lessons/cron-feishu-notification-misroute.md`、`Knowledge/03-Lessons/README.md`
+- **变更类型**：新增 + 修复
+- **变更描述**：
+  1. **踩坑记录新增**：记录定时任务通知渠道误投问题及解决方案（详见 `cron-feishu-notification-misroute.md`）
+  2. **问题背景**：Mysav 两个定时任务的 `channelIds` 指向 Cherry 飞书频道，该频道默认投递到用户未指定的群
+  3. **修复措施**：
+     - 创建专属飞书群「Mysav定时任务通知」（chat_id: `oc_710bbf75e761c08ac769499cff2719a8`），仅用户+机器人
+     - 两个定时任务 `channelIds` 设为 `[]`，改由任务内部调用 `im_v1_message_create` 直接发送到指定群
+     - 重建定时任务：Export（10:00）ID `1e92a20d`、Email（12:00）ID `9c47cb4c`
+  4. **关键经验**：
+     - Cherry cron `channelIds` 只接受 Cherry 频道 ID（UUID），不接受飞书 chat_id（`oc_` 前缀）
+     - 飞书 text 消息 content 必须是 `{"text":"..."}` 格式的 JSON 字符串
+     - cron 工具无 update 动作，修改配置需先 remove 再 add
+- **影响范围**：Mysav 定时任务通知投递目标、踩坑知识库
+- **关联请求**：用户反馈"定时任务发送到未指定的群，要求单独拉群"
+
 ### 2026-09-08 18:50 (UTC+8)
 - **修改文件**：`Integration/integration-details.md`
 - **变更类型**：功能增强 + Skill 重构
