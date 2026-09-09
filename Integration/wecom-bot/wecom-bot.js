@@ -66,30 +66,31 @@ if (!BOT_ID || !BOT_SECRET) {
 }
 
 if (!DIFY_API_KEY) {
-  console.warn('⚠️  DIFY_API_KEY 未配置，将使用固定提示回复（无法生成智能回答）');
+  console.warn('️  DIFY_API_KEY 未配置，将使用固定提示回复（无法生成智能回答）');
 }
 
 // ────────────────────────────────────────────────────────────────
 // 多轮对话管理（Dify conversation_id）
+// 关键修复：session key 必须包含 chatType + chatId，否则同一用户在不同聊天场景（群聊 vs 私聊）会共享上下文
 // ────────────────────────────────────────────────────────────────
 
-const conversations = new Map(); // key: user_id, value: { conversation_id, last_active }
+const conversations = new Map(); // key: sessionKey, value: { conversation_id, last_active }
 const CONVERSATION_TTL_MS = 30 * 60 * 1000; // 30 分钟无活动则重置会话
 
-function getConversationId(userId) {
-  if (!userId) return null;
-  const entry = conversations.get(userId);
+function getConversationId(sessionKey) {
+  if (!sessionKey) return null;
+  const entry = conversations.get(sessionKey);
   if (!entry) return null;
   if (Date.now() - entry.last_active > CONVERSATION_TTL_MS) {
-    conversations.delete(userId);
+    conversations.delete(sessionKey);
     return null;
   }
   return entry.conversation_id;
 }
 
-function setConversationId(userId, conversationId) {
-  if (!userId || !conversationId) return;
-  conversations.set(userId, {
+function setConversationId(sessionKey, conversationId) {
+  if (!sessionKey || !conversationId) return;
+  conversations.set(sessionKey, {
     conversation_id: conversationId,
     last_active: Date.now(),
   });
@@ -99,9 +100,9 @@ function setConversationId(userId, conversationId) {
 setInterval(() => {
   const now = Date.now();
   let cleaned = 0;
-  for (const [userId, entry] of conversations.entries()) {
+  for (const [sessionKey, entry] of conversations.entries()) {
     if (now - entry.last_active > CONVERSATION_TTL_MS) {
-      conversations.delete(userId);
+      conversations.delete(sessionKey);
       cleaned++;
     }
   }
@@ -114,25 +115,25 @@ setInterval(() => {
 // Dify Chat API 调用（与飞书侧共用逻辑）
 // ────────────────────────────────────────────────────────────────
 
-async function callDify(question, userId) {
+async function callDify(question, sessionKey) {
   if (!DIFY_API_KEY) {
     return `你好，Dify API 密钥未配置，暂时无法回答你的问题。请联系管理员配置 DIFY_API_KEY。`;
   }
 
   try {
-    const conversation_id = getConversationId(userId);
+    const conversation_id = getConversationId(sessionKey);
 
     const requestBody = {
       inputs: {},
       query: question,
       response_mode: 'blocking',
-      user: userId || 'default-user',
+      user: sessionKey || 'default-user',
     };
     if (conversation_id) {
       requestBody.conversation_id = conversation_id;
     }
 
-    console.log(`  🧠 调用 Dify API（${conversation_id ? '多轮' : '首轮'}，user=${userId}）...`);
+    console.log(`  🧠 调用 Dify API（${conversation_id ? '多轮' : '首轮'}，session=${sessionKey}）...`);
     const startTime = Date.now();
 
     const response = await fetch(`${DIFY_API_URL}/chat-messages`, {
@@ -146,7 +147,7 @@ async function callDify(question, userId) {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`❌ Dify API 错误 [${response.status}]：${errText}`);
+      console.error(` Dify API 错误 [${response.status}]：${errText}`);
       return `抱歉，AI 服务暂时不可用（错误码 ${response.status}），请稍后再试。`;
     }
 
@@ -155,7 +156,7 @@ async function callDify(question, userId) {
     console.log(`  ✅ Dify 响应完成（${cost}ms）`);
 
     if (data.conversation_id) {
-      setConversationId(userId, data.conversation_id);
+      setConversationId(sessionKey, data.conversation_id);
     }
 
     return data.answer || '抱歉，我暂时无法回答这个问题。';
@@ -193,7 +194,7 @@ async function main() {
 
   // 监听连接事件
   wsClient.on('connected', () => {
-    console.log('🔌 WebSocket 已连接');
+    console.log(' WebSocket 已连接');
   });
 
   wsClient.on('authenticated', () => {
@@ -205,7 +206,7 @@ async function main() {
   });
 
   wsClient.on('reconnecting', (attempt) => {
-    console.log(`🔄 正在重连（第 ${attempt} 次）...`);
+    console.log(` 正在重连（第 ${attempt} 次）...`);
   });
 
   wsClient.on('error', (err) => {
@@ -214,7 +215,7 @@ async function main() {
 
   // ──────────────────────────────────────────────────────────────
   // 文本消息处理（核心逻辑）
-  // ──────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   wsClient.on('message.text', async (frame) => {
     const body = frame.body;
     const question = (body.text?.content || '').trim();
@@ -222,6 +223,9 @@ async function main() {
     const chatType = body.chattype || 'unknown';
     const chatId = body.chatid || '(单聊)';
     const msgId = body.msgid;
+
+    // 构建 session key：chatType:chatId:userId，确保不同聊天场景上下文隔离
+    const sessionKey = `${chatType}:${chatId}:${userId}`;
 
     if (!question) return;
     // 忽略指令类消息
@@ -250,8 +254,8 @@ async function main() {
       console.log(`  ⚠️  "思考中"占位发送失败：${e.message}`);
     }
 
-    // ② 调用 Dify 生成回复
-    const replyText = await callDify(question, userId);
+    // ② 调用 Dify 生成回复（传入 sessionKey 而非 userId）
+    const replyText = await callDify(question, sessionKey);
 
     // ③ 用流式回复发送最终答案（finish=true 结束流）
     try {
@@ -264,7 +268,7 @@ async function main() {
 
   // ──────────────────────────────────────────────────────────────
   // 其他消息类型（仅记录，暂不处理）
-  // ──────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   const ignoredTypes = ['image', 'mixed', 'voice', 'file', 'video'];
   for (const type of ignoredTypes) {
     wsClient.on(`message.${type}`, (frame) => {
@@ -311,7 +315,7 @@ process.on('uncaughtException', (err) => {
 });
 
 process.on('unhandledRejection', (reason) => {
-  console.error('❌ 未处理的 Promise 拒绝：', reason);
+  console.error(' 未处理的 Promise 拒绝：', reason);
 });
 
 main().catch(console.error);
