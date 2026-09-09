@@ -146,6 +146,7 @@
         <a class="nav-link" href="#about">关于我</a>
         <a class="nav-link" href="#skills">技能</a>
         <a class="nav-link" href="#projects">项目</a>
+        <a class="nav-link" href="#knowledge">知识库</a>
         <a class="nav-link" href="https://github.com/KevinLI-0406" target="_blank" rel="noopener">GitHub</a>
       <a class="cp-toggle-btn" href="Resources/index2077.html" title="切换到赛博朋克风格">CyberPunk!</a>
       <div id="userProfile" style="display:none; align-items:center; gap:12px;">
@@ -204,7 +205,7 @@
             <span class="skill-tag">D365 Form 修改</span>
             <span class="skill-tag">权限体系管理</span>
           </div></div>
-          <div class="skill-card"><h3>🔌 系统集成与接口</h3><div class="skill-tags">
+          <div class="skill-card"><h3> 系统集成与接口</h3><div class="skill-tags">
             <span class="skill-tag">OA 接口对接</span>
             <span class="skill-tag">SAP ↔ SF 数据同步</span>
             <span class="skill-tag">B2X 接口映射</span>
@@ -235,7 +236,7 @@
       <div class="container">
         <div class="section-heading"><div><h2>工作风格</h2><p>同事眼中的 Kevin</p></div></div>
         <div class="achievements-grid">
-          <div class="achievement-card"><div class="a-icon">🔥</div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
+          <div class="achievement-card"><div class="a-icon"></div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
           <div class="achievement-card"><div class="a-icon"></div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
           <div class="achievement-card"><div class="a-icon"></div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
           <div class="achievement-card"><div class="a-icon">😄</div><h3>幽默风趣</h3><p>工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
@@ -251,6 +252,15 @@
         <div class="filter-bar" id="filterBar" style="display:none"></div>
         <div id="project-grid" class="project-grid">
           <div class="loading-state"><div class="loading-spinner"></div><div>正在扫描 Tools 目录…</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="knowledge" class="section">
+      <div class="container">
+        <div class="section-heading"><div><h2>EU SPP 知识库</h2><p>基于 Dify 的 EU 售后业务知识问答，覆盖寄修流程、工单规则、集成接口</p></div></div>
+        <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 14px 35px var(--shadow);">
+          <iframe src="http://10.232.5.5/chatbot/p5ugRUuzsibsNbJn" style="width:100%;height:700px;border:none;display:block;" frameborder="0" allow="microphone"></iframe>
         </div>
       </div>
     </section>
@@ -566,7 +576,7 @@
       if (lower.includes('pokemon') || lower.includes('pokedex')) return '⚡';
       if (lower.includes('squirt')) return '🐢';
       if (lower.includes('chick')) return '🐣';
-      if (lower.includes('f1') || lower.includes('race')) return '🏎️';
+      if (lower.includes('f1') || lower.includes('race')) return '️';
       if (lower.includes('css') || lower.includes('editor')) return '🎨';
       if (lower.includes('photo') || lower.includes('album')) return '📷';
       if (lower.includes('b2x') || lower.includes('query')) return '🔎';
@@ -618,7 +628,7 @@
       var fb = document.getElementById("filterBar");
       fb.style.display = "flex";
       fb.innerHTML = '<label>用途：</label><select id="filterCat"><option value="all">全部用途</option>' +
-        cats.map(function(c) { return '<option value="' + c + '">' + esc(defaultCategories[c]?.label || c) + '</option>'; }).join('') + '</select>' +
+        cats.map(function(c) { return '<option value="' + c + '">' + esc(defaultCategories[c]?.label || c) + '</option>'; }).join('') +
         '<button class="refresh-btn" id="refreshBtn" onclick="refreshProjects()" title="强制刷新项目列表">🔄 刷新</button>';
       document.getElementById("filterCat").addEventListener("change", function(e) { filterCat = e.target.value; applyFilters(); });
     }
@@ -677,7 +687,7 @@
         await loadProjects(false);
       } catch(err) {
         document.getElementById("project-grid").innerHTML =
-          '<div class="empty-project"><h3>⚠️ 加载失败</h3><p>' + esc(err.message) + '</p><p style="margin-top:10px;font-size:13px">请检查网络连接或稍后刷新。</p></div>';
+          '<div class="empty-project"><h3>️ 加载失败</h3><p>' + esc(err.message) + '</p><p style="margin-top:10px;font-size:13px">请检查网络连接或稍后刷新。</p></div>';
       }
     })();
   </script>
