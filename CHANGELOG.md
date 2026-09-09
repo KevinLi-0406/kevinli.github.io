@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
      - cron 工具无 update 动作，修改配置需先 remove 再 add
 - **影响范围**：Mysav 定时任务通知投递目标、踩坑知识库
 - **关联请求**：用户反馈"定时任务发送到未指定的群，要求单独拉群"
+- **Commit**：`7c7a175` - 新增踩坑记录：定时任务通知渠道误投问题修复
 
 ### 2026-09-08 18:50 (UTC+8)
 - **修改文件**：`Integration/integration-details.md`
