@@ -13,7 +13,7 @@ Integration/
 ├── requirements.md           # 功能需求文档
 ├── integration-details.md    # 集成详情（配置、功能状态、任务、进度、错误记录）
 ├── d365-mcp-config.json      # D365 MCP 配置模板（secret 已脱敏）
-├── monitored-chats.json      # 飞书消息监听配置
+── monitored-chats.json      # 飞书消息监听配置
 ├── sync-log.md               # GitHub 仓库同步日志
 ├── feishu-bot/               # 飞书实时监听机器人（WebSocket + Dify）
 │   ├── feishu-bot.js
@@ -32,7 +32,7 @@ Integration/
 | 平台 | 工具/入口 | 消息读取 | 消息发送 | 日程/会议 | 待办 | 联系人 | 备注 |
 |------|----------|---------|---------|----------|------|--------|------|
 | 飞书 | lark-cli v1.0.92 + Bot | ✅ | ✅ | ✅ | ⚠️ | ✅ | Bot 端已接入 Dify（WebSocket 实时监听） |
-| 企业微信 | wecom-cli v1.2.0 + Bot | ❌ (需启用) | ✅ (aibot/Bot) | ✅ | ✅ | ✅ | Bot 端已接入 Dify（流式回复） |
+| 企业微信 | wecom-cli v1.2.0 + Bot |  (需启用) | ✅ (aibot/Bot) | ✅ | ✅ | ✅ | Bot 端已接入 Dify（流式回复 + 会话隔离） |
 | Teams | 待开发 |  | ⏳ | ⏳ |  | ⏳ |  |
 | 邮箱 | 网易 SMTP / Bot IMAP | ✅ (IMAP) | ✅ (SMTP) | - | - | - | 飞书 Bot 已集成邮件收发 |
 | **D365 MCP** | **SPP 运维助手** | - | - | - | - | ✅ (1777 表) | Dataverse 运维（查询/修改/DDL/发布） |
@@ -47,4 +47,4 @@ Integration/
   - [飞书 / 企微 Bot 集成详情](integration-details.md#二五飞书企微实时监听-botdify-引擎) — Dify Chat API 接入、多轮对话、邮件操作
 - [D365 MCP 配置模板](d365-mcp-config.json) — 生产/测试环境 MCP JSON（secret 已脱敏）
 - [飞书 Bot 子项目](feishu-bot/) — WebSocket 实时监听 + Dify + IMAP/SMTP 邮件
-- [企微 Bot 子项目](wecom-bot/) — WebSocket 长连接 + Dify（流式回复）
+- [企微 Bot 子项目](wecom-bot/) — WebSocket 长连接 + Dify（流式回复 + 会话隔离）

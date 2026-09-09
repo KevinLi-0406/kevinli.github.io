@@ -38,8 +38,9 @@
 | 应用部署方式 | 内网自建（九号公司内网） |
 | 知识库来源 | 仓库 Markdown 文档（README / unified-platform / integration-details / requirements）+ 业务 PDF/Office 文档 |
 | 模型 | Dify 应用默认模型（未在文档中显式指定） |
-| 多轮对话 | 按 user 字段（飞书 senderOpenId / 企微 userId）维护 conversation_id，30 分钟无活动自动重置 |
+| 多轮对话 | **企微端**：按 `chatType:chatId:userId` 维护 conversation_id，30 分钟无活动自动重置<br>**飞书端**：按 `senderOpenId:chatId` 维护 conversation_id，30 分钟无活动自动重置 |
 | 使用方 | feishu-bot（Blocking 模式）、wecom-bot（Streaming 模式） |
+| Chatbot 嵌入 | 门户首页 `index.html` 通过 iframe 嵌入 Dify Chatbot（`http://10.232.5.5/chatbot/p5ugRUuzsibsNbJn`） |
 
 > 🔑 完整环境变量模板见 [feishu-bot/.env.example](feishu-bot/.env.example) 与 [wecom-bot/.env.example](wecom-bot/.env.example)。
 > ⚠️ `DIFY_API_KEY` 已脱敏，使用前需在本地替换 `<REPLACE_ME>` 或 `your_dify_api_key_here` 为真实值。真实 Key 不得提交到公开仓库。
@@ -102,8 +103,8 @@
 | 类别 | 操作 | 风险 | 包含工具 |
 |------|------|------|--------|
 | 🔍 查询数据 | 查询记录、FetchXML、数据质量分析 | 🟢 只读 | query_records, execute_fetchxml, get_record_by_id, analyze_table_quality |
-| ✏️ 修改数据 | 增删改记录 | 🟡 影响记录 | create_record, update_record, delete_record |
-| 📋 表结构管理 | 查看/修改表与字段 | 🟢/🔴 | list_entities, get_entity_metadata, get_entity_attributes, create/delete_table, create/delete_attribute |
+| ️ 修改数据 | 增删改记录 | 🟡 影响记录 | create_record, update_record, delete_record |
+| 📋 表结构管理 | 查看/修改表与字段 | /🔴 | list_entities, get_entity_metadata, get_entity_attributes, create/delete_table, create/delete_attribute |
 | 🚀 发布自定义项 | PublishAllXml | 🟠 影响所有用户 | publish_customizations |
 
 ### Cherry Studio 已安装 Skills
@@ -126,15 +127,16 @@
 | 触发条件 | 群聊 @机器人 | 群聊 @机器人 或 私聊 |
 | 监听事件 | `im.message.receive_v1` | `message.text` |
 | AI 引擎 | Dify Chat API（Blocking） | Dify Chat API（Streaming） |
-| 多轮对话 | ✅ senderOpenId → conversation_id | ✅ userId → conversation_id |
+| 多轮对话 | ✅ `senderOpenId:chatId → conversation_id` | ✅ `chatType:chatId:userId → conversation_id` |
 | 会话超时 | 30 分钟无活动自动重置 | 30 分钟无活动自动重置 |
 | 消息去重 | ✅ Set 缓存最近 1000 条 | ✅ Set 缓存最近 1000 条 |
 | 知识库加载 | ✅ 本地文档热重载 | ✅ 本地文档热重载 |
 | 回复方式 | 引用原消息回复（im.v1.message.reply） | replyStream 流式输出 |
-| 流式回复 | ❌ | ✅（先回"🤔 思考中..."再流式填充） |
+| 流式回复 |  | ✅（先回"🤔 思考中..."再流式填充） |
+| 会话隔离 | ✅ chatId 隔离 | ✅ chatType:chatId:userId 三段式隔离 |
 | 邮件操作 | ✅ IMAP 收件 / SMTP 发件（授权白名单） | ❌ |
-| 贴表情 | ✅ LOVE ❤️ | ❌ |
-| 监听配置 | ✅ monitored-chats.json（白名单 / 全量模式） | ❌（默认所有消息） |
+| 贴表情 | ✅ LOVE ❤️ |  |
+| 监听配置 | ✅ monitored-chats.json（白名单 / 全量模式） | （默认所有消息） |
 | 环境变量 | `DIFY_API_URL` / `DIFY_API_KEY` | 共用（指向同一个 Dify 应用） |
 
 #### Dify 调用流程（两侧共用）
@@ -146,13 +148,15 @@
         ↓
 脚本接收 → 校验群聊 / 用户 / @机器人
         ↓
+构建 sessionKey = chatType:chatId:userId（会话隔离 key）
+        ↓
 [飞书] 贴 LOVE 表情；[企微] 回复"🤔 思考中..."
         ↓
 调用 Dify Chat API（/v1/chat-messages）
   - headers: Authorization: Bearer <DIFY_API_KEY>
-  - body: { query, user, conversation_id?, response_mode }
+  - body: { query, user: sessionKey, conversation_id?, response_mode }
         ↓
-保存 conversation_id 用于后续多轮对话
+保存 conversation_id 用于后续多轮对话（keyed by sessionKey）
         ↓
 在原会话中回复答案
         ↓
@@ -166,9 +170,16 @@
 | 应用名 | 飞书 / 企微 Bot 共用同一个 Dify 应用 |
 | 应用类型 | Chatbot（对话型） |
 | 模型 | Dify 默认模型（未在代码中显式指定） |
-| 知识库 | ① 仓库 Markdown 文档（README.md / unified-platform.md / integration-details.md / requirements.md）<br>② 业务 PDF/Office 文档（在 Dify 后台上传） |
-| 用户标识 | 飞书端传 senderOpenId；企微端传 userId（Dify 通过 user 字段区分两端用户） |
-| 会话标识 | conversation_id 由 Dify 返回，两端各自维护（不跨平台） |
+| 知识库 | ① 仓库 Markdown 文档（README.md / unified-platform.md / integration-details.md / requirements.md）<br>② 业务 PDF/Office 文档（在 Dify 后台上传，当前 36+ 个文档） |
+| 用户标识 | 飞书端传 `senderOpenId:chatId`；企微端传 `chatType:chatId:userId`（Dify 通过 user 字段区分不同聊天场景） |
+| 会话标识 | conversation_id 由 Dify 返回，两端各自维护（不跨平台，不跨聊天场景） |
+| Chatbot 嵌入 | 门户首页通过 iframe 嵌入（`http://10.232.5.5/chatbot/p5ugRUuzsibsNbJn`），仅限内网访问 |
+
+#### 已知问题与修复记录
+
+| 日期 | 问题 | 根因 | 修复方案 | Commit |
+|------|------|------|---------|--------|
+| 2026-09-09 | 私聊回复了群聊的问题 | session key 仅用 userId，不同聊天场景共享 conversation_id | 改为 `chatType:chatId:userId` 三段式 key | `5cd93bf` |
 
 ### Cherry Studio AI 与 Dify 的定位区分
 
@@ -235,6 +246,14 @@
 - [x] 两端共用同一个 Dify 应用，通过 user 字段区分提问来源
 - [x] monitored-chats.json 支持白名单 / 全量监听两种模式
 
+### 第六阶段：Bug 修复与优化（2026-09-09）✅
+
+- [x] **会话隔离修复**：wecom-bot session key 从 `userId` 改为 `chatType:chatId:userId`，修复群聊/私聊串聊 bug
+- [x] **门户集成**：`index.html` 嵌入 Dify Chatbot iframe（`http://10.232.5.5/chatbot/p5ugRUuzsibsNbJn`）
+- [x] **文档同步**：wecom-bot/README.md、Integration/README.md、integration-details.md 全部更新
+- [ ] **知识库补全**：补充 B2X 集成等缺失文档到 Dify 知识库
+- [ ] **检索优化**：调高 Dify 相似度阈值到 0.6~0.7，优化 System Prompt
+
 ### 任务统计
 
 | 阶段 | 总任务 | 已完成 | 进行中 | 待开始 | 完成率 |
@@ -244,7 +263,8 @@
 | 第三阶段 | 10 | 8 | 0 | 2 | 80% |
 | 第四阶段 | 5 | 4 | 0 | 1 | 80% |
 | 第五阶段 | 8 | 8 | 0 | 0 | 100% |
-| **总计** | **36** | **30** | **0** | **6** | **83%** |
+| 第六阶段 | 5 | 3 | 0 | 2 | 60% |
+| **总计** | **41** | **33** | **0** | **8** | **80%** |
 
 ---
 
@@ -260,6 +280,7 @@
 | jq 不可用 | - | Cherry Studio 环境未安装 jq | 改用 Read + offset/limit 分段处理 |
 | UAT2 权限不足 | 0x80040220 | si-eu-crm-dw 应用缺少 new_integrationlog 读取权限 | 在 UAT2 环境添加 prvReadnew_integrationlog 权限 |
 | 飞书邮箱未激活 | 1234013 | user mailbox not found | 需要在飞书App中开通邮箱功能 |
+| **私聊回复群聊内容** | - | session key 仅用 userId，跨聊天场景共享 conversation_id | 改为 `chatType:chatId:userId` 三段式 key |
 
 ---
 
@@ -267,22 +288,39 @@
 
 ### 2026-09-09（星期二）
 
-**飞书 Bot Dify 接入（commit 4d705b2）：**
+**会话隔离修复（commit `5cd93bf`）：**
+- 问题：用户在群里问了 B2X 集成问题后，切到私聊发"回答我的问题"，机器人回复了群里的 B2X 答案
+- 根因：`conversations` Map 的 key 仅用 `userId`，不同聊天场景共享 Dify `conversation_id`
+- 修复：session key 从 `userId` 改为 `${chatType}:${chatId}:${userId}`，确保每个聊天场景有独立上下文
+- 改动函数：`getConversationId()`、`setConversationId()`、`callDify()`、`wsClient.on('message.text')` 回调
+
+**门户首页嵌入 Dify Chatbot（commit `2c3c321`）：**
+- `index.html` 新增 `#knowledge` section
+- iframe 嵌入 `http://10.232.5.5/chatbot/p5ugRUuzsibsNbJn`
+- 导航栏新增「知识库」链接
+- 卡片式包裹，700px 高度
+
+**文档全量同步：**
+- `Integration/wecom-bot/README.md`：新增「会话隔离机制」章节，多轮对话 key 更新为 `chatType:chatId:userId → conversation_id`，新增串聊 FAQ
+- `Integration/README.md`：企微备注更新为「流式回复 + 会话隔离」，wecom-bot 子项目描述更新
+- `Integration/integration-details.md`：Dify 配置表更新多轮对话描述、新增 Chatbot 嵌入记录、新增已知问题表、新增第六阶段任务
+- `CHANGELOG.md`：新增 2026-09-09 变更记录
+
+**知识库诊断（未写入代码）：**
+- 诊断结果：36 个文档大部分召回次数为 0，根因是知识库文档不足
+- 建议：补充 B2X 集成文档、调高相似度阈值到 0.6~0.7、优化 System Prompt
+- 用户已为文档添加元数据，待设计元数据过滤策略
+
+**飞书 Bot Dify 接入（commit `0c470e3d`，早前已完成）：**
 - 将 AI 调用从 OpenAI 兼容格式切换到 Dify Chat API（/v1/chat-messages）
 - 新增多轮对话管理（按 sender_id 维护 conversation_id，30 分钟超时自动重置）
 - 环境变量：`AI_API_URL/AI_API_KEY/AI_MODEL` → `DIFY_API_URL/DIFY_API_KEY`
 - 保留全部原有功能：WebSocket 监听、邮件 IMAP/SMTP、白名单、贴表情、热重载
 
-**企微 Bot Dify 接入：**
+**企微 Bot Dify 接入（commit `0c470e3d`，早前已完成）：**
 - 基于 @wecom/aibot-node-sdk 实现 WebSocket 长连接
-- 接入 Dify Chat API，支持流式回复（先回"🤔 思考中..."再 fill 最终答案）
+- 接入 Dify Chat API，支持流式回复（先回" 思考中..."再 fill 最终答案）
 - 与飞书 Bot 共用同一个 Dify 应用，conversation_id 在两端独立管理
-- 文档：wecom-bot/README.md 详细记录架构对比与常见问题
-
-**文档全量对齐：**
-- Integration 顶层 7 个文档 + 2 个子项目 README 全部更新到最新状态
-- 明确"五个触角（企微/飞书/Teams/邮箱/D365 MCP）+ Dify AI 引擎"架构
-- 新增 §2.5 飞书/企微 Bot 集成详情、§2.6 Cherry Studio 与 Dify 定位区分
 
 ### 2026-09-08（星期一）
 
@@ -386,12 +424,12 @@ D365 MCP 是统一信息平台的**第五个触角**（业务系统运维），�
 
 ```
 统一大脑（Cherry Studio AI + Dify 引擎）
-├── 触角 1：企业微信（消息集成）
+── 触角 1：企业微信（消息集成）
 ├── 触角 2：飞书（消息集成）
 ├── 触角 3：Teams（消息集成）
 ├── 触角 4：邮箱（消息集成）
 ├── 触角 5：D365 MCP（业务系统运维）
-└── AI 引擎：Dify（飞书 / 企微 Bot 共用，云端 AI 回答）
+── AI 引擎：Dify（飞书 / 企微 Bot 共用，云端 AI 回答）
 ```
 
 D365 MCP 主要负责 EU SPP 项目的 Dataverse 数据运维，包括表结构管理、数据查询、记录修改等，是日常工作中不可或缺的工具集成。Dify 则为飞书 / 企微 Bot 提供 Chat API 引擎，让群聊 @机器人 的提问能得到智能回答（含多轮对话与知识库检索）。

@@ -54,9 +54,11 @@ npm run dev     # 开发模式（Node.js 22+，文件修改自动重启）
         ↓
 SDK 自动处理：认证 / 心跳 / 解密 / 消息解析
         ↓
-脚本接收 → 立即回复"🤔 思考中..."（流式占位）
+脚本接收 → 构建 sessionKey = chatType:chatId:userId
         ↓
-调用 Dify Chat API 生成回复（支持多轮对话）
+立即回复" 思考中..."（流式占位）
+        ↓
+调用 Dify Chat API 生成回复（sessionKey → conversation_id，支持多轮对话）
         ↓
 通过 replyStream 发送最终答案（finish=true 结束流）
         ↓
@@ -69,13 +71,34 @@ SDK 自动处理：认证 / 心跳 / 解密 / 消息解析
 
 ```
 Integration/wecom-bot/
-├── wecom-bot.js      # 主脚本（~280 行）
+├── wecom-bot.js      # 主脚本（~290 行）
 ├── package.json       # 依赖管理
 ├── .env.example       # 配置模板
 ├── .env               # 你的实际配置（不提交到 Git）
 ├── .gitignore         # Git 忽略规则
 └── README.md          # 本文档
 ```
+
+---
+
+## 会话隔离机制（重要）
+
+多轮对话通过 `conversations` Map 维护 `conversation_id`，**session key 必须包含聊天场景信息**：
+
+```
+sessionKey = ${chatType}:${chatId}:${userId}
+```
+
+| 场景 | sessionKey 示例 | 说明 |
+|------|----------------|------|
+| 私聊 | `single:(单聊):kevin` | 每个私聊用户独立上下文 |
+| 群 A | `group:wrxxx:kevin` | 群 A 内独立上下文 |
+| 群 B | `group:ocxxx:kevin` | 群 B 内独立上下文 |
+
+> **修复记录（2026-09-09）**：早期版本仅用 `userId` 作为 key，导致同一用户在不同聊天场景共享对话上下文（群聊答案串到私聊）。已修复为 `chatType:chatId:userId` 三段式 key。
+
+- 会话 TTL：30 分钟无活动自动重置
+- 过期清理：每小时自动清理过期记录
 
 ---
 
@@ -89,11 +112,11 @@ Integration/wecom-bot/
 | 监听事件 | `im.message.receive_v1` | `message.text` |
 | 回复方式 | `client.im.v1.message.reply`（引用回复）| `wsClient.replyStream`（流式回复）|
 | Dify 调用 | 共用 `http://10.232.5.5/v1/chat-messages` | 共用 |
-| 多轮对话 | ✅（senderOpenId → conversation_id）| ✅（userId → conversation_id）|
-| 流式回复 | ❌ | ✅（"思考中..." → 最终答案）|
+| 多轮对话 | ✅（`senderOpenId:chatId → conversation_id`）| ✅（`chatType:chatId:userId → conversation_id`）|
+| 流式回复 |  | ✅（"思考中..." → 最终答案）|
 | 消息去重 | ✅（Set 缓存最近 1000 条）| ✅（Set 缓存最近 1000 条）|
 
-两端共享同一个 Dify 应用，可以在飞书群提问，然后在企微私聊继续同一话题（Dify 通过 user 字段区分用户，conversation_id 在两端独立管理）。
+两端共享同一个 Dify 应用，但 conversation_id 在两端独立管理（通过不同的 sessionKey 隔离）。
 
 ---
 
@@ -118,4 +141,7 @@ pm2 startup
 A: 当前版本仅处理文本消息（`message.text`），其他类型会打印日志但不回复。可以根据需要扩展（参考 SDK 文档的 `message.image` / `message.file` 事件）。
 
 **Q: 企微用户 ID 是加密的怎么办？**
-A: 如果机器人创建者不是企业超级管理员，`from.userid` 字段会是加密 userid。可以通过"自建应用与智能机器人的对接"文档转换为明文 userid。多轮对话不受影响（SDK 用加密 userid 作为 key 也能正常工作）。
+A: 如果机器人创建者不是企业超级管理员，`from.userid` 字段会是加密 userid。可以通过"自建应用与智能机器人的对接"文档转换为明文 userid。多轮对话不受影响（SDK 用加密 userid 作为 sessionKey 的一部分也能正常工作）。
+
+**Q: 不同群聊/私聊的对话会串吗？**
+A: 不会。2026-09-09 已修复会话隔离问题，session key 包含 `chatType:chatId:userId`，确保每个聊天场景有独立的对话上下文。
