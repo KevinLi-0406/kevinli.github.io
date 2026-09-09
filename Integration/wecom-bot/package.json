@@ -1,0 +1,17 @@
+{
+  "name": "wecom-bot",
+  "version": "1.0.0",
+  "description": "企微智能机器人 - WebSocket 长连接 + Dify Chat API（多轮对话 + 流式回复）",
+  "main": "wecom-bot.js",
+  "scripts": {
+    "start": "node wecom-bot.js",
+    "dev": "node --watch wecom-bot.js"
+  },
+  "dependencies": {
+    "@wecom/aibot-node-sdk": "^1.0.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}
