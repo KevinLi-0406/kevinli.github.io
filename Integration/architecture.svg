@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" width="1200" height="920" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1200" height="920" fill="url(#bg)"/>
+
+  <!-- 标题 -->
+  <text x="600" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#0f172a">🧠 统一信息平台 · 架构图</text>
+  <text x="600" y="58" text-anchor="middle" font-size="12" fill="#64748b">一个大脑 · 五个触角 · 一套 Dify 知识库 · Cherry Studio 整合企微/飞书/Teams/邮箱/D365</text>
+
+  <!-- 图例 -->
+  <g transform="translate(380, 78)">
+    <rect x="0" y="0" width="70" height="20" rx="4" fill="#16a34a"/>
+    <text x="35" y="14" text-anchor="middle" font-size="11" fill="#fff">✅ 已完成</text>
+    <rect x="80" y="0" width="70" height="20" rx="4" fill="#94a3b8"/>
+    <text x="115" y="14" text-anchor="middle" font-size="11" fill="#fff">⏳ 待开发</text>
+    <rect x="160" y="0" width="80" height="20" rx="4" fill="#2563eb"/>
+    <text x="200" y="14" text-anchor="middle" font-size="11" fill="#fff">🧠 AI 大脑</text>
+    <rect x="250" y="0" width="80" height="20" rx="4" fill="#7c3aed"/>
+    <text x="290" y="14" text-anchor="middle" font-size="11" fill="#fff">💾 数据资产</text>
+    <rect x="340" y="0" width="80" height="20" rx="4" fill="#ea580c"/>
+    <text x="380" y="14" text-anchor="middle" font-size="11" fill="#fff"> 使用者</text>
+  </g>
+
+  <!-- ===== 第一层：Kevin ===== -->
+  <g transform="translate(440, 110)">
+    <rect width="320" height="55" rx="28" fill="#f97316" stroke="#ea580c" stroke-width="2" filter="url(#shadow)"/>
+    <text x="160" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">👤 Kevin</text>
+    <text x="160" y="42" text-anchor="middle" font-size="10" fill="#fff">九号公司 · 海外销服应用工程师</text>
+  </g>
+
+  <!-- ===== 第二层：AI 大脑 ===== -->
+  <text x="600" y="205" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b"> AI 大脑层</text>
+  <rect x="100" y="218" width="1000" height="85" rx="10" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Cherry Studio -->
+  <g transform="translate(150, 230)">
+    <rect width="380" height="58" rx="8" fill="#2563eb" filter="url(#shadow)"/>
+    <text x="190" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">🖥️ Cherry Studio（本地操作中枢）</text>
+    <text x="190" y="42" text-anchor="middle" font-size="10" fill="#dbeafe">Kevin 本人使用 · 本地客户端 · MCP 集成</text>
+  </g>
+
+  <!-- Dify -->
+  <g transform="translate(670, 230)">
+    <rect width="380" height="58" rx="8" fill="#2563eb" filter="url(#shadow)"/>
+    <text x="190" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">☁️ Dify 云端 AI 引擎</text>
+    <text x="190" y="42" text-anchor="middle" font-size="10" fill="#dbeafe">http://10.232.5.5 · 内网自建 · Bot 共用</text>
+  </g>
+
+  <!-- 连线 Kevin → 大脑 -->
+  <line x1="600" y1="165" x2="340" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="600" y1="165" x2="860" y2="230" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="460" y="198" text-anchor="middle" font-size="10" fill="#64748b">每天使用</text>
+  <text x="740" y="198" text-anchor="middle" font-size="10" fill="#64748b">群里 @提问触发</text>
+
+  <!-- ===== 第三层：五个触角 ===== -->
+  <text x="600" y="355" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">📡 五个触角 · 全平台集成</text>
+  <rect x="50" y="368" width="1100" height="100" rx="10" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- 企微 -->
+  <g transform="translate(60, 380)">
+    <rect width="200" height="75" rx="8" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">💬 企业微信</text>
+    <text x="100" y="37" text-anchor="middle" font-size="10" fill="#dcfce7">WebSocket + Dify Bot</text>
+    <text x="100" y="52" text-anchor="middle" font-size="10" fill="#dcfce7">消息/日程/会议/待办</text>
+    <text x="100" y="67" text-anchor="middle" font-size="10" fill="#dcfce7">wecom-cli v1.2.0</text>
+  </g>
+
+  <!-- 飞书 -->
+  <g transform="translate(280, 380)">
+    <rect width="200" height="75" rx="8" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">💬 飞书</text>
+    <text x="100" y="37" text-anchor="middle" font-size="10" fill="#dcfce7">WebSocket + Dify Bot</text>
+    <text x="100" y="52" text-anchor="middle" font-size="10" fill="#dcfce7">消息/邮件/日程/会议</text>
+    <text x="100" y="67" text-anchor="middle" font-size="10" fill="#dcfce7">lark-cli v1.0.92</text>
+  </g>
+
+  <!-- Teams -->
+  <g transform="translate(500, 380)">
+    <rect width="200" height="75" rx="8" fill="#94a3b8" filter="url(#shadow)"/>
+    <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">💬 Teams</text>
+    <text x="100" y="37" text-anchor="middle" font-size="10" fill="#f1f5f9">⏳ 待开发</text>
+    <text x="100" y="52" text-anchor="middle" font-size="10" fill="#f1f5f9">欧洲团队协作</text>
+    <text x="100" y="67" text-anchor="middle" font-size="10" fill="#f1f5f9">Azure Graph API</text>
+  </g>
+
+  <!-- 邮箱 -->
+  <g transform="translate(720, 380)">
+    <rect width="200" height="75" rx="8" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">📧 网易企业邮箱</text>
+    <text x="100" y="37" text-anchor="middle" font-size="10" fill="#dcfce7">SMTP + IMAP</text>
+    <text x="100" y="52" text-anchor="middle" font-size="10" fill="#dcfce7">收发 / 附件 / 定时任务</text>
+    <text x="100" y="67" text-anchor="middle" font-size="10" fill="#dcfce7">smtphz.qiye.163.com:994</text>
+  </g>
+
+  <!-- D365 -->
+  <g transform="translate(940, 380)">
+    <rect width="200" height="75" rx="8" fill="#16a34a" filter="url(#shadow)"/>
+    <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">🗄️ D365 MCP</text>
+    <text x="100" y="37" text-anchor="middle" font-size="10" fill="#dcfce7">SPP 运维助手</text>
+    <text x="100" y="52" text-anchor="middle" font-size="10" fill="#dcfce7">1777 表 · EU SPP 运维</text>
+    <text x="100" y="67" text-anchor="middle" font-size="10" fill="#dcfce7">Dataverse MCP</text>
+  </g>
+
+  <!-- 连线 大脑 → 触角（Cherry Studio → 全部） -->
+  <line x1="340" y1="288" x2="160" y2="380" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="288" x2="380" y2="380" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="288" x2="600" y2="380" stroke="#64748b" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="340" y1="288" x2="820" y2="380" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="288" x2="1040" y2="380" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Dify → 企微 + 飞书（专用 Bot 连线） -->
+  <line x1="860" y1="288" x2="160" y2="380" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrow-green)"/>
+  <line x1="860" y1="288" x2="380" y2="380" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrow-green)"/>
+  <text x="600" y="345" text-anchor="middle" font-size="10" fill="#2563eb" font-weight="bold">Bot 共用同一 Dify 应用</text>
+
+  <!-- ===== 第四层：Dify 知识库（核心数据资产） ===== -->
+  <text x="600" y="520" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">💾 Dify 知识库（唯一核心数据资产）</text>
+  <g transform="translate(350, 535)">
+    <rect width="500" height="80" rx="10" fill="#7c3aed" stroke="#6d28d9" stroke-width="2" filter="url(#shadow)"/>
+    <text x="250" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">📚 Dify 知识库</text>
+    <text x="250" y="45" text-anchor="middle" font-size="11" fill="#ede9fe">仓库 Markdown 文档 + 业务 PDF/Office 文档</text>
+    <text x="250" y="63" text-anchor="middle" font-size="11" fill="#ede9fe">Integration / Knowledge 等目录</text>
+  </g>
+
+  <!-- 连线 触角 → Dify 知识库 -->
+  <line x1="160" y1="455" x2="420" y2="535" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="380" y1="455" x2="470" y2="535" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="600" y1="455" x2="530" y2="535" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="820" y1="455" x2="620" y2="535" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="1040" y1="455" x2="730" y2="535" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Dify 引擎 → Dify 知识库 -->
+  <line x1="860" y1="288" x2="700" y2="535" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="780" y="410" text-anchor="middle" font-size="10" fill="#2563eb">检索知识库</text>
+
+  <!-- ===== 第五层：GitHub 仓库（代码/工具/文档展示） ===== -->
+  <text x="600" y="665" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">📦 GitHub 仓库（代码 / 工具 / 文档展示载体）</text>
+  <g transform="translate(350, 680)">
+    <rect width="500" height="55" rx="10" fill="#64748b" filter="url(#shadow)"/>
+    <text x="250" y="22" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">📚 kevinli.github.io</text>
+    <text x="250" y="42" text-anchor="middle" font-size="10" fill="#f1f5f9">Git 版本控制 + Pages 展示 · 公开仓库</text>
+  </g>
+
+  <!-- 连线 Dify 知识库 → GitHub 仓库 -->
+  <line x1="600" y1="615" x2="600" y2="680" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="680" y="650" text-anchor="middle" font-size="10" fill="#64748b">Markdown 文档同步</text>
+
+  <!-- ===== 底部：两条核心循环 ===== -->
+  <text x="600" y="785" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">🔁 两条核心循环</text>
+  <rect x="80" y="798" width="1040" height="110" rx="10" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- 循环1：AI 代答 -->
+  <g transform="translate(100, 810)">
+    <rect width="480" height="85" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+    <text x="240" y="17" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">🟡 循环 1：AI 代答（同事使用）</text>
+    <text x="240" y="35" text-anchor="middle" font-size="11" fill="#78350f">同事在群里 @机器人 → Bot WebSocket → Dify Chat API</text>
+    <text x="240" y="52" text-anchor="middle" font-size="11" fill="#78350f">→ 检索 Dify 知识库（Markdown + 业务 PDF/Office）</text>
+    <text x="240" y="69" text-anchor="middle" font-size="11" fill="#78350f">→ 生成回答（多轮对话） → 回复到群里</text>
+  </g>
+
+  <!-- 循环2：知识沉淀 -->
+  <g transform="translate(620, 810)">
+    <rect width="480" height="85" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+    <text x="240" y="17" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">🔵 循环 2：知识沉淀（Kevin 使用）</text>
+    <text x="240" y="35" text-anchor="middle" font-size="11" fill="#1e3a8a">Kevin 通过 Cherry Studio → 各平台 CLI / MCP</text>
+    <text x="240" y="52" text-anchor="middle" font-size="11" fill="#1e3a8a">→ 查询数据 / 整理信息 / 生成报告</text>
+    <text x="240" y="69" text-anchor="middle" font-size="11" fill="#1e3a8a">→ 沉淀到 GitHub 仓库 → 同步到 Dify 知识库</text>
+  </g>
+
+  <!-- 页脚 -->
+  <text x="600" y="895" text-anchor="middle" font-size="10" fill="#94a3b8">📅 2026-09-09 · kevinli.github.io · Cherry Studio AI 助手</text>
+
+</svg>
