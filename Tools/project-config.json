@@ -23,6 +23,7 @@
     { "file": "photo-album/index.html",        "icon": "📷",  "category": "cat.photo", "description": "共享相册" },
     { "file": "b2x-query/index.html",          "icon": "🔎",  "category": "cat.tool",  "description": "B2X 数据查询工具" },
     { "file": "travel-planner/index.html",     "icon": "🗺️",  "category": "cat.travel","description": "城市漫游行程助手，基于高德地图的智能行程规划" },
-    { "file": "ai-test-tool/index.html",       "icon": "🤖",  "category": "cat.tool",  "description": "AI API 测试工具，多模型对比与性能基准测试" }
+    { "file": "ai-test-tool/index.html",       "icon": "🤖",  "category": "cat.tool",  "description": "AI API 测试工具，多模型对比与性能基准测试" },
+    { "file": "portal-editor/index.html",      "icon": "🛠️",  "category": "cat.tool",  "description": "门户可视化编辑器，通过点击元素修改 index.html 并发布到 GitHub" }
   ]
 }
