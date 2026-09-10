@@ -399,7 +399,7 @@
         </div>
         <div class="stats-grid">
           <div class="stat-card"><div class="s-icon"></div><h3>10+ 核心项目</h3><p>SDS、SPP、B2X、Chat、RPA、UDesk 等</p></div>
-          <div class="stat-card"><div class="s-icon"></div><h3>跨文化协作</h3><p>北美/欧洲/墨西哥多地业务支持与现场演示</p></div>
+          <div class="stat-card"><div class="s-icon"></div><h3>跨文化协作</h3><p>北��/欧洲/墨西哥多地业务支持与现场演示</p></div>
           <div class="stat-card"><div class="s-icon"></div><h3>3 年 + 经验</h3><p>从项目启动到上线运维的全流程经验</p></div>
         </div>
       </div>
@@ -450,7 +450,7 @@
         <div class="section-heading"><h2>工作风格</h2><p>// 同事眼中的 Kevin</p></div>
         <div class="style-grid">
           <div class="style-card"><div class="st-icon">🔥</div><h3>高强度投入</h3><p>经常加班到深夜甚至通宵处理问题，凌晨回复海外同事是常态。</p></div>
-          <div class="style-card"><div class="st-icon">🛡️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
+          <div class="style-card"><div class="st-icon">����️</div><h3>团队的安全感</h3><p>"跟着奕兴也有安全感"——技术问题终结者，业务方案输出者，跨部门推动者。</p></div>
           <div class="style-card"><div class="st-icon">🏃</div><h3>主动向前一步</h3><p>主动导出 657 条错误数据分析、主动整理二返规则、主动发现代码缺陷。</p></div>
           <div class="style-card"><div class="st-icon">😄</div><h3>幽默风趣</h3><p>工作群中的氛围担当，IT 团建主持人与串场王。</p></div>
           <div class="style-card"><div class="st-icon">📝</div><h3>善于总结沉淀</h3><p>多次担任会议主持和记录人，将讨论成果固化为文档和方案。</p></div>
@@ -462,10 +462,10 @@
     <!-- PROJECTS -->
     <section id="projects" class="section">
       <div class="container">
-        <div class="section-heading"><h2>我的项目</h2><p id="projectCount">// 从 Projects/README.md 实时加载分类</p></div>
+        <div class="section-heading"><h2>我的项目</h2><p id="projectCount">// 自动扫描 Tools/ 目录加载项目列表</p></div>
         <div class="filter-bar" id="filterBar" style="display:none"></div>
         <div id="project-grid" class="project-grid">
-          <div class="loading-state"><div class="loading-spinner"></div><div>正在从 GitHub 拉取项目…</div></div>
+          <div class="loading-state"><div class="loading-spinner"></div><div>正��从 GitHub 拉取项目…</div></div>
         </div>
       </div>
     </section>
@@ -474,7 +474,7 @@
     <section class="section">
       <div class="container">
         <div class="info-grid">
-          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Projects 目录实时获取，分类数据来源于 Projects/README.md。</p></div>
+          <div class="info-card"><h3>关于这个网站</h3><p>部署在 GitHub Pages 上的个人门户。项目列表通过 GitHub Contents API 从 kevinli.github.io 仓库的 Tools 目录自动扫描发现，project-config.json 提供元数据补充。</p></div>
           <div class="info-card"><h3>技术栈</h3><p>纯 HTML / CSS / JavaScript，通过 GitHub REST API 动态获取项目文件列表和分类信息。</p><div class="tech-list"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub API</span><span>GitHub Pages</span></div></div>
         </div>
       </div>
@@ -487,16 +487,11 @@
     /* ====== 配置 ====== */
     var GITHUB_USERNAME = "KevinLI-0406";
     var GITHUB_REPO = "kevinli.github.io";
-    var PROJECTS_DIR = "Projects";
+    var PROJECTS_DIR = "Tools";
     var PAGES_BASE = "https://" + GITHUB_USERNAME + ".github.io/" + GITHUB_REPO;
 
     /* ====== README 加载失败时的硬编码兜底（与 README.md 保持一致） ====== */
-    var FALLBACK_CATS = {
-      "CherryStudio CSS 编辑器.html": "工具",
-      "golden-puppy-pet.html": "宠物养成",
-      "squirtle-pet.html": "宠物养成",
-      "宝可梦图鉴.html": "游戏/图鉴"
-    };
+    var FALLBACK_CATS = {};
 
     /* ====== 动态状态（运行时填充） ====== */
     var CAT_NAMES = [];
@@ -507,7 +502,7 @@
 
     /* ====== 从 GitHub API 获取项目文件列表（带缓存） ====== */
     async function fetchProjectFiles() {
-      var cacheKey = "kp_files_v2";
+      var cacheKey = "kp_tools_v2";
       var cached = localStorage.getItem(cacheKey);
       if (cached) {
         try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.files; } catch(e) {}
@@ -516,20 +511,20 @@
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("GitHub API 错误 (" + resp.status + ")");
       var files = (await resp.json()).filter(function(f) {
-        return f.type === "file" && /\.html?$/i.test(f.name) && f.name.toLowerCase() !== "index.html";
+        return f.type === "dir";
       });
       try { localStorage.setItem(cacheKey, JSON.stringify({ts: Date.now(), files: files})); } catch(e) {}
       return files;
     }
 
-    /* ====== 从 GitHub API 获取并解析 README.md 中的分类表（带缓存） ====== */
+    /* ====== 从 GitHub API ���取并解析 README.md 中的分类表（带缓存） ====== */
     async function fetchReadmeCategories() {
-      var cacheKey = "kp_readme_v2";
+      var cacheKey = "kp_tools_readme_v2";
       var cached = localStorage.getItem(cacheKey);
       if (cached) {
         try { var d = JSON.parse(cached); if (Date.now() - d.ts < 300000) return d.cats; } catch(e) {}
       }
-      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/" + PROJECTS_DIR + "/README.md";
+      var url = "https://api.github.com/repos/" + GITHUB_USERNAME + "/" + GITHUB_REPO + "/contents/Tools/README.md";
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("README API error");
       var data = await resp.json();
@@ -583,7 +578,7 @@
       var html = "";
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
-        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + encodeURIComponent(it.file.name);
+        var url = PAGES_BASE + "/" + PROJECTS_DIR + "/" + it.file.name + "/index.html";
         html += '<a class="project-card" href="' + url + '" target="_blank" rel="noopener">';
         html += '<div class="project-icon">' + catIcon(it.cat) + '</div>';
         html += '<h3>' + esc(it.name) + '</h3>';
@@ -617,8 +612,8 @@
         catch(e) { console.warn("README 加载失败，使用兜底分类:", e.message); readmeCats = FALLBACK_CATS; CAT_NAMES = []; var s = {}; for (var k in readmeCats) { s[readmeCats[k]] = true; } CAT_NAMES = Object.keys(s); CAT_ICONS = {}; CAT_NAMES.forEach(function(c) { CAT_ICONS[c] = "📄"; }); if (CAT_NAMES.indexOf("工具") !== -1) CAT_ICONS["工具"] = "🛠️"; if (CAT_NAMES.indexOf("宠物养成") !== -1) CAT_ICONS["宠物养成"] = "🐾"; if (CAT_NAMES.indexOf("游戏/图鉴") !== -1) CAT_ICONS["游戏/图鉴"] = "🎮"; }
         var files = await fetchProjectFiles();
         allItems = files.map(function(f) {
-          var name = f.name.replace(/\.html?$/i, "");
-          return { file: f, name: name, cat: readmeCats[f.name] || "未分类" };
+          var name = f.name.replace(/-/g, " ").replace(/\b\w/g, function(c){return c.toUpperCase();});
+          return { file: f, name: name, cat: readmeCats[f.name] || "工具" };
         });
         buildFilter();
         applyFilters();
