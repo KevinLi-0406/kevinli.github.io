@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-16 12:00 (UTC+8)
+- **修改文件**：`Integration/b2x-mysav-auto-repush/README.md`、`Integration/b2x-mysav-auto-repush/b2x-auto-repush.html`、`Integration/b2x-mysav-auto-repush/mysav-auto-repush.html`
+- **变更类型**：新增
+- **变更描述**：
+  1. **B2X & Mysav 自动重推逻辑文档**：
+     - 记录 B2X 和 Mysav 工单状态推送失败后的自动重推策略
+     - 包含完整背景说明：状态流转、库存扣减机制、问题场景
+     - B2X 方案：无 WO 状态查询接口，依赖错误信息路由（盲推 USB → 根据报错转 RC）
+     - Mysav 方案：有 WO 状态查询接口，精准路由（先查状态 → 直达 USB 或 RC）
+     - 两套方案的详细对比表和差异分析
+  2. **交互式流程图**：
+     - 两个独立 HTML 文件，使用 Mermaid 渲染流程图
+     - 包含背景说明、逻辑解释、关键结论
+     - 方便分别给 B2X 和 Mysav 的 IT 团队讲解
+  3. **关键结论**：
+     - 库存扣减最多 1 分钟，24H 间隔充足
+     - 无重复扣减风险（24H ≫ 1min）
+     - Out of stock 时 RC 重推循环，人工调整库存后自动恢复
+- **影响范围**：B2X/Mysav 自动重推机制实施
+- **关联请求**：用户需要为 B2X 和 Mysav 分别设计自动重推方案，并输出可视化流程图供 IT 团队参考
+- **Commit**：`d062030` - docs: 添加 B2X 和 Mysav 自动重推逻辑文档
+
 ### 2026-09-09 18:44 (UTC+8)
 - **修改文件**：`Integration/wecom-bot/wecom-bot.js`、`Integration/wecom-bot/README.md`、`Integration/integration-details.md`、`Integration/README.md`、`index.html`、`CHANGELOG.md`
 - **变更类型**：Bug 修复 + 功能新增 + 文档更新
