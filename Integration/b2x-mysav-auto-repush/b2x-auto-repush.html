@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>B2X Auto-Repush Logic</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 960px; margin: 0 auto; padding: 24px; background: #fafafa; }
+  h1 { text-align: center; color: #1a1a2e; }
+  h2 { color: #16213e; border-bottom: 2px solid #0f3460; padding-bottom: 8px; margin-top: 32px; }
+  .diagram { background: #fff; border-radius: 12px; padding: 24px; margin: 16px 0; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .note { background: #e8f4fd; border-left: 4px solid #0f3460; padding: 12px 16px; border-radius: 4px; margin: 12px 0; font-size: 14px; }
+  .context { background: #fff3cd; border-left: 4px solid #f39c12; padding: 12px 16px; border-radius: 4px; margin: 12px 0; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; }
+  th { background: #0f3460; color: #fff; padding: 10px; text-align: left; }
+  td { padding: 10px; border-bottom: 1px solid #eee; }
+</style>
+</head>
+<body>
+
+<h1>B2X Auto-Repush Logic</h1>
+
+<h2>Background</h2>
+<div class="context">
+  <strong>Status Flow:</strong> Create → Under Repair → Repair Complete → Unit Ship Back<br>
+  <strong>Key Constraint:</strong> Repair Complete (RC) is mandatory, cannot be skipped.<br>
+  <strong>Stock Deduction:</strong> Triggered on RC, takes up to 1 minute. Processing=Yes means still in progress; No means completed.<br>
+  <strong>Out of Stock:</strong> If deduction fails, WO stays at Under Repair, tagged "out of stock". Business team adjusts inventory manually.
+</div>
+
+<h2>Problem Scenarios</h2>
+<div class="note">
+  <strong>Scenario 1:</strong> RC deduction fails → WO stays at Under Repair → Unit Ship Back (USB) arrives → Error: "Cannot skip RC"<br>
+  <strong>Scenario 2:</strong> RC triggers deduction but USB arrives before completion (~40s interval) → Error: "Stock deduction still processing"
+</div>
+
+<h2>Auto-Repush Logic (Frequency: +24H)</h2>
+<div class="note">B2X does not have WO status query API. Routing depends entirely on error message received.</div>
+
+<div class="diagram">
+<pre class="mermaid">
+flowchart TD
+    START([ B2X pushes status to D365 ]) --> PUSH[Push fails]
+    PUSH --> ERR{Error message?}
+
+    ERR -->|Cannot skip Repair Complete| RC[Repush Repair Complete]
+    RC --> RCOK{Success?}
+    RCOK -->|Yes| NEXT[Continue pushing next status]
+    RCOK -->|No| WAIT24
+
+    ERR -->|Stock deduction still processing| USB[Repush Unit Ship Back]
+    USB --> USBOK{Success?}
+    USBOK -->|Yes| NEXT
+    USBOK -->|No: Cannot skip RC| RC
+    USBOK -->|No: Other error| WAIT24
+
+    WAIT24[Wait +24H] --> PUSH
+
+    style START fill:#0f3460,color:#fff,stroke:none
+    style NEXT fill:#2ecc71,color:#fff,stroke:none
+    style WAIT24 fill:#f39c12,color:#fff,stroke:none
+    style RC fill:#3498db,color:#fff,stroke:none
+    style USB fill:#3498db,color:#fff,stroke:none
+</pre>
+</div>
+
+<h2>Logic Explanation</h2>
+<table>
+  <tr>
+    <th>Error Received</th>
+    <th>Action</th>
+    <th>Rationale</th>
+  </tr>
+  <tr>
+    <td>Cannot skip Repair Complete</td>
+    <td>Repush RC</td>
+    <td>After 24H, stock deduction has completed (max 1min). If deduction succeeded, WO is at RC and needs USB. If deduction failed (out of stock), WO is at Under Repair and needs RC again.</td>
+  </tr>
+  <tr>
+    <td>Stock deduction still processing</td>
+    <td>Repush USB</td>
+    <td>After 24H, deduction has completed. If it succeeded, USB will succeed. If it failed, USB will fail with "Cannot skip RC" → then repush RC.</td>
+  </tr>
+  <tr>
+    <td>RC repush fails (out of stock)</td>
+    <td>Loop every 24H</td>
+    <td>Business team adjusts inventory. Once adjusted, next RC repush succeeds automatically.</td>
+  </tr>
+</table>
+
+<h2>Key Points</h2>
+<div class="note">
+  ✅ Stock deduction completes within 1 minute, so 24H interval is sufficient<br>
+  ✅ No risk of duplicate deduction (24H ≫ 1min)<br>
+  ✅ If out of stock, RC repush loops until inventory is adjusted<br>
+  ✅ "Start logic" = re-read the latest error message and route accordingly
+</div>
+
+<script>mermaid.initialize({startOnLoad:true, theme:'default'});</script>
+</body>
+</html>
