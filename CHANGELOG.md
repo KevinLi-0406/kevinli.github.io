@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-16 18:38 (UTC+8)
+- **修改文件**：`Integration/integration-details.md`
+- **变更类型**：文档更新
+- **变更描述**：
+  1. **EU SDS 知识库构建进度报告**：
+     - 自动重推逻辑分析与验证（B2X/Mysav流程图）
+     - QA知识库构建：60→200+ QA对，24个章节，1300+行
+     - Dify Bot问答验证：修正22个关键点（接口方向、状态定义、术语准确性等）
+     - 文件整理：桌面50→8个文件，4-EU SDS按项目管理维度重组
+     - 知识库拆分：1个大文件→22个小文件，216个Q&A对，格式化为Dify兼容格式
+     - 企微机器人排查与修复：进程未运行，手动启动恢复
+  2. **经验总结**：
+     - 成功做法：先验证逻辑再写文档、用Bot问答验证、拆分文档、格式化适配
+     - 踩过的坑：Q&A被拆开、Q&A分段选不上、机器人进程退出、术语不准确
+- **影响范围**：EU SDS知识库文档、企微机器人
+- **Commit**：`f9bfbc8` - docs: 更新集成详情 - 添加EU SDS知识库构建进度（2026-09-16）
+
 ### 2026-09-16 12:00 (UTC+8)
 - **修改文件**：`Integration/b2x-mysav-auto-repush/README.md`、`Integration/b2x-mysav-auto-repush/b2x-auto-repush.html`、`Integration/b2x-mysav-auto-repush/mysav-auto-repush.html`
 - **变更类型**：新增
@@ -25,6 +42,13 @@ All notable changes to this project will be documented in this file.
 - **影响范围**：B2X/Mysav 自动重推机制实施
 - **关联请求**：用户需要为 B2X 和 Mysav 分别设计自动重推方案，并输出可视化流程图供 IT 团队参考
 - **Commit**：`d062030` - docs: 添加 B2X 和 Mysav 自动重推逻辑文档
+
+### 2026-09-15 (UTC+8)
+- **修改文件**：`Resources/cars/` 目录下多个重复图片文件
+- **变更类型**：清理
+- **变更描述**：删除 Teams/ 目录下已存在的重复 F1 赛车图片（2026williamscar.png、2026redbullracingcar.png 等 12 个文件）
+- **影响范围**：无功能影响，仅清理重复资源
+- **Commits**：`a208cca`~`e3c025a` - chore: remove duplicate cars
 
 ### 2026-09-09 18:44 (UTC+8)
 - **修改文件**：`Integration/wecom-bot/wecom-bot.js`、`Integration/wecom-bot/README.md`、`Integration/integration-details.md`、`Integration/README.md`、`index.html`、`CHANGELOG.md`
@@ -51,3 +75,38 @@ All notable changes to this project will be documented in this file.
 - **关联请求**：用户反馈"机器人在私聊里回复了群里的问题" + "把 Dify Chatbot 嵌入门户"
 
 ### 2026-09-09 12:15 (UTC+8)
+- **修改文件**：`Integration/feishu-bot/`、`Integration/wecom-bot/`、`Integration/integration-details.md`、`Integration/requirements.md`、`Integration/sync-log.md`
+- **变更类型**：功能新增 + 文档更新
+- **变更描述**：
+  1. **新增飞书和企微智能机器人**：
+     - 基于 `@wecom/aibot-node-sdk` 和飞书 WebSocket SDK
+     - WebSocket 长连接模式，无需公网 URL/内网穿透
+     - 集成 Dify Chat API，支持多轮对话和流式回复
+     - 架构与 Cherry Studio 本地 Agent 对称
+  2. **统一信息平台架构图**：
+     - 新增 `architecture.svg`，展示"一个大脑，五个触角"架构
+     - 大脑：Cherry Studio + Dify；触角：企微/飞书/Teams/邮箱/D365
+  3. **OpenAI 兼容格式调整**：
+     - feishu-bot 从 Dify 原生格式改为 OpenAI 兼容格式
+     - 统一与 wecom-bot 的 API 调用方式
+  4. **文档同步**：
+     - `sync-log.md`：补齐 9-5 至 9-9 同步记录
+     - `requirements.md`：同步 Dify 接入 + F1 WebSocket 实时模式需求
+- **影响范围**：企微/飞书 Bot 实时监听、统一信息平台架构
+- **Commits**：`0c470e3`、`e0dca39`、`40b6d98`、`7ecd037`、`63a0bfe`
+
+### 2026-09-05 (UTC+8)
+- **修改文件**：`Tools/portal-editor/`、`Resources/`、`project-config.json`、`index.html`
+- **变更类型**：重构 + Bug 修复
+- **变更描述**：
+  1. **portal-editor 迁移**：
+     - 从 `Resources/portal-editor.html` 移到 `Tools/portal-editor/portal-editor.html`
+     - 更新 `project-config.json` 配置
+  2. **cyberpunk portal 扫描路径修复**：
+     - Bug：删除 Projects/ 目录后，portal 扫描路径失效
+     - Fix：改为扫描 Tools/ 目录
+  3. **Projects 目录删除**：
+     - 清理空的 Projects/ 目录
+     - 更新顶层 README 反映 Bot + Dify AI 问答能力和门户 Chatbot 集成
+- **影响范围**：门户编辑器、cyberpunk portal 扫描逻辑
+- **Commits**：`526ae33`、`e9ae888`、`a48abb6`、`0414e49`、`2ce7618`、`1ef5864`
