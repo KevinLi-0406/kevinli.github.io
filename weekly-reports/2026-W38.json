@@ -1,372 +1,196 @@
 {
   "week": "2026-W38",
   "period": "2026-09-14 ~ 2026-09-20",
-  "generatedAt": "2026-09-20T18:40:00+08:00",
-  "summary": "核心推进SPP项目：Online模块MySAV 9/21上线切换、Offline模块MSD字段确认、Settlement模块到店结算PRD开发、Spare Parts模块配件录单方案推进",
+  "generatedAt": "2026-09-20T18:33:00+08:00",
+  "summary": "核心推进SPP项目：MySAV 9/21上线切换、SDS运维闭环、海外服务交付系统变革915版本发布，并行推进到店结算PRD与配件录单方案",
   "projects": [
     {
       "id": 1,
-      "name": "SPP",
+      "name": "SPP（SDS/SPP/MySAV）",
       "priority": "P0",
       "status": "进行中",
-      "modules": {
-        "Online": {
-          "name": "Online（线上工单/MySAV/SDS）",
-          "tasks": [
-            {
-              "id": 101,
-              "task": "与Shan Qiu确认9/21切换方案：B2X先停→核对WIP物料差异→取消B2X WIP再同步到SPP",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 102,
-              "task": "与张望贤确认切换时间线：周日午夜断连B2X，周一12:00前推入SPP",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 103,
-              "task": "排查repair complete状态卡住根因（库存接口指向UAT而非UAT2），沈恒斌已修改406个工单",
-              "progress": "90%",
-              "owner": "Kevin Li / 沈恒斌",
-              "estimatedCompletion": "2026-09-21"
-            },
-            {
-              "id": 104,
-              "task": "Dry Run数据质量监控：对接成功率73%，Clement决策按计划上线",
-              "progress": "100%",
-              "owner": "Kevin Li / Joanna Wu",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 105,
-              "task": "自动重推兜底逻辑推进（B2X/MySAV推送失败消息的自动重推）",
-              "progress": "70%",
-              "owner": "张望贤",
-              "estimatedCompletion": "2026-09-22"
-            },
-            {
-              "id": 106,
-              "task": "9/21正式上线执行：B2X断连，MySAV直推SPP",
-              "progress": "0%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-21"
-            },
-            {
-              "id": 107,
-              "task": "MySav自动推送功能上线，排查Stock同步报错（97%为联想侧数据问题）",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-19"
-            },
-            {
-              "id": 108,
-              "task": "协调MySav侧切换推送逻辑（Repair Complete推送修正），安排9/21接受新工单",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 201,
-              "task": "协助Choice验证SCM数据核对，确认数据无误后闭环",
-              "progress": "100%",
-              "owner": "Kevin Li / Choice",
-              "estimatedCompletion": "2026-09-18"
-            },
-            {
-              "id": 202,
-              "task": "向Choice解释工单占料推送逻辑（UseConfirm→库存扣减→ServiceEnd）",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-19"
-            },
-            {
-              "id": 203,
-              "task": "查询Integration Log排查数据同步问题，邮件汇总报错清单",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-19"
-            },
-            {
-              "id": 204,
-              "task": "开通test5环境账号权限，协助同事排查Log查看权限问题",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-18"
-            },
-            {
-              "id": 301,
-              "task": "915版本已发布，922版本按计划推进",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 302,
-              "task": "自营仓对接：从SIT测试推进至UAT阶段",
-              "progress": "60%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-24"
-            },
-            {
-              "id": 303,
-              "task": "Walk-in Repair PRD更新：Buffer Time字段逻辑（Micro-Mobility默认20天，其他不设默认值）",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-19"
-            }
-          ],
-          "risks": [
-            {
-              "id": 1001,
-              "task": "MySAV有700+工单未关单仍在B2X中，需两边接数据过渡",
-              "progress": "待处理",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-21"
-            },
-            {
-              "id": 1002,
-              "task": "Dry run数据对接成功率73%，低于B2X对接的95%目标",
-              "progress": "持续监控",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-30"
-            },
-            {
-              "id": 1003,
-              "task": "MySav源数据不完整，Dryrun无法全面数据比对",
-              "progress": "沟通中",
-              "owner": "Kevin Li / MySav",
-              "estimatedCompletion": "2026-09-21"
-            },
-            {
-              "id": 3001,
-              "task": "RC+KA Design阶段较原计划延迟一周（9/18完成）",
-              "progress": "已闭环",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-18"
-            }
-          ],
-          "coordination": [
-            {
-              "id": 10001,
-              "task": "推动国威拉通解决欧洲工作时间库存接口可用性问题",
-              "progress": "已推动",
-              "owner": "Kevin Li / 国威",
-              "estimatedCompletion": "2026-09-21"
-            },
-            {
-              "id": 10002,
-              "task": "协调联想侧切换推送逻辑（Repair Complete推送修正）",
-              "progress": "已协调",
-              "owner": "Kevin Li / 联想",
-              "estimatedCompletion": "2026-09-20"
-            },
-            {
-              "id": 10003,
-              "task": "IT和业务分别负责集成消息分析和业务单据分析，按天监控几周",
-              "progress": "已确认",
-              "owner": "Kevin Li / CD",
-              "estimatedCompletion": "2026-09-20"
-            }
-          ]
-        },
-        "Offline": {
-          "name": "Offline（MSD/LDS/线下工单）",
-          "tasks": [
-            {
-              "id": 601,
-              "task": "参与内部沟通会议，MSD字段待最后确认",
-              "progress": "80%",
-              "owner": "Kevin Li / 张望贤",
-              "estimatedCompletion": "2026-09-20"
-            }
-          ],
-          "risks": [],
-          "coordination": []
-        },
-        "Spare Parts": {
-          "name": "Spare Parts（配件）",
-          "tasks": [
-            {
-              "id": 501,
-              "task": "虚拟SN生成方案已确定",
-              "progress": "100%",
-              "owner": "Kevin Li / Chloe",
-              "estimatedCompletion": "2026-09-19"
-            },
-            {
-              "id": 502,
-              "task": "Chloe已创建'虚拟SN信息收集模版'在线表格，待收集虚拟主数据",
-              "progress": "50%",
-              "owner": "Chloe(江宇歌)",
-              "estimatedCompletion": "2026-09-30"
-            }
-          ],
-          "risks": [],
-          "coordination": []
-        },
-        "Settlement": {
-          "name": "Settlement（结算）",
-          "tasks": [
-            {
-              "id": 401,
-              "task": "Credit memo逆向已完成开发",
-              "progress": "100%",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "2026-09-18"
-            },
-            {
-              "id": 402,
-              "task": "非工单结算待确认B2X是否拆分",
-              "progress": "30%",
-              "owner": "Joanna Wu",
-              "estimatedCompletion": "待定"
-            },
-            {
-              "id": 403,
-              "task": "历史数据处理方案待Joanna Wu决定",
-              "progress": "待决策",
-              "owner": "Joanna Wu",
-              "estimatedCompletion": "待定"
-            }
-          ],
-          "risks": [],
-          "coordination": []
-        },
-        "Reports": {
-          "name": "Reports（报表）",
-          "tasks": [],
-          "risks": [
-            {
-              "id": 9001,
-              "task": "报表类需求延期",
-              "progress": "延期",
-              "owner": "Kevin Li",
-              "estimatedCompletion": "待定"
-            }
-          ],
-          "coordination": []
-        },
-        "Master Data": {
-          "name": "Master Data（主数据）",
-          "tasks": [],
-          "risks": [],
-          "coordination": []
-        }
-      }
-    },
-    {
-      "id": 7,
-      "name": "企微/飞书迁移支持",
-      "priority": "P2",
-      "status": "已完成",
       "tasks": [
         {
-          "id": 701,
-          "task": "分享文档迁移工具，解答使用问题，协调闪退/重新认证等问题",
+          "id": 101,
+          "task": "与Shan Qiu确认9/21切换方案：B2X先停→核对WIP物料差异→取消B2X WIP再同步到SPP",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 102,
+          "task": "与张望贤确认切换时间线：周日午夜断连B2X，周一12:00前推入SPP",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 103,
+          "task": "排查repair complete状态卡住根因（库存接口指向UAT而非UAT2），沈恒斌已修改406个工单",
+          "progress": "90%",
+          "owner": "Kevin Li / 沈恒斌",
+          "estimatedCompletion": "2026-09-21"
+        },
+        {
+          "id": 104,
+          "task": "Dry Run数据质量监控：对接成功率73%，Clement决策按计划上线",
+          "progress": "100%",
+          "owner": "Kevin Li / Joanna Wu",
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 105,
+          "task": "自动重推兜底逻辑推进（B2X/MySAV推送失败消息的自动重推）",
+          "progress": "70%",
+          "owner": "张望贤",
+          "estimatedCompletion": "2026-09-22"
+        },
+        {
+          "id": 106,
+          "task": "9/21正式上线执行：B2X断连，MySAV直推SPP",
+          "progress": "0%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-21"
+        },
+        {
+          "id": 107,
+          "task": "MySav自动推送功能上线，排查Stock同步报错（97%为联想侧数据问题）",
           "progress": "100%",
           "owner": "Kevin Li",
           "estimatedCompletion": "2026-09-19"
         },
         {
-          "id": 702,
-          "task": "配置外部同事私聊权限，验证外部联系人消息条数限制",
+          "id": 108,
+          "task": "协调MySav侧切换推送逻辑（Repair Complete推送修正），安排9/21接受新工单",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 201,
+          "task": "协助Choice验证SCM数据核对，确认数据无误后闭环",
+          "progress": "100%",
+          "owner": "Kevin Li / Choice",
+          "estimatedCompletion": "2026-09-18"
+        },
+        {
+          "id": 202,
+          "task": "向Choice解释工单占料推送逻辑（UseConfirm→库存扣减→ServiceEnd）",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-19"
+        },
+        {
+          "id": 203,
+          "task": "查询Integration Log排查数据同步问题，邮件汇总报错清单",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-19"
+        },
+        {
+          "id": 204,
+          "task": "开通test5环境账号权限，协助同事排查Log查看权限问题",
           "progress": "100%",
           "owner": "Kevin Li",
           "estimatedCompletion": "2026-09-18"
         },
         {
-          "id": 703,
-          "task": "确认联想外包人员入群安排（18人待通过群链接邀请）",
-          "progress": "80%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-22"
-        },
-        {
-          "id": 704,
-          "task": "创建「售后技术支持协同群」（14人）和「海外sds-调研之欧洲必胜」群（45人）",
+          "id": 301,
+          "task": "915版本已发布，922版本按计划推进",
           "progress": "100%",
           "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-18"
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 302,
+          "task": "自营仓对接：从SIT测试推进至UAT阶段",
+          "progress": "60%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-24"
+        },
+        {
+          "id": 303,
+          "task": "Walk-in Repair PRD更新：Buffer Time字段逻辑（Micro-Mobility默认20天，其他不设默认值）",
+          "progress": "100%",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-19"
         }
       ],
       "risks": [
         {
-          "id": 7001,
-          "task": "外包人员（联想/迈创）跨租户不可见，无法直接拉入飞书群",
-          "progress": "已解决",
+          "id": 1001,
+          "task": "MySAV有700+工单未关单仍在B2X中，需两边接数据过渡",
+          "progress": "待处理",
           "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
-        }
-      ],
-      "coordination": []
-    },
-    {
-      "id": 8,
-      "name": "AI工具探索与效率提升",
-      "priority": "P2",
-      "status": "已完成",
-      "tasks": [
-        {
-          "id": 801,
-          "task": "搭建飞书自建机器人（Dify知识库 + Cherry Agent），实现群内@机器人问答",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
+          "estimatedCompletion": "2026-09-21"
         },
         {
-          "id": 802,
-          "task": "分享html-ppt技能，支持HTML格式PPT生成、演讲者模式、主题切换",
-          "progress": "100%",
+          "id": 1002,
+          "task": "Dry run数据对接成功率73%，低于B2X对接的95%目标",
+          "progress": "持续监控",
+          "owner": "Kevin Li",
+          "estimatedCompletion": "2026-09-30"
+        },
+        {
+          "id": 1003,
+          "task": "MySav源数据不完整，Dryrun无法全面数据比对",
+          "progress": "沟通中",
+          "owner": "Kevin Li / MySav",
+          "estimatedCompletion": "2026-09-21"
+        },
+        {
+          "id": 3001,
+          "task": "RC+KA Design阶段较原计划延迟一周（9/18完成）",
+          "progress": "已闭环",
           "owner": "Kevin Li",
           "estimatedCompletion": "2026-09-18"
-        },
-        {
-          "id": 803,
-          "task": "验证AI转换SVG在SPP系统中的可用性，安排测试验证",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
-        },
-        {
-          "id": 804,
-          "task": "探索Cherry Studio连接lark-cli的集成方案",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
         }
       ],
-      "risks": [],
-      "coordination": []
+      "coordination": [
+        {
+          "id": 10001,
+          "task": "推动国威拉通解决欧洲工作时间库存接口可用性问题",
+          "progress": "已推动",
+          "owner": "Kevin Li / 国威",
+          "estimatedCompletion": "2026-09-21"
+        },
+        {
+          "id": 10002,
+          "task": "协调联想侧切换推送逻辑（Repair Complete推送修正）",
+          "progress": "已协调",
+          "owner": "Kevin Li / 联想",
+          "estimatedCompletion": "2026-09-20"
+        },
+        {
+          "id": 10003,
+          "task": "IT和业务分别负责集成消息分析和业务单据分析，按天监控几周",
+          "progress": "已确认",
+          "owner": "Kevin Li / CD",
+          "estimatedCompletion": "2026-09-20"
+        }
+      ]
     }
   ],
   "nextWeekPlan": [
     {
       "date": "2026-09-21",
-      "task": "【Online】MySAV正式上线——B2X断连，MySAV直推SPP"
+      "task": "MySAV正式上线——B2X断连，MySAV直推SPP；确认历史数据处理完毕后切换配置"
     },
     {
       "date": "2026-09-22",
-      "task": "【Online】自动重推兜底逻辑上线（张望贤）"
+      "task": "自动重推兜底逻辑上线（张望贤）"
+    },
+    {
+      "date": "2026-09-21~ongoing",
+      "task": "上线后按天监控集成消息日志和业务单据比对，持续几周"
     },
     {
       "date": "2026-09-24前",
-      "task": "【Online】推进自营仓UAT测试完成"
+      "task": "推进自营仓UAT测试完成"
     },
     {
       "date": "ongoing",
-      "task": "【Online】上线后按天监控集成消息日志和业务单据比对"
-    },
-    {
-      "date": "ongoing",
-      "task": "【Offline】MSD字段最终确认"
-    },
-    {
-      "date": "ongoing",
-      "task": "【Settlement】继续推进到店结算PRD和非工单结算方案"
+      "task": "MSD字段最终确认、继续推进到店结算PRD和非工单结算方案"
     }
   ],
   "otherNotes": [
