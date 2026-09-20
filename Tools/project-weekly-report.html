@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目周报管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .week-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .week-selector label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .week-selector input {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .project {
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .project-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .project-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .project-name-input {
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #495057;
+            width: 300px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .category {
+            margin: 15px 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+
+        .category-header {
+            padding: 12px 15px;
+            font-weight: 600;
+            font-size: 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-tasks .category-header {
+            background: #e7f3ff;
+            color: #0056b3;
+        }
+
+        .category-risks .category-header {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .category-coordination .category-header {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .items-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .items-table input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .items-table input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .progress-input {
+            width: 80px !important;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-area {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .preview-area pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 项目周报管理系统</h1>
+            <p>按周填写项目进度、风险和拉通事项</p>
+        </div>
+
+        <div class="controls">
+            <div class="week-selector">
+                <label>选择周：</label>
+                <input type="week" id="weekPicker">
+            </div>
+            <button class="btn btn-primary" onclick="addProject()">+ 添加项目</button>
+            <button class="btn btn-success" onclick="saveData()">💾 保存数据</button>
+            <button class="btn btn-secondary" onclick="exportData()">📤 导出JSON</button>
+        </div>
+
+        <div class="content" id="projectsContainer">
+            <div class="empty-state">
+                <p>暂无项目，点击"添加项目"开始填写周报</p>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>📋 数据预览</h3>
+            <div class="preview-area" id="previewArea">
+                <pre>保存数据后将在此处显示JSON格式</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {
+            week: '',
+            projects: []
+        };
+
+        // 初始化周选择器为当前周
+        function initWeekPicker() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const week = getWeekNumber(now);
+            document.getElementById('weekPicker').value = `${year}-W${String(week).padStart(2, '0')}`;
+            data.week = document.getElementById('weekPicker').value;
+        }
+
+        // 计算周数
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        // 周选择器变化
+        document.getElementById('weekPicker').addEventListener('change', (e) => {
+            data.week = e.target.value;
+            loadData();
+        });
+
+        // 添加项目
+        function addProject() {
+            const project = {
+                id: Date.now(),
+                name: '新项目名称',
+                tasks: [],
+                risks: [],
+                coordination: []
+            };
+            data.projects.push(project);
+            renderProjects();
+        }
+
+        // 删除项目
+        function deleteProject(projectId) {
+            if (confirm('确定要删除这个项目吗？')) {
+                data.projects = data.projects.filter(p => p.id !== projectId);
+                renderProjects();
+            }
+        }
+
+        // 更新项目名称
+        function updateProjectName(projectId, name) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                project.name = name;
+            }
+        }
+
+        // 添加事项
+        function addItem(projectId, category) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                const item = {
+                    id: Date.now(),
+                    task: '',
+                    progress: '',
+                    owner: '',
+                    estimatedCompletion: ''
+                };
+                project[category].push(item);
+                renderProjects();
+            }
+        }
+
+        // 删除事项
+        function deleteItem(projectId, category, itemId) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                project[category] = project[category].filter(i => i.id !== itemId);
+                renderProjects();
+            }
+        }
+
+        // 更新事项
+        function updateItem(projectId, category, itemId, field, value) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                const item = project[category].find(i => i.id === itemId);
+                if (item) {
+                    item[field] = value;
+                }
+            }
+        }
+
+        // 渲染项目
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+
+            if (data.projects.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>暂无项目，点击"添加项目"开始填写周报</p></div>';
+                return;
+            }
+
+            container.innerHTML = data.projects.map(project => `
+                <div class="project">
+                    <div class="project-header">
+                        <input type="text" class="project-name-input" value="${escapeHtml(project.name)}"
+                            onchange="updateProjectName(${project.id}, this.value)">
+                        <div class="project-actions">
+                            <button class="btn btn-danger btn-small" onclick="deleteProject(${project.id})">删除项目</button>
+                        </div>
+                    </div>
+
+                    ${renderCategory(project.id, 'tasks', '项目事项', 'category-tasks')}
+                    ${renderCategory(project.id, 'risks', '项目风险', 'category-risks')}
+                    ${renderCategory(project.id, 'coordination', '需要拉通的事项', 'category-coordination')}
+                </div>
+            `).join('');
+        }
+
+        // 渲染分类
+        function renderCategory(projectId, category, title, className) {
+            const project = data.projects.find(p => p.id === projectId);
+            const items = project[category];
+
+            return `
+                <div class="category ${className}">
+                    <div class="category-header">
+                        <span>${title}</span>
+                        <button class="btn btn-primary btn-small" onclick="addItem(${projectId}, '${category}')">+ 添加</button>
+                    </div>
+                    ${items.length > 0 ? `
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">事项</th>
+                                    <th style="width: 15%">进度</th>
+                                    <th style="width: 20%">负责人</th>
+                                    <th style="width: 15%">预计完成时间</th>
+                                    <th style="width: 10%">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.map(item => `
+                                    <tr>
+                                        <td><input type="text" value="${escapeHtml(item.task)}"
+                                            onchange="updateItem(${projectId}, '${category}', ${item.id}, 'task', this.value)"
+                                            placeholder="输入事项内容"></td>
+                                        <td><input type="text" class="progress-input" value="${escapeHtml(item.progress)}"
+                                            onchange="updateItem(${projectId}, '${category}', ${item.id}, 'progress', this.value)"
+                                            placeholder="如: 80%"></td>
+                                        <td><input type="text" value="${escapeHtml(item.owner)}"
+                                            onchange="updateItem(${projectId}, '${category}', ${item.id}, 'owner', this.value)"
+                                            placeholder="负责人"></td>
+                                        <td><input type="date" value="${item.estimatedCompletion}"
+                                            onchange="updateItem(${projectId}, '${category}', ${item.id}, 'estimatedCompletion', this.value)"></td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteItem(${projectId}, '${category}', ${item.id})">删除</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无事项，点击"添加"按钮</div>'}
+                </div>
+            `;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // 保存数据
+        function saveData() {
+            const weekKey = `weeklyReport_${data.week}`;
+            localStorage.setItem(weekKey, JSON.stringify(data));
+            updatePreview();
+            alert('数据已保存！');
+        }
+
+        // 加载数据
+        function loadData() {
+            const weekKey = `weeklyReport_${data.week}`;
+            const saved = localStorage.getItem(weekKey);
+            if (saved) {
+                data = JSON.parse(saved);
+                renderProjects();
+                updatePreview();
+            } else {
+                data.projects = [];
+                renderProjects();
+            }
+        }
+
+        // 导出数据
+        function exportData() {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `weekly_report_${data.week}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const preview = document.getElementById('previewArea');
+            preview.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        // 初始化
+        initWeekPicker();
+        loadData();
+    </script>
+</body>
+</html>
