@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
      - HTML：打开 `feishu-bot-presentation/index.html`，按 S 进入演讲者模式，T 切换主题
 - **影响范围**：飞书 Bot 项目文档与演示材料
 - **关联请求**："读一下github中，飞书机器人相关的材料，输出一份ppt供我给大家讲解这个方案的价值、实施、后续优化等方面"
+- **Commit**：`dd56610` - docs: 新增飞书机器人方案演示文稿（PPT + HTML）
 ### 2026-09-16 18:38 (UTC+8)
 - **修改文件**：`Integration/integration-details.md`
 - **变更类型**：文档更新
