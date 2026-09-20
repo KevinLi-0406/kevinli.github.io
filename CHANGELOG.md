@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-20 15:00 (UTC+8)
+- **修改文件**：`Integration/assets/`（70 个文件）
+- **变更类型**：新增
+- **变更描述**：
+  1. **PPT 演示文稿共享资源**：
+     - 添加 CSS 基础样式（base.css, fonts.css）
+     - 添加 JavaScript 运行时（runtime.js）
+     - 添加动画效果库（animations/ 目录，24 个动画脚本）
+     - 添加 30+ 主题样式（themes/ 目录）
+     - 添加演示图片资源（demo-images/）
+  2. **修复问题**：
+     - 解决 HTML PPT 访问 404 问题（缺少依赖的 assets 资源）
+     - 支持完整的演讲者模式、主题切换、动画效果等功能
+- **影响范围**：所有 HTML PPT 演示文稿
+- **关联请求**："点击提示404"
+- **Commit**：`3001156` - feat: 添加 PPT 演示文稿所需的共享资源文件
+
 
 ### 2026-09-20 14:55 (UTC+8)
 - **修改文件**：`Integration/feishu-bot/feishu-bot-presentation.pptx`、`Integration/feishu-bot/feishu-bot-presentation/`
