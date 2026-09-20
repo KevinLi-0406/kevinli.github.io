@@ -679,6 +679,41 @@
             }
         }
 
+        function addModuleItem(projectId, moduleKey, category) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                if (!project.modules[moduleKey][category]) {
+                    project.modules[moduleKey][category] = [];
+                }
+                project.modules[moduleKey][category].push({
+                    id: Date.now(),
+                    task: '',
+                    progress: '',
+                    owner: '',
+                    estimatedCompletion: ''
+                });
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function deleteModuleItem(projectId, moduleKey, category, itemId) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                project.modules[moduleKey][category] = project.modules[moduleKey][category].filter(i => i.id !== itemId);
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function updateModuleItem(projectId, moduleKey, category, itemId, field, value) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                const item = project.modules[moduleKey][category].find(i => i.id === itemId);
+                if (item) { item[field] = value; markModified(); }
+            }
+        }
+
         function markModified() {
             isModified = true;
             updateSyncStatus('modified');
@@ -692,7 +727,10 @@
                 return;
             }
 
-            container.innerHTML = data.projects.map(project => `
+            container.innerHTML = data.projects.map(project => {
+                const hasModules = project.modules && Object.keys(project.modules).length > 0;
+
+                return `
                 <div class="project">
                     <div class="project-header">
                         <div style="display:flex;align-items:center;gap:12px;">
@@ -715,22 +753,71 @@
                         </div>
                         <button class="btn btn-danger btn-small" onclick="deleteProject(${project.id})">删除项目</button>
                     </div>
-                    ${renderCategory(project.id, 'tasks', '项目事项', 'category-tasks')}
-                    ${renderCategory(project.id, 'risks', '项目风险', 'category-risks')}
-                    ${renderCategory(project.id, 'coordination', '需要拉通的事项', 'category-coordination')}
+                    ${hasModules ? renderModules(project) : renderFlatCategories(project)}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
-        function renderCategory(projectId, category, title, className) {
+        function renderModules(project) {
+            const moduleKeys = Object.keys(project.modules);
+            if (moduleKeys.length === 0) return '';
+
+            return `<div class="modules-container">
+                ${moduleKeys.map(moduleKey => {
+                    const module = project.modules[moduleKey];
+                    const taskCount = (module.tasks || []).length;
+                    const riskCount = (module.risks || []).length;
+                    const coordCount = (module.coordination || []).length;
+                    const totalCount = taskCount + riskCount + coordCount;
+
+                    return `
+                    <div class="module" style="margin:12px 20px;border:1px solid #dee2e6;border-radius:6px;">
+                        <div class="module-header" style="padding:10px 15px;background:#e9ecef;font-weight:600;font-size:14px;border-bottom:1px solid #dee2e6;display:flex;justify-content:space-between;align-items:center;">
+                            <span>${escapeHtml(module.name || moduleKey)} (${totalCount})</span>
+                        </div>
+                        ${renderCategory(project.id, 'tasks', '事项', 'category-tasks', moduleKey)}
+                        ${renderCategory(project.id, 'risks', '风险', 'category-risks', moduleKey)}
+                        ${renderCategory(project.id, 'coordination', '拉通', 'category-coordination', moduleKey)}
+                    </div>
+                `}).join('')}
+            </div>`;
+        }
+
+        function renderFlatCategories(project) {
+            return `
+                ${renderCategory(project.id, 'tasks', '项目事项', 'category-tasks')}
+                ${renderCategory(project.id, 'risks', '项目风险', 'category-risks')}
+                ${renderCategory(project.id, 'coordination', '需要拉通的事项', 'category-coordination')}
+            `;
+        }
+
+        function renderCategory(projectId, category, title, className, moduleKey = null) {
             const project = data.projects.find(p => p.id === projectId);
-            const items = project[category];
+            let items;
+
+            if (moduleKey && project.modules && project.modules[moduleKey]) {
+                items = project.modules[moduleKey][category] || [];
+            } else {
+                items = project[category] || [];
+            }
+
+            const addItemCall = moduleKey
+                ? `addModuleItem(${projectId}, '${moduleKey}', '${category}')`
+                : `addItem(${projectId}, '${category}')`;
+
+            const deleteItemCall = moduleKey
+                ? `deleteModuleItem(${projectId}, '${moduleKey}', '${category}', \${item.id})`
+                : `deleteItem(${projectId}, '${category}', \${item.id})`;
+
+            const updateItemCall = moduleKey
+                ? `updateModuleItem(${projectId}, '${moduleKey}', '${category}', \${item.id}`
+                : `updateItem(${projectId}, '${category}', \${item.id}`;
 
             return `
-                <div class="category ${className}">
-                    <div class="category-header">
+                <div class="category ${className}" style="margin:8px 12px;border:1px solid #e9ecef;border-radius:4px;">
+                    <div class="category-header" style="padding:6px 12px;font-size:13px;">
                         <span>${title} (${items.length})</span>
-                        <button class="btn btn-primary btn-small" onclick="addItem(${projectId}, '${category}')">+ 添加</button>
+                        <button class="btn btn-primary btn-small" onclick="${addItemCall}">+ 添加</button>
                     </div>
                     ${items.length > 0 ? `
                         <table class="items-table">
@@ -747,22 +834,22 @@
                                 ${items.map(item => `
                                     <tr>
                                         <td><input type="text" value="${escapeHtml(item.task)}"
-                                            onchange="updateItem(${projectId},'${category}',${item.id},'task',this.value)"
+                                            onchange="${updateItemCall}, 'task', this.value)"
                                             placeholder="输入事项内容"></td>
                                         <td><input type="text" class="progress-input" value="${escapeHtml(item.progress)}"
-                                            onchange="updateItem(${projectId},'${category}',${item.id},'progress',this.value)"
+                                            onchange="${updateItemCall}, 'progress', this.value)"
                                             placeholder="如: 80%"></td>
                                         <td><input type="text" value="${escapeHtml(item.owner)}"
-                                            onchange="updateItem(${projectId},'${category}',${item.id},'owner',this.value)"
+                                            onchange="${updateItemCall}, 'owner', this.value)"
                                             placeholder="负责人"></td>
                                         <td><input type="date" value="${item.estimatedCompletion || ''}"
-                                            onchange="updateItem(${projectId},'${category}',${item.id},'estimatedCompletion',this.value)"></td>
-                                        <td><button class="btn btn-danger btn-small" onclick="deleteItem(${projectId},'${category}',${item.id})">✕</button></td>
+                                            onchange="${updateItemCall}, 'estimatedCompletion', this.value)"></td>
+                                        <td><button class="btn btn-danger btn-small" onclick="${deleteItemCall}">✕</button></td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                         </table>
-                    ` : '<div style="padding:16px;text-align:center;color:#6c757d;font-size:13px;">暂无事项，点击「+ 添加」</div>'}
+                    ` : '<div style="padding:12px;text-align:center;color:#6c757d;font-size:12px;">暂无事项，点击「+ 添加」</div>'}
                 </div>
             `;
         }
