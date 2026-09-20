@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-20 16:30 (UTC+8)
+- **修改文件**：`Integration/` 目录结构重组
+- **变更类型**：重构
+- **变更描述**：
+  1. **新建 presentations/ 目录**：
+     - 整合所有演示文稿（feishu-bot、kevin-li-presentation）
+     - 避免 PPT 与 Bot 代码混在一起
+  2. **新建 docs/ 目录**：
+     - 整合所有技术文档（unified-platform、integration-details、requirements 等）
+     - 整合配置文件（d365-mcp-config、monitored-chats）
+     - 整合架构图（architecture.svg）
+  3. **更新 README.md**：
+     - 反映新目录结构
+     - 更新快速链接指向新路径
+- **影响范围**：Integration 目录结构、文档链接
+- **Commit**：`1ee2825` - refactor: 重组 Integration 目录结构
+
 ### 2026-09-20 16:00 (UTC+8)
 - **修改文件**：`Knowledge/`、`Integration/feishu-bot-presentation/`
 - **变更类型**：重构
