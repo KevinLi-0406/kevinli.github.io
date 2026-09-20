@@ -3,6 +3,7 @@
 ## 已记录文档
 
 - [x] [定时任务通知渠道误投问题](cron-feishu-notification-misroute.md) - Cherry cron channelIds 与飞书 chat_id 的区分，以及绕过频道投递直接调用飞书 API 的方案（2026-09-09）
+- [x] [lark-cli 飞书任务自动化](lark-cli-task-automation.md) - User/Bot 双身份降级策略、tasklist 权限限制、授权链接动态生成（2026-09-20）
 
 ## 待创建文档
 
