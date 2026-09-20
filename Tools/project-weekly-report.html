@@ -278,6 +278,9 @@
             <button class="btn btn-primary" onclick="addProject()">+ 添加项目</button>
             <button class="btn btn-success" onclick="saveData()">💾 保存数据</button>
             <button class="btn btn-secondary" onclick="exportData()">📤 导出JSON</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 导入JSON</button>
+            <button class="btn btn-primary" onclick="loadFromGitHub()">🔄 从GitHub加载</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
         </div>
 
         <div class="content" id="projectsContainer">
@@ -512,6 +515,64 @@
         function updatePreview() {
             const preview = document.getElementById('previewArea');
             preview.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        // 导入JSON文件
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.week && imported.projects) {
+                        data = imported;
+                        document.getElementById('weekPicker').value = data.week;
+                        const weekKey = `weeklyReport_${data.week}`;
+                        localStorage.setItem(weekKey, JSON.stringify(data));
+                        renderProjects();
+                        updatePreview();
+                        alert('导入成功！');
+                    } else {
+                        alert('JSON格式不正确，缺少week或projects字段');
+                    }
+                } catch (err) {
+                    alert('JSON解析失败：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // 从GitHub加载
+        function loadFromGitHub() {
+            const week = data.week || document.getElementById('weekPicker').value;
+            const url = `https://raw.githubusercontent.com/KevinLi-0406/kevinli.github.io/main/weekly-reports/${week}.json`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`GitHub上没有找到${week}的周报数据`);
+                    }
+                    return response.json();
+                })
+                .then(imported => {
+                    if (imported.week && imported.projects) {
+                        data = imported;
+                        document.getElementById('weekPicker').value = data.week;
+                        const weekKey = `weeklyReport_${data.week}`;
+                        localStorage.setItem(weekKey, JSON.stringify(data));
+                        renderProjects();
+                        updatePreview();
+                        alert(`已从GitHub加载${week}的周报数据！`);
+                    } else {
+                        alert('JSON格式不正确');
+                    }
+                })
+                .catch(err => {
+                    alert('加载失败：' + err.message);
+                });
         }
 
         // 初始化
