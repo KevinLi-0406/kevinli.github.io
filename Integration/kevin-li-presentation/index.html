@@ -8,22 +8,31 @@
   <link rel="stylesheet" id="theme-link" href="../../html-ppt/assets/themes/tokyo-night.css">
   <link rel="stylesheet" href="../../html-ppt/assets/animations/animations.css">
   <style>
-    /* Mode Switcher UI */
+    /* Mode & Theme Switcher UI */
     .mode-switcher {
       position: fixed;
       top: 16px;
       right: 16px;
       z-index: 1000;
       display: flex;
-      gap: 8px;
+      gap: 12px;
       background: rgba(22, 27, 34, 0.9);
       backdrop-filter: blur(10px);
-      padding: 8px;
+      padding: 8px 12px;
       border-radius: 12px;
       border: 1px solid var(--border);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-    .mode-btn {
+    .switcher-group {
+      display: flex;
+      gap: 8px;
+    }
+    .switcher-divider {
+      width: 1px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+    .mode-btn, .theme-btn {
       padding: 8px 16px;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -35,7 +44,7 @@
       transition: all 0.2s;
       white-space: nowrap;
     }
-    .mode-btn:hover {
+    .mode-btn:hover, .theme-btn:hover {
       background: var(--card);
       color: var(--text);
     }
@@ -44,6 +53,12 @@
       color: #fff;
       border-color: rgba(88, 166, 255, 0.5);
       box-shadow: 0 2px 12px rgba(88, 166, 255, 0.3);
+    }
+    .theme-btn.active {
+      background: var(--purple);
+      color: #fff;
+      border-color: rgba(188, 140, 255, 0.5);
+      box-shadow: 0 2px 12px rgba(188, 140, 255, 0.3);
     }
     
     /* Slide visibility control */
@@ -54,7 +69,7 @@
       display: flex !important;
     }
     
-    /* Custom slide styles for tokyo-night theme */
+    /* Custom slide styles */
     .slide-content {
       max-width: 960px;
       margin: 0 auto;
@@ -209,11 +224,20 @@
   </style>
 </head>
 <body>
-  <!-- Mode Switcher -->
+  <!-- Mode & Theme Switcher -->
   <div class="mode-switcher">
-    <button class="mode-btn active" data-mode="interview">面试版</button>
-    <button class="mode-btn" data-mode="internal">内部分享</button>
-    <button class="mode-btn" data-mode="archive">个人存档</button>
+    <div class="switcher-group">
+      <button class="mode-btn active" data-mode="interview">面试版</button>
+      <button class="mode-btn" data-mode="internal">内部分享</button>
+      <button class="mode-btn" data-mode="archive">个人存档</button>
+    </div>
+    <div class="switcher-divider"></div>
+    <div class="switcher-group">
+      <button class="theme-btn active" data-theme="tokyo-night">Tokyo Night</button>
+      <button class="theme-btn" data-theme="corporate-clean">Corporate</button>
+      <button class="theme-btn" data-theme="dracula">Dracula</button>
+      <button class="theme-btn" data-theme="blueprint">Blueprint</button>
+    </div>
   </div>
 
   <div class="deck">
@@ -243,9 +267,9 @@
               2022年12月加入<span class="highlight">九号公司（Ninebot / Segway）</span>集团信息化中心海外销服系统部，担任应用工程师。过去三年深度参与 SDS 售后数字化系统从启动到上线运维的全生命周期。
             </p>
             <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;">
-              <span class="tech-tag">🏢 九号公司</span>
+              <span class="tech-tag"> 九号公司</span>
               <span class="tech-tag"> 海外销服系统部</span>
-              <span class="tech-tag">📅 2022.12 入职</span>
+              <span class="tech-tag"> 2022.12 入职</span>
               <span class="tech-tag">🌐 北美/欧洲/墨西哥</span>
             </div>
           </div>
@@ -592,14 +616,14 @@ kevinli.github.io/
 │   ├── ai-test-tool/       # AI API 测试工具
 │   └── portal-editor/      # 门户可视化编辑器
 │
-├── Integration/            # 🔌 统一信息平台文档
+├── Integration/            #  统一信息平台文档
 │   ├── feishu-bot/         # 飞书 Bot (WebSocket + Dify)
 │   ├── wecom-bot/          # 企微 Bot (WebSocket + Dify)
 │   ├── unified-platform.md # 架构设计 + 需求 + 路线图
 │   ├── integration-details.md # 集成详情
 │   └── requirements.md     # 需求文档
 │
-── Knowledge/              # 📚 个人知识库
+── Knowledge/              #  个人知识库
 │   ├── 00-INDEX.md         # 知识库导航
 │   ├── 01-SPP-SDS/         # 业务规则
 │   ├── 02-FAQ/             # 常见问题
@@ -607,10 +631,10 @@ kevinli.github.io/
 │   ├── 04-Meeting-Notes/   # 会议纪要
 │   └── 05-Personal/        # 个人笔记
 │
-└── Resources/              # 公共资源
+── Resources/              # 公共资源
     ├── F1-images/          # F1 赛车图片
     ├── Media/              # 共享相册文件
-    └── index2077.html      # 赛博朋克风格门户
+    ── index2077.html      # 赛博朋克风格门户
           </pre>
         </div>
       </div>
@@ -626,7 +650,7 @@ kevinli.github.io/
             <p style="color: var(--muted);">D365 配置、工单流转逻辑、结算规则、B2X/RC/KA 直连方案</p>
           </div>
           <div style="margin-bottom: 32px; padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: rgba(33, 38, 45, 0.96);">
-            <h3 style="color: var(--blue); margin-bottom: 12px;">2️⃣ 常见问题 FAQ</h3>
+            <h3 style="color: var(--blue); margin-bottom: 12px;">2️ 常见问题 FAQ</h3>
             <p style="color: var(--muted);">欧洲同事 / 维修中心常问的问题，让 AI Bot 替你回答</p>
           </div>
           <div style="padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: rgba(33, 38, 45, 0.96);">
@@ -704,7 +728,7 @@ Cherry Studio AI Bot
             <p>奇怪的杰尼龟（虚拟宠物）</p>
           </div>
           <div class="project-card">
-            <h3>🐣 Chicks</h3>
+            <h3> Chicks</h3>
             <p>奇怪的小鸡毛（虚拟宠物）</p>
           </div>
         </div>
@@ -737,9 +761,11 @@ Cherry Studio AI Bot
 
   <script src="../../html-ppt/assets/runtime.js"></script>
   <script>
-    // Mode Switcher Logic
+    // Mode & Theme Switcher Logic
     const modeBtns = document.querySelectorAll('.mode-btn');
+    const themeBtns = document.querySelectorAll('.theme-btn');
     const slides = document.querySelectorAll('.slide');
+    const themeLink = document.getElementById('theme-link');
 
     function setMode(mode) {
       // Update button states
@@ -767,13 +793,32 @@ Cherry Studio AI Bot
       localStorage.setItem('ppt-mode', mode);
     }
 
+    function setTheme(theme) {
+      // Update button states
+      themeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+
+      // Update theme CSS
+      themeLink.href = `../../html-ppt/assets/themes/${theme}.css`;
+
+      // Save preference
+      localStorage.setItem('ppt-theme', theme);
+    }
+
     modeBtns.forEach(btn => {
       btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
 
-    // Restore saved mode on load
+    themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+    });
+
+    // Restore saved preferences on load
     const savedMode = localStorage.getItem('ppt-mode') || 'interview';
+    const savedTheme = localStorage.getItem('ppt-theme') || 'tokyo-night';
     setMode(savedMode);
+    setTheme(savedTheme);
   </script>
 </body>
 </html>
