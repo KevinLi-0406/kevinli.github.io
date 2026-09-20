@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目周报管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 { font-size: 24px; margin-bottom: 4px; }
+        .header-left p { font-size: 13px; opacity: 0.85; }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .settings-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .controls {
+            padding: 16px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .week-selector { display: flex; align-items: center; gap: 8px; }
+        .week-selector label { font-weight: 600; color: #495057; font-size: 14px; }
+        .week-selector input, .week-selector select {
+            padding: 7px 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .sync-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #6c757d;
+        }
+        .sync-dot.synced { background: #28a745; }
+        .sync-dot.modified { background: #ffc107; }
+        .sync-dot.error { background: #dc3545; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-small { padding: 5px 10px; font-size: 12px; }
+
+        .content { padding: 30px; }
+
+        .project {
+            margin-bottom: 24px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .project-header {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .project-name-input {
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #495057;
+            width: 300px;
+        }
+        .project-name-input:focus { outline: none; border-bottom: 2px solid #667eea; }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .priority-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .priority-P0 { background: #ffe0e0; color: #c00; }
+        .priority-P1 { background: #fff3cd; color: #856404; }
+        .priority-P2 { background: #d4edda; color: #155724; }
+
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-进行中 { background: #cce5ff; color: #004085; }
+        .status-已完成 { background: #d4edda; color: #155724; }
+        .status-未开始 { background: #e2e3e5; color: #383d41; }
+
+        .category {
+            margin: 12px 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+
+        .category-header {
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-tasks .category-header { background: #e7f3ff; color: #0056b3; }
+        .category-risks .category-header { background: #fff3cd; color: #856404; }
+        .category-coordination .category-header { background: #d4edda; color: #155724; }
+
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th {
+            background: #f8f9fa;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+        }
+        .items-table td { padding: 6px 8px; border-bottom: 1px solid #e9ecef; }
+        .items-table input, .items-table select {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .items-table input:focus, .items-table select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .progress-input { width: 80px !important; }
+
+        .empty-state { text-align: center; padding: 40px; color: #6c757d; }
+
+        .export-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .export-section h3 { margin-bottom: 12px; font-size: 15px; }
+        .preview-area {
+            padding: 12px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .preview-area pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 500px;
+            max-width: 90vw;
+        }
+        .modal h2 { margin-bottom: 20px; font-size: 18px; }
+        .modal label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal .hint { font-size: 12px; color: #6c757d; margin-top: -12px; margin-bottom: 16px; }
+
+        .loading { text-align: center; padding: 20px; color: #6c757d; }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid #dee2e6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        .toast.info { background: #667eea; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .history-list { max-height: 400px; overflow-y: auto; }
+        .history-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover { background: #f8f9fa; }
+        .history-item .week-label { font-weight: 600; color: #495057; }
+        .history-item .date-label { font-size: 12px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>📊 项目周报管理系统</h1>
+                <p>实时同步GitHub · 按周管理项目进度、风险和拉通事项</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="settings-btn" onclick="showHistory()">📂 历史周报</button>
+                <button class="settings-btn" onclick="showSettings()">⚙️ 设置</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="week-selector">
+                <label>当前周：</label>
+                <input type="week" id="weekPicker">
+            </div>
+            <button class="btn btn-primary" onclick="loadFromGitHub()">🔄 从GitHub加载</button>
+            <button class="btn btn-primary" onclick="addProject()">+ 添加项目</button>
+            <button class="btn btn-success" onclick="saveToGitHub()">💾 保存到GitHub</button>
+            <button class="btn btn-secondary" onclick="exportData()">📤 导出JSON</button>
+            <div class="sync-status">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">未同步</span>
+            </div>
+        </div>
+
+        <div class="content" id="projectsContainer">
+            <div class="empty-state">
+                <p>点击「🔄 从GitHub加载」获取当前周数据，或点击「+ 添加项目」新建</p>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>📋 数据预览</h3>
+            <div class="preview-area" id="previewArea">
+                <pre>加载或保存数据后将在此处显示JSON格式</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <h2>⚙️ GitHub 设置</h2>
+            <label>GitHub Personal Access Token</label>
+            <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx">
+            <p class="hint">需要 repo 权限的 Token。Token 仅存储在本机浏览器 localStorage 中，不会上传到任何第三方服务。</p>
+            <label>仓库所有者</label>
+            <input type="text" id="repoOwner" value="KevinLi-0406">
+            <label>仓库名称</label>
+            <input type="text" id="repoName" value="kevinli.github.io">
+            <label>周报存储路径</label>
+            <input type="text" id="repoPath" value="weekly-reports">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeSettings()">取消</button>
+                <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <h2>📂 历史周报</h2>
+            <div class="history-list" id="historyList">
+                <div class="loading">加载中</div>
+            </div>
+            <div class="modal-actions" style="margin-top:16px;">
+                <button class="btn btn-secondary" onclick="closeHistory()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GITHUB_API = 'https://api.github.com';
+        let config = {
+            token: localStorage.getItem('gh_token') || '',
+            owner: localStorage.getItem('gh_owner') || 'KevinLi-0406',
+            repo: localStorage.getItem('gh_repo') || 'kevinli.github.io',
+            path: localStorage.getItem('gh_path') || 'weekly-reports'
+        };
+
+        let data = { week: '', projects: [] };
+        let isModified = false;
+        let currentFileSha = null;
+
+        function init() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const week = getWeekNumber(now);
+            const weekStr = `${year}-W${String(week).padStart(2, '0')}`;
+            document.getElementById('weekPicker').value = weekStr;
+            data.week = weekStr;
+
+            document.getElementById('weekPicker').addEventListener('change', (e) => {
+                data.week = e.target.value;
+                isModified = false;
+                updateSyncStatus();
+                loadFromGitHub();
+            });
+
+            if (config.token) {
+                loadFromGitHub();
+            } else {
+                updateSyncStatus('notoken');
+            }
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function ghHeaders() {
+            const h = { 'Accept': 'application/vnd.github.v3+json' };
+            if (config.token) h['Authorization'] = `token ${config.token}`;
+            return h;
+        }
+
+        async function loadFromGitHub() {
+            if (!config.token) {
+                showToast('请先在设置中配置GitHub Token', 'error');
+                showSettings();
+                return;
+            }
+
+            const week = data.week;
+            const filePath = `${config.path}/${week}.json`;
+            const url = `${GITHUB_API}/repos/${config.owner}/${config.repo}/contents/${filePath}`;
+
+            updateSyncStatus('loading');
+
+            try {
+                const resp = await fetch(url, { headers: ghHeaders() });
+                if (!resp.ok) {
+                    if (resp.status === 404) {
+                        data.projects = [];
+                        currentFileSha = null;
+                        renderProjects();
+                        updatePreview();
+                        updateSyncStatus('new');
+                        showToast(`${week} 在GitHub上不存在，可以新建`, 'info');
+                    } else {
+                        throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+                    }
+                } else {
+                    const result = await resp.json();
+                    currentFileSha = result.sha;
+                    const content = decodeBase64(result.content);
+                    const imported = JSON.parse(content);
+
+                    if (imported.week && imported.projects) {
+                        data = imported;
+                        document.getElementById('weekPicker').value = data.week;
+                        renderProjects();
+                        updatePreview();
+                        isModified = false;
+                        updateSyncStatus('synced');
+                        showToast(`已加载 ${week} 的周报数据`, 'success');
+                    } else {
+                        throw new Error('JSON格式不正确');
+                    }
+                }
+            } catch (err) {
+                updateSyncStatus('error');
+                showToast('加载失败：' + err.message, 'error');
+            }
+        }
+
+        async function saveToGitHub() {
+            if (!config.token) {
+                showToast('请先在设置中配置GitHub Token', 'error');
+                showSettings();
+                return;
+            }
+
+            const week = data.week;
+            const filePath = `${config.path}/${week}.json`;
+            const url = `${GITHUB_API}/repos/${config.owner}/${config.repo}/contents/${filePath}`;
+
+            const content = JSON.stringify(data, null, 2);
+            const body = {
+                message: `更新周报 ${week}`,
+                content: encodeBase64(content),
+                branch: 'main'
+            };
+
+            if (currentFileSha) {
+                body.sha = currentFileSha;
+            }
+
+            updateSyncStatus('saving');
+
+            try {
+                const resp = await fetch(url, {
+                    method: 'PUT',
+                    headers: ghHeaders(),
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) {
+                    const errBody = await resp.json();
+                    if (resp.status === 409 || (errBody.message && errBody.message.includes('sha'))) {
+                        showToast('文件已被更新，重新获取后重试...', 'info');
+                        await loadFromGitHub();
+                        body.sha = currentFileSha;
+                        const retryResp = await fetch(url, {
+                            method: 'PUT',
+                            headers: ghHeaders(),
+                            body: JSON.stringify(body)
+                        });
+                        if (!retryResp.ok) throw new Error('重试失败');
+                        const retryResult = await retryResp.json();
+                        currentFileSha = retryResult.content.sha;
+                    } else {
+                        throw new Error(errBody.message || `HTTP ${resp.status}`);
+                    }
+                } else {
+                    const result = await resp.json();
+                    currentFileSha = result.content.sha;
+                }
+
+                isModified = false;
+                updateSyncStatus('synced');
+                showToast(`已保存 ${week} 到GitHub`, 'success');
+            } catch (err) {
+                updateSyncStatus('error');
+                showToast('保存失败：' + err.message, 'error');
+            }
+        }
+
+        async function showHistory() {
+            document.getElementById('historyModal').classList.add('active');
+            const listEl = document.getElementById('historyList');
+            listEl.innerHTML = '<div class="loading">加载中</div>';
+
+            if (!config.token) {
+                listEl.innerHTML = '<p style="padding:20px;color:#6c757d;">请先配置GitHub Token</p>';
+                return;
+            }
+
+            try {
+                const url = `${GITHUB_API}/repos/${config.owner}/${config.repo}/contents/${config.path}?ref=main`;
+                const resp = await fetch(url, { headers: ghHeaders() });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+                const files = await resp.json();
+                const jsonFiles = files
+                    .filter(f => f.name.endsWith('.json'))
+                    .sort()
+                    .reverse();
+
+                if (jsonFiles.length === 0) {
+                    listEl.innerHTML = '<p style="padding:20px;color:#6c757d;">暂无历史周报</p>';
+                    return;
+                }
+
+                listEl.innerHTML = jsonFiles.map(f => {
+                    const week = f.name.replace('.json', '');
+                    return `<div class="history-item" onclick="loadHistoryWeek('${week}')">
+                        <span class="week-label">${week}</span>
+                        <span class="date-label">点击查看</span>
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = `<p style="padding:20px;color:#dc3545;">加载失败：${err.message}</p>`;
+            }
+        }
+
+        function loadHistoryWeek(week) {
+            closeHistory();
+            data.week = week;
+            document.getElementById('weekPicker').value = week;
+            isModified = false;
+            loadFromGitHub();
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').classList.remove('active');
+        }
+
+        function showSettings() {
+            document.getElementById('tokenInput').value = config.token;
+            document.getElementById('repoOwner').value = config.owner;
+            document.getElementById('repoName').value = config.repo;
+            document.getElementById('repoPath').value = config.path;
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function saveSettings() {
+            config.token = document.getElementById('tokenInput').value.trim();
+            config.owner = document.getElementById('repoOwner').value.trim();
+            config.repo = document.getElementById('repoName').value.trim();
+            config.path = document.getElementById('repoPath').value.trim();
+
+            localStorage.setItem('gh_token', config.token);
+            localStorage.setItem('gh_owner', config.owner);
+            localStorage.setItem('gh_repo', config.repo);
+            localStorage.setItem('gh_path', config.path);
+
+            closeSettings();
+            showToast('设置已保存', 'success');
+
+            if (config.token) {
+                loadFromGitHub();
+            }
+        }
+
+        function addProject() {
+            const project = {
+                id: Date.now(),
+                name: '新项目名称',
+                priority: 'P1',
+                status: '进行中',
+                tasks: [],
+                risks: [],
+                coordination: []
+            };
+            data.projects.push(project);
+            markModified();
+            renderProjects();
+        }
+
+        function deleteProject(projectId) {
+            if (confirm('确定要删除这个项目吗？')) {
+                data.projects = data.projects.filter(p => p.id !== projectId);
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function updateProjectName(projectId, name) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) { project.name = name; markModified(); }
+        }
+
+        function updateProjectField(projectId, field, value) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) { project[field] = value; markModified(); }
+        }
+
+        function addItem(projectId, category) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                project[category].push({
+                    id: Date.now(),
+                    task: '',
+                    progress: '',
+                    owner: '',
+                    estimatedCompletion: ''
+                });
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function deleteItem(projectId, category, itemId) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                project[category] = project[category].filter(i => i.id !== itemId);
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function updateItem(projectId, category, itemId, field, value) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                const item = project[category].find(i => i.id === itemId);
+                if (item) { item[field] = value; markModified(); }
+            }
+        }
+
+        function addModuleItem(projectId, moduleKey, category) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                if (!project.modules[moduleKey][category]) {
+                    project.modules[moduleKey][category] = [];
+                }
+                project.modules[moduleKey][category].push({
+                    id: Date.now(),
+                    task: '',
+                    progress: '',
+                    owner: '',
+                    estimatedCompletion: ''
+                });
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function deleteModuleItem(projectId, moduleKey, category, itemId) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                project.modules[moduleKey][category] = project.modules[moduleKey][category].filter(i => i.id !== itemId);
+                markModified();
+                renderProjects();
+            }
+        }
+
+        function updateModuleItem(projectId, moduleKey, category, itemId, field, value) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project && project.modules && project.modules[moduleKey]) {
+                const item = project.modules[moduleKey][category].find(i => i.id === itemId);
+                if (item) { item[field] = value; markModified(); }
+            }
+        }
+
+        function markModified() {
+            isModified = true;
+            updateSyncStatus('modified');
+            updatePreview();
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            if (data.projects.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>暂无项目，点击「+ 添加项目」新建，或点击「🔄 从GitHub加载」获取已有数据</p></div>';
+                return;
+            }
+
+            container.innerHTML = data.projects.map(project => {
+                const hasModules = project.modules && Object.keys(project.modules).length > 0;
+
+                return `
+                <div class="project">
+                    <div class="project-header">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <input type="text" class="project-name-input" value="${escapeHtml(project.name)}"
+                                onchange="updateProjectName(${project.id}, this.value)">
+                            <select class="priority-badge priority-${project.priority || 'P1'}"
+                                onchange="updateProjectField(${project.id}, 'priority', this.value); this.className='priority-badge priority-'+this.value;"
+                                style="border:none;cursor:pointer;">
+                                <option value="P0" ${project.priority==='P0'?'selected':''}>P0</option>
+                                <option value="P1" ${project.priority==='P1'?'selected':''}>P1</option>
+                                <option value="P2" ${project.priority==='P2'?'selected':''}>P2</option>
+                            </select>
+                            <select class="status-badge status-${project.status || '进行中'}"
+                                onchange="updateProjectField(${project.id}, 'status', this.value); this.className='status-badge status-'+this.value;"
+                                style="border:none;cursor:pointer;">
+                                <option value="未开始" ${project.status==='未开始'?'selected':''}>未开始</option>
+                                <option value="进行中" ${project.status==='进行中'?'selected':''}>进行中</option>
+                                <option value="已完成" ${project.status==='已完成'?'selected':''}>已完成</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-danger btn-small" onclick="deleteProject(${project.id})">删除项目</button>
+                    </div>
+                    ${hasModules ? renderModules(project) : renderFlatCategories(project)}
+                </div>
+            `}).join('');
+        }
+
+        function renderModules(project) {
+            const moduleKeys = Object.keys(project.modules);
+            if (moduleKeys.length === 0) return '';
+
+            return `<div class="modules-container">
+                ${moduleKeys.map(moduleKey => {
+                    const module = project.modules[moduleKey];
+                    const taskCount = (module.tasks || []).length;
+                    const riskCount = (module.risks || []).length;
+                    const coordCount = (module.coordination || []).length;
+                    const totalCount = taskCount + riskCount + coordCount;
+
+                    return `
+                    <div class="module" style="margin:12px 20px;border:1px solid #dee2e6;border-radius:6px;">
+                        <div class="module-header" style="padding:10px 15px;background:#e9ecef;font-weight:600;font-size:14px;border-bottom:1px solid #dee2e6;display:flex;justify-content:space-between;align-items:center;">
+                            <span>${escapeHtml(module.name || moduleKey)} (${totalCount})</span>
+                        </div>
+                        ${renderCategory(project.id, 'tasks', '事项', 'category-tasks', moduleKey)}
+                        ${renderCategory(project.id, 'risks', '风险', 'category-risks', moduleKey)}
+                        ${renderCategory(project.id, 'coordination', '拉通', 'category-coordination', moduleKey)}
+                    </div>
+                `}).join('')}
+            </div>`;
+        }
+
+        function renderFlatCategories(project) {
+            return `
+                ${renderCategory(project.id, 'tasks', '项目事项', 'category-tasks')}
+                ${renderCategory(project.id, 'risks', '项目风险', 'category-risks')}
+                ${renderCategory(project.id, 'coordination', '需要拉通的事项', 'category-coordination')}
+            `;
+        }
+
+        function renderCategory(projectId, category, title, className, moduleKey = null) {
+            const project = data.projects.find(p => p.id === projectId);
+            let items;
+
+            if (moduleKey && project.modules && project.modules[moduleKey]) {
+                items = project.modules[moduleKey][category] || [];
+            } else {
+                items = project[category] || [];
+            }
+
+            const addItemCall = moduleKey
+                ? `addModuleItem(${projectId}, '${moduleKey}', '${category}')`
+                : `addItem(${projectId}, '${category}')`;
+
+            const deleteItemCall = moduleKey
+                ? `deleteModuleItem(${projectId}, '${moduleKey}', '${category}', \${item.id})`
+                : `deleteItem(${projectId}, '${category}', \${item.id})`;
+
+            const updateItemCall = moduleKey
+                ? `updateModuleItem(${projectId}, '${moduleKey}', '${category}', \${item.id}`
+                : `updateItem(${projectId}, '${category}', \${item.id}`;
+
+            return `
+                <div class="category ${className}" style="margin:8px 12px;border:1px solid #e9ecef;border-radius:4px;">
+                    <div class="category-header" style="padding:6px 12px;font-size:13px;">
+                        <span>${title} (${items.length})</span>
+                        <button class="btn btn-primary btn-small" onclick="${addItemCall}">+ 添加</button>
+                    </div>
+                    ${items.length > 0 ? `
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:38%">事项</th>
+                                    <th style="width:12%">进度</th>
+                                    <th style="width:18%">负责人</th>
+                                    <th style="width:18%">预计完成时间</th>
+                                    <th style="width:8%">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.map(item => `
+                                    <tr>
+                                        <td><input type="text" value="${escapeHtml(item.task)}"
+                                            onchange="${updateItemCall}, 'task', this.value)"
+                                            placeholder="输入事项内容"></td>
+                                        <td><input type="text" class="progress-input" value="${escapeHtml(item.progress)}"
+                                            onchange="${updateItemCall}, 'progress', this.value)"
+                                            placeholder="如: 80%"></td>
+                                        <td><input type="text" value="${escapeHtml(item.owner)}"
+                                            onchange="${updateItemCall}, 'owner', this.value)"
+                                            placeholder="负责人"></td>
+                                        <td><input type="date" value="${item.estimatedCompletion || ''}"
+                                            onchange="${updateItemCall}, 'estimatedCompletion', this.value)"></td>
+                                        <td><button class="btn btn-danger btn-small" onclick="${deleteItemCall}">✕</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<div style="padding:12px;text-align:center;color:#6c757d;font-size:12px;">暂无事项，点击「+ 添加」</div>'}
+                </div>
+            `;
+        }
+
+        function exportData() {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${data.week}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function updatePreview() {
+            document.getElementById('previewArea').innerHTML =
+                `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        function updateSyncStatus(status) {
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            dot.className = 'sync-dot';
+
+            switch (status) {
+                case 'synced':
+                    dot.classList.add('synced');
+                    text.textContent = '已同步';
+                    break;
+                case 'modified':
+                    dot.classList.add('modified');
+                    text.textContent = '有修改未保存';
+                    break;
+                case 'loading':
+                    text.textContent = '加载中...';
+                    break;
+                case 'saving':
+                    text.textContent = '保存中...';
+                    break;
+                case 'error':
+                    dot.classList.add('error');
+                    text.textContent = '同步出错';
+                    break;
+                case 'new':
+                    dot.classList.add('modified');
+                    text.textContent = 'GitHub上无此周数据';
+                    break;
+                case 'notoken':
+                    dot.classList.add('error');
+                    text.textContent = '未配置Token';
+                    break;
+                default:
+                    text.textContent = '未同步';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function encodeBase64(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        function decodeBase64(str) {
+            return decodeURIComponent(escape(atob(str.replace(/\n/g, ''))));
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveToGitHub();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
