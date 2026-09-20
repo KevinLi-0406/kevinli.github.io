@@ -1,0 +1,43 @@
+{
+  "week": "2026-W38",
+  "projects": [
+    {
+      "id": 1726819200000,
+      "name": "示例项目 - CRM系统优化",
+      "tasks": [
+        {
+          "id": 1726819200001,
+          "task": "完成工单列表页面重构",
+          "progress": "80%",
+          "owner": "张三",
+          "estimatedCompletion": "2026-09-25"
+        },
+        {
+          "id": 1726819200002,
+          "task": "优化数据查询性能",
+          "progress": "60%",
+          "owner": "李四",
+          "estimatedCompletion": "2026-09-28"
+        }
+      ],
+      "risks": [
+        {
+          "id": 1726819200003,
+          "task": "第三方API接口响应不稳定",
+          "progress": "待解决",
+          "owner": "王五",
+          "estimatedCompletion": "2026-09-22"
+        }
+      ],
+      "coordination": [
+        {
+          "id": 1726819200004,
+          "task": "需要与财务部门确认数据对接规范",
+          "progress": "待沟通",
+          "owner": "赵六",
+          "estimatedCompletion": "2026-09-23"
+        }
+      ]
+    }
+  ]
+}
