@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-themes="tokyo-night,dracula,catppuccin-mocha,nord,corporate-clean">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>飞书实时监听机器人方案 · 技术分享</title>
+<link rel="stylesheet" href="../../assets/fonts.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" id="theme-link" href="../../assets/themes/tokyo-night.css">
+<link rel="stylesheet" href="../../assets/animations/animations.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="tpl-presenter-mode-reveal">
+<div class="deck">
+
+  <!-- ============ 1. COVER ============ -->
+  <section class="slide" data-title="Cover">
+    <p class="kicker">统一信息平台 · 飞书 Bot</p>
+    <h1 class="h1 anim-fade-up" data-anim="fade-up">飞书实时监听机器人<br><span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">WebSocket + Dify 方案</span></h1>
+    <p class="lede mt-m">从 <span class="mono">2 分钟延迟</span> 到 <span class="mono">2 秒响应</span> · 让 AI 替你回答常见问题</p>
+    <div class="speaker">
+      <div class="av"></div>
+      <div><b>@Kevin Li</b><span>九号公司 · 海外售后 CRM</span></div>
+    </div>
+    <div class="deck-footer">
+      <span class="mono">#feishu-bot #websocket #dify #ai-assistant</span>
+      <span class="slide-number" data-current="1" data-total="8"></span>
+    </div>
+    <aside class="notes">
+      <p>大家好，今天跟大家分享我们做的<strong>飞书实时监听机器人方案</strong>。</p>
+      <p>先说一个数字对比：传统的轮询方案，消息延迟是 <strong>0 到 2 分钟</strong>；我们这个方案，延迟只有 <strong>1 到 3 秒</strong>。这个差距是怎么来的？核心是用 <em>WebSocket 长连接</em>替代了定时轮询。</p>
+      <p>但技术只是手段，真正的目标是——<strong>让 AI 替我回答常见问题，释放我的时间</strong>。我在九号公司负责海外售后 CRM 系统，每天要在企微、飞书、Teams、邮箱四个平台之间切换，消息量巨大。这个方案就是为了解决这个问题。</p>
+      <p>今天分享大概 20 分钟，分 5 个部分：背景痛点、方案价值、技术架构、实施成果、后续优化。有问题随时打断。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 2. BACKGROUND & PAIN POINTS ============ -->
+  <section class="slide" data-title="Background">
+    <p class="kicker">// part 01 · background</p>
+    <h2 class="h2">多平台沟通的<span class="accent">三大痛点</span></h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent">
+        <h4>🔴 消息遗漏</h4>
+        <p class="dim">重要消息被淹没在不同平台中，事后才发现。<strong>日均 200+ 条消息</strong>，根本看不过来。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>🟡 重复问答</h4>
+        <p class="dim">同事反复问同样的问题：<em>"B2X 工单怎么推？"</em>、<em>"结算规则是什么？"</em>。每天花大量时间重复回答。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>🟠 知识分散</h4>
+        <p class="dim">项目经验、业务规则散落在不同地方，<strong>难以检索和复用</strong>。换个人接手就要重新学一遍。</p>
+      </div>
+    </div>
+    <div class="highlight-box mt-m">
+      <p><strong>核心诉求</strong>：构建一个<strong>统一信息平台 + 个人知识库 + AI Bot</strong>，让 AI 替我回答常见问题。</p>
+    </div>
+    <aside class="notes">
+      <p>先说背景。我在九号公司负责海外售后 CRM 系统，日常工作要同时用 <strong>4 个通讯平台</strong>：企微（国内主力）、飞书（IT 试点）、Teams（欧洲团队）、邮箱（外部沟通）。</p>
+      <p>这带来三个核心痛点：</p>
+      <p>第一，<strong>消息遗漏</strong>。每天 200 多条消息，根本看不过来。有时候重要的消息被淹没在其他闲聊里，事后才发现。</p>
+      <p>第二，<strong>重复问答</strong>。同事经常问同样的问题："B2X 工单怎么推？""结算规则是什么？"这些问题其实都有文档，但大家懒得看，直接来问我。我每天花大量时间重复回答。</p>
+      <p>第三，<strong>知识分散</strong>。项目经验、业务规则散落在不同地方——有的在飞书文档，有的在邮箱，有的在我脑子里。换个人接手就要重新学一遍。</p>
+      <p>所以核心诉求很明确：<em>构建一个统一信息平台 + 个人知识库 + AI Bot</em>，让 AI 替我回答常见问题，释放我的时间。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 3. VALUE PROPOSITION ============ -->
+  <section class="slide" data-title="Value">
+    <p class="kicker">// part 02 · value</p>
+    <h2 class="h2">方案价值：<span class="accent">三个维度</span></h2>
+    <div class="stack mt-l">
+      <div class="feature-row"><span class="num blue">①</span><div><b>效率提升</b><p class="dim">AI 自动回答 80% 的常见问题，<strong>每天节省 1-2 小时</strong>。响应时间从 2 分钟降到 2 秒。</p></div></div>
+      <div class="feature-row"><span class="num green">②</span><div><b>知识沉淀</b><p class="dim">把散落在各处的文档整理成知识库，<strong>数据 100% 个人所有</strong>，不绑定公司平台，可迁移。</p></div></div>
+      <div class="feature-row"><span class="num orange">③</span><div><b>可扩展性</b><p class="dim">同一套架构可以复制到企微、Teams、邮箱。<strong>一个大脑，五个触角</strong>。</p></div></div>
+    </div>
+    <div class="code-block mt-m">
+<span class="comment">// 核心理念</span>
+<span class="cmd">统一大脑</span> = 个人知识库 + AI Bot + GitHub 仓库
+<span class="cmd">五个触角</span> = 企微 + 飞书 + Teams + 邮箱 + D365
+<span class="cmd">AI 引擎</span> = Dify（内网自建，飞书/企微 Bot 共用）
+    </div>
+    <aside class="notes">
+      <p>这个方案的价值体现在三个维度。</p>
+      <p>第一，<strong>效率提升</strong>。AI 自动回答 80% 的常见问题，我每天能节省 1-2 小时。更重要的是响应时间——从 2 分钟降到 2 秒，用户体验完全不一样。</p>
+      <p>第二，<strong>知识沉淀</strong>。我把散落在各处的文档整理成知识库，放在本地 Obsidian + GitHub 私有仓库。<em>数据 100% 个人所有</em>，不绑定公司平台。即使换工作，知识库也能带走。</p>
+      <p>第三，<strong>可扩展性</strong>。这套架构不是只给飞书用的，同一套逻辑可以复制到企微、Teams、邮箱。我们叫它"一个大脑，五个触角"——统一大脑是知识库 + AI Bot，五个触角是五个通讯平台。</p>
+      <p>技术上，我们用 <strong>Dify</strong> 作为 AI 引擎，内网自建，飞书和企微 Bot 共用同一个应用。</p>
+      <p>接下来看技术架构。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 4. TECHNICAL ARCHITECTURE ============ -->
+  <section class="slide" data-title="Architecture">
+    <p class="kicker">// part 03 · architecture</p>
+    <h2 class="h2">技术架构：<span class="accent">WebSocket + Dify</span></h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <h4>🔌 连接层</h4>
+        <div class="card card-accent">
+          <p><strong>WebSocket 长连接</strong></p>
+          <p class="dim">飞书 SDK 的 WSClient 模式，无需公网 IP，无超时限制。消息实时推送，延迟 1-3 秒。</p>
+        </div>
+        <h4 class="mt-m">🧠 AI 层</h4>
+        <div class="card card-accent">
+          <p><strong>Dify Chat API</strong></p>
+          <p class="dim">内网自建（http://10.232.5.5），支持多轮对话。知识库来源：Markdown 文档 + 业务 PDF/Office。</p>
+        </div>
+      </div>
+      <div>
+        <h4>📦 数据层</h4>
+        <div class="card card-accent">
+          <p><strong>知识库热重载</strong></p>
+          <p class="dim">监听文档文件变化，自动重新加载。无需重启 Bot，文档更新即时生效。</p>
+        </div>
+        <h4 class="mt-m">🔐 安全层</h4>
+        <div class="card card-accent">
+          <p><strong>授权白名单</strong></p>
+          <p class="dim">邮件操作（IMAP/SMTP）仅对授权用户开放。按 <span class="mono">senderOpenId</span> 控制权限。</p>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>技术架构分四层。</p>
+      <p><strong>连接层</strong>：用飞书 SDK 的 WebSocket 长连接模式。这个方案的关键优势是——<em>无需公网 IP</em>，无超时限制，消息实时推送。对比传统的轮询方案，API 调用量从每天 720 次降到按需调用。</p>
+      <p><strong>AI 层</strong>：用 Dify 作为 AI 引擎，内网自建。飞书和企微 Bot 共用同一个 Dify 应用，支持多轮对话。知识库来源是 Markdown 文档和业务 PDF/Office 文件。</p>
+      <p><strong>数据层</strong>：知识库支持热重载。脚本监听文档文件变化，自动重新加载。文档更新后无需重启 Bot，即时生效。</p>
+      <p><strong>安全层</strong>：邮件操作（IMAP/SMTP）仅对授权用户开放。通过 <span class="mono">senderOpenId</span> 白名单控制权限，非授权用户请求会被拒绝。</p>
+      <p>接下来看核心功能。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 5. CORE FEATURES ============ -->
+  <section class="slide" data-title="Features">
+    <p class="kicker">// part 04 · features</p>
+    <h2 class="h2">核心功能：<span class="accent">三大能力</span></h2>
+    <div class="stack mt-l">
+      <div class="rule-row">
+        <span class="num blue">01</span>
+        <div>
+          <b>实时智能问答</b>
+          <p class="dim">群聊 @机器人 提问 → 1-3 秒内回复。支持<strong>多轮对话</strong>（30 分钟会话保持），引用原消息回复，贴 ❤️ 表情表示已收到。</p>
+        </div>
+      </div>
+      <div class="rule-row">
+        <span class="num green">02</span>
+        <div>
+          <b>邮件操作（授权白名单）</b>
+          <p class="dim">授权用户可请求：<em>查邮件、搜索邮件、读第 N 封、发邮件</em>。通过 IMAP/SMTP 执行，非授权用户自动拒绝。</p>
+        </div>
+      </div>
+      <div class="rule-row">
+        <span class="num orange">03</span>
+        <div>
+          <b>会话隔离 + 去重</b>
+          <p class="dim">按 <span class="mono">senderOpenId:chatId</span> 维护 conversation_id，不同聊天场景互不干扰。Set 缓存最近 1000 条消息，防止重复处理。</p>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>核心功能有三个。</p>
+      <p>第一，<strong>实时智能问答</strong>。用户在群里 @机器人 提问，1-3 秒内回复。支持多轮对话，30 分钟会话保持。机器人会先贴一个 ❤️ 表情表示已收到，然后引用原消息回复。这个体验很流畅，用户感觉像在跟一个真人对话。</p>
+      <p>第二，<strong>邮件操作</strong>。授权用户可以 @机器人 说"查最近 10 封邮件"、"搜索 xxx 的邮件"、"发邮件给 yyy"。机器人通过 IMAP/SMTP 执行。这个功能仅对授权用户开放，非授权用户请求会被拒绝。</p>
+      <p>第三，<strong>会话隔离 + 去重</strong>。按 <span class="mono">senderOpenId:chatId</span> 维护 conversation_id，不同聊天场景互不干扰。比如你在 A 群问的问题，不会影响到 B 群的对话上下文。同时用 Set 缓存最近 1000 条消息，防止重复处理。</p>
+      <p>接下来看实施成果。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 6. RESULTS ============ -->
+  <section class="slide" data-title="Results">
+    <p class="kicker">// part 05 · results</p>
+    <h2 class="h2">实施成果：<span class="accent">对比数据</span></h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent">
+        <h4>📊 性能对比</h4>
+        <table style="width:100%;margin-top:12px;font-size:14px">
+          <tr><td class="dim">响应延迟</td><td><strong>1-3 秒</strong> vs 0-2 分钟</td></tr>
+          <tr><td class="dim">API 调用量</td><td><strong>按需调用</strong> vs 720 次/天</td></tr>
+          <tr><td class="dim">公网 IP</td><td><strong>不需要</strong> vs 不需要</td></tr>
+          <tr><td class="dim">部署复杂度</td><td>低（常驻进程）</td></tr>
+        </table>
+      </div>
+      <div class="card card-accent">
+        <h4>✅ 已实现能力</h4>
+        <ul style="margin-top:12px;font-size:14px;line-height:1.8">
+          <li>飞书 Bot 实时监听（WebSocket）</li>
+          <li>Dify Chat API 集成（多轮对话）</li>
+          <li>知识库热重载（Markdown + PDF）</li>
+          <li>邮件操作（IMAP/SMTP）</li>
+          <li>会话隔离 + 消息去重</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box mt-m">
+      <p><strong>关键指标</strong>：总延迟 2-5 秒（含 Dify 响应时间），知识库容量 36+ 文档，支持无限群聊扩展。</p>
+    </div>
+    <aside class="notes">
+      <p>实施成果看两个维度。</p>
+      <p>左边是<strong>性能对比</strong>。响应延迟从 0-2 分钟降到 1-3 秒，API 调用量从每天 720 次降到按需调用。最关键的是——<em>不需要公网 IP</em>，部署复杂度低，只需要一个常驻进程。</p>
+      <p>右边是<strong>已实现能力</strong>。飞书 Bot 实时监听、Dify Chat API 集成、知识库热重载、邮件操作、会话隔离 + 消息去重——这些都已经上线运行。</p>
+      <p>关键指标：总延迟 2-5 秒（包含 Dify 响应时间），知识库容量 36+ 文档，支持无限群聊扩展。</p>
+      <p>接下来看后续优化方向。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 7. ROADMAP ============ -->
+  <section class="slide" data-title="Roadmap">
+    <p class="kicker">// part 06 · roadmap</p>
+    <h2 class="h2">后续优化：<span class="accent">三阶段路线图</span></h2>
+    <div class="stack mt-l">
+      <div class="agenda-row"><span class="num">P1</span><span class="t">知识库向量化（让 AI 能搜索）+ 自动日报生成</span><span class="d">2-3 周</span></div>
+      <div class="agenda-row"><span class="num">P2</span><span class="t">企微 Bot 上线（WebSocket + Dify，流式回复）+ Teams Graph API 对接</span><span class="d">3-4 周</span></div>
+      <div class="agenda-row"><span class="num">P3</span><span class="t">欧洲团队英文 Bot + 跨时区智能提醒 + 知识自动沉淀</span><span class="d">持续</span></div>
+    </div>
+    <div class="code-block mt-m">
+<span class="comment">// 技术演进方向</span>
+<span class="cmd">Phase 1</span>: 知识库向量化 → 提升回答质量
+<span class="cmd">Phase 2</span>: 多平台统一 → 企微/Teams/邮箱全覆盖
+<span class="cmd">Phase 3</span>: 智能化升级 → 自动日报/会议纪要/知识沉淀
+    </div>
+    <aside class="notes">
+      <p>后续优化分三个阶段。</p>
+      <p><strong>Phase 1（2-3 周）</strong>：知识库向量化 + 自动日报生成。现在知识库是全文匹配，向量化后能提升回答质量。自动日报是每天 17:30 推送当天工作汇总。</p>
+      <p><strong>Phase 2（3-4 周）</strong>：企微 Bot 上线 + Teams Graph API 对接。企微 Bot 已经开发完成，用 WebSocket + Dify，支持流式回复。Teams 需要注册 Azure App，对接 Graph API。</p>
+      <p><strong>Phase 3（持续）</strong>：欧洲团队英文 Bot + 跨时区智能提醒 + 知识自动沉淀。这个阶段的目的是让系统更智能，自动沉淀知识。</p>
+      <p>技术演进方向很清晰：Phase 1 提升回答质量，Phase 2 多平台统一，Phase 3 智能化升级。</p>
+      <p>最后是 Q&A。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 8. Q&A ============ -->
+  <section class="slide" data-title="Q&A">
+    <p class="kicker">// closing</p>
+    <h2 class="h2">Q&amp;A · <span class="accent">常见问题</span></h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent">
+        <h4>Q: 连接失败怎么办？</h4>
+        <p class="dim">检查 App Secret 是否正确，确保在飞书后台选择了"长连接"模式（非 Webhook）。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>Q: 如何后台常驻运行？</h4>
+        <p class="dim">推荐用 <span class="mono">pm2</span>：<br><span class="mono">pm2 start feishu-bot.js --name feishu-bot</span></p>
+      </div>
+      <div class="card card-accent">
+        <h4>Q: 文档更新后需要重启吗？</h4>
+        <p class="dim">不需要。脚本监听文档文件变化，<strong>自动重新加载知识库</strong>。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>Q: 这套方案能复用到其他团队吗？</h4>
+        <p class="dim">可以。核心是 <strong>Dify + WebSocket</strong>，换知识库和 App Secret 即可。</p>
+      </div>
+    </div>
+    <p class="lede mt-l tc">谢谢！<br><span class="dim">代码仓库：<span class="mono">kevinli.github.io/Integration/feishu-bot</span></span></p>
+    <aside class="notes">
+      <p>最后留几分钟答疑。我列了四个常见问题。</p>
+      <p>第一个，<strong>连接失败怎么办</strong>？检查 App Secret 是否正确，确保在飞书后台选择了"长连接"模式，不是 Webhook。</p>
+      <p>第二个，<strong>如何后台常驻运行</strong>？推荐用 pm2，一行命令搞定。</p>
+      <p>第三个，<strong>文档更新后需要重启吗</strong>？不需要。脚本监听文档文件变化，自动重新加载知识库。</p>
+      <p>第四个，<strong>这套方案能复用到其他团队吗</strong>？可以。核心是 Dify + WebSocket，换知识库和 App Secret 即可。我们企微 Bot 就是用同一套架构做的。</p>
+      <p>好，我今天就讲到这里。如果大家想看看代码，仓库地址在屏幕上：<span class="mono">kevinli.github.io/Integration/feishu-bot</span>。谢谢大家！</p>
+    </aside>
+  </section>
+
+</div>
+
+<div style="position:fixed;bottom:12px;left:12px;font-size:11px;color:#484f5866;z-index:100;pointer-events:none">
+S 演讲者视图 · T 切换主题 · ← → 翻页 · F 全屏 · O 总览 · R 重置计时
+</div>
+
+<script src="../../assets/runtime.js"></script>
+</body>
+</html>

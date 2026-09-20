@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+
+### 2026-09-20 14:55 (UTC+8)
+- **修改文件**：`Integration/feishu-bot/feishu-bot-presentation.pptx`、`Integration/feishu-bot/feishu-bot-presentation/`
+- **变更类型**：新增
+- **变更描述**：
+  1. **飞书机器人方案演示文稿**：
+     - 新增 PowerPoint 格式演示文稿（8 页，含演讲者备注）
+     - 新增 HTML 格式演示文稿（演讲者模式，带逐字稿，支持 S 键切换演讲者视图）
+     - 内容覆盖：背景痛点、方案价值、技术架构、核心功能、实施成果、后续优化、Q&A
+     - 配色方案：Ocean Gradient 技术风（深蓝 + 青色 + 薄荷绿）
+     - 每页配备 150-300 字演讲者备注，按"提示信号"方式编写
+  2. **使用方式**：
+     - PowerPoint：双击 `feishu-bot-presentation.pptx`，按 F5 放映，Alt+F5 进入演讲者视图
+     - HTML：打开 `feishu-bot-presentation/index.html`，按 S 进入演讲者模式，T 切换主题
+- **影响范围**：飞书 Bot 项目文档与演示材料
+- **关联请求**："读一下github中，飞书机器人相关的材料，输出一份ppt供我给大家讲解这个方案的价值、实施、后续优化等方面"
 ### 2026-09-16 18:38 (UTC+8)
 - **修改文件**：`Integration/integration-details.md`
 - **变更类型**：文档更新
