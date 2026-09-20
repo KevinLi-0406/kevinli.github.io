@@ -53,13 +53,6 @@
           "estimatedCompletion": "2026-09-21"
         },
         {
-          "id": 107,
-          "task": "MySav自动推送功能上线，排查Stock同步报错（97%为联想侧数据问题）",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
-        },
-        {
           "id": 108,
           "task": "协调MySav侧切换推送逻辑（Repair Complete推送修正），安排9/21接受新工单",
           "progress": "100%",
@@ -72,48 +65,6 @@
           "progress": "100%",
           "owner": "Kevin Li / Choice",
           "estimatedCompletion": "2026-09-18"
-        },
-        {
-          "id": 202,
-          "task": "向Choice解释工单占料推送逻辑（UseConfirm→库存扣减→ServiceEnd）",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
-        },
-        {
-          "id": 203,
-          "task": "查询Integration Log排查数据同步问题，邮件汇总报错清单",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
-        },
-        {
-          "id": 204,
-          "task": "开通test5环境账号权限，协助同事排查Log查看权限问题",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-18"
-        },
-        {
-          "id": 301,
-          "task": "915版本已发布，922版本按计划推进",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-20"
-        },
-        {
-          "id": 302,
-          "task": "自营仓对接：从SIT测试推进至UAT阶段",
-          "progress": "60%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-24"
-        },
-        {
-          "id": 303,
-          "task": "Walk-in Repair PRD更新：Buffer Time字段逻辑（Micro-Mobility默认20天，其他不设默认值）",
-          "progress": "100%",
-          "owner": "Kevin Li",
-          "estimatedCompletion": "2026-09-19"
         }
       ],
       "risks": [
