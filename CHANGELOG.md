@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-20 16:00 (UTC+8)
+- **修改文件**：`Knowledge/`、`Integration/feishu-bot-presentation/`
+- **变更类型**：重构
+- **变更描述**：
+  1. **清理 Knowledge 目录**：
+     - 删除空子目录（01-SPP-SDS、02-FAQ、04-Meeting-Notes、05-Personal）
+     - 删除重复文件 cron-feishu-notification-misroute.md（内容与 Integration Bot 文档重复）
+  2. **调整 PPT 位置**：
+     - 将 feishu-bot-presentation（PPT + HTML）从 feishu-bot/ 子目录移到 Integration/ 根目录
+     - 避免演示文稿与 Bot 代码混在一起
+  3. **保留 architecture.svg**：
+     - 保留在 Integration/ 根目录，与 unified-platform.md 配套
+- **影响范围**：仓库目录结构
+- **Commit**：`6274d17` - refactor: 清理仓库结构
+
 ### 2026-09-20 15:00 (UTC+8)
 - **修改文件**：`Integration/assets/`（70 个文件）
 - **变更类型**：新增
