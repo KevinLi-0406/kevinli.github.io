@@ -19,9 +19,28 @@
 
 'use strict';
 
-const Lark = require('@larksuiteoapi/node-sdk');
 const fs = require('fs');
 const path = require('path');
+
+// ===== 单实例锁：防止多进程同时运行 =====
+const PID_FILE = path.join(__dirname, '.feishu-bot.pid');
+if (fs.existsSync(PID_FILE)) {
+  const oldPid = parseInt(fs.readFileSync(PID_FILE, 'utf-8').trim());
+  try {
+    process.kill(oldPid, 0); // 检查进程是否存在
+    console.error(`❌ 另一个实例正在运行（PID: ${oldPid}），请先停止它再启动`);
+    process.exit(1);
+  } catch (e) {
+    // 进程不存在，删除旧 PID 文件
+    fs.unlinkSync(PID_FILE);
+  }
+}
+fs.writeFileSync(PID_FILE, String(process.pid));
+process.on('exit', () => { try { fs.unlinkSync(PID_FILE); } catch(e) {} });
+process.on('SIGINT', () => { try { fs.unlinkSync(PID_FILE); } catch(e) {} process.exit(0); });
+process.on('SIGTERM', () => { try { fs.unlinkSync(PID_FILE); } catch(e) {} process.exit(0); });
+
+const Lark = require('@larksuiteoapi/node-sdk');
 
 // ────────────────────────────────────────────────────────────────
 // 配置（优先从环境变量读取）
@@ -627,15 +646,114 @@ function getSenderInfo(data) {
  * 发送回复消息（基于原消息回复，形成消息串）
  * 使用 im.v1.message.reply API，回复会挂在原消息下方
  */
+/**
+ * 将 Markdown 文本转换为飞书 post 消息的富文本格式
+ */
+function markdownToFeishuPost(md) {
+  if (!md) return [];
+
+  const lines = md.split('\n');
+  const rows = [];
+  let currentRow = [];
+
+  function flushRow() {
+    if (currentRow.length > 0) {
+      rows.push(currentRow);
+      currentRow = [];
+    }
+  }
+
+  function processInline(text) {
+    const segments = [];
+    // 匹配 **bold** 和 [text](url)
+    const regex = /(\*\*(.+?)\*\*)|(\[(.+?)\]\((.+?)\))/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        segments.push({ tag: 'text', text: text.slice(lastIndex, match.index) });
+      }
+      if (match[2]) {
+        // **bold**
+        segments.push({ tag: 'text', text: match[2], style: ['bold'] });
+      } else if (match[4] && match[5]) {
+        // [text](url)
+        segments.push({ tag: 'a', text: match[4], href: match[5] });
+      }
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      segments.push({ tag: 'text', text: text.slice(lastIndex) });
+    }
+
+    return segments.length > 0 ? segments : [{ tag: 'text', text }];
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // 空行
+    if (trimmed === '') {
+      flushRow();
+      continue;
+    }
+
+    // 分隔线 ---
+    if (trimmed === '---') {
+      flushRow();
+      currentRow.push({ tag: 'text', text: '────────────────' });
+      flushRow();
+      continue;
+    }
+
+    // 标题 ###
+    if (trimmed.startsWith('### ')) {
+      flushRow();
+      currentRow.push({ tag: 'text', text: trimmed.slice(4), style: ['bold'] });
+      flushRow();
+      continue;
+    }
+
+    // 表格行 | col1 | col2 |
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      // 跳过分隔行 |---|---|
+      if (/^\|[\s\-:|]+\|$/.test(trimmed)) continue;
+      const cells = trimmed.split('|').slice(1, -1).map(c => c.trim());
+      currentRow.push({ tag: 'text', text: cells.join(' | ') });
+      flushRow();
+      continue;
+    }
+
+    // 列表项 - 或 *
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      currentRow.push({ tag: 'text', text: '• ' + trimmed.slice(2) });
+      flushRow();
+      continue;
+    }
+
+    // 普通文本
+    currentRow.push(...processInline(trimmed));
+    flushRow();
+  }
+
+  flushRow();
+  return rows;
+}
+
 async function sendReply(client, messageId, senderOpenId, replyText) {
+  const postRows = markdownToFeishuPost(replyText);
+
   const content = {
     zh_cn: {
       title: '',
       content: [
         [
           { tag: 'at', user_id: senderOpenId, user_name: '' },
-          { tag: 'text', text: ` ${replyText}` },
+          { tag: 'text', text: ' ' },
         ],
+        ...postRows,
       ],
     },
   };
@@ -651,6 +769,253 @@ async function sendReply(client, messageId, senderOpenId, replyText) {
     console.log(`  ✅ 回复已发送（引用原消息）`);
   } catch (e) {
     console.error(`  ❌ 回复发送失败：${e.message}`);
+  }
+}
+
+/**
+ * 解析 Dify 返回的结构化回答，提取各字段
+ */
+function parseDifyAnswer(replyText) {
+  const moduleMatch = replyText.match(/\*{0,2}模块\*{0,2}[：:]\s*(.+)/);
+  const confidenceMatch = replyText.match(/\*{0,2}可信度\*{0,2}[：:]\s*(.+)/);
+  const sourceMatch = replyText.match(/\*{0,2}来源\*{0,2}[：:]\s*([\s\S]*?)(?:\n\n---|\n---|\n(?=####|\*\*|$))/);
+  const tableMatch = replyText.match(/((?:\|[^\n]+\|\n?)+)/);
+  const rulesMatch = replyText.match(/\*{0,2}关键规则\*{0,2}[：:]?\s*\n([\s\S]*?)(?=\n---|\n##|$)/);
+  const titleMatch = replyText.match(/#{2,4}\s+(.+)/);
+
+  return {
+    module: moduleMatch ? moduleMatch[1].trim() : '其他',
+    confidence: confidenceMatch ? confidenceMatch[1].trim() : '低',
+    source: sourceMatch ? sourceMatch[1].trim() : '无',
+    tableText: tableMatch ? tableMatch[1].trim() : '',
+    rulesText: rulesMatch ? rulesMatch[1].trim() : '',
+    title: titleMatch ? titleMatch[1].trim() : '',
+  };
+}
+
+/**
+ * 将 Markdown 表格文本解析为卡片 table 的 columns + rows
+ */
+function parseMarkdownTable(md) {
+  const lines = md.split('\n').filter(l => l.trim().startsWith('|'));
+  if (lines.length < 2) return null;
+
+  const headers = lines[0].split('|').map(c => c.trim()).filter(Boolean);
+  // 跳过分隔行
+  const dataLines = lines.slice(1).filter(l => !/^\|[\s\-:|]+\|$/.test(l.trim()));
+  const rows = dataLines.map(l => {
+    const cells = l.split('|').map(c => c.trim()).filter(Boolean);
+    const row = {};
+    headers.forEach((h, i) => { row[h] = cells[i] || ''; });
+    return row;
+  });
+
+  const columns = headers.map(h => ({
+    data_type: 'text',
+    name: h,
+    display_name: h,
+    horizontal_align: 'left',
+    width: 'auto'
+  }));
+
+  return { columns, rows };
+}
+
+/**
+ * 发送卡片消息回复（飞书卡片 v2 格式）
+ * 保留原有 post 消息不变，额外发送一张结构化卡片
+ */
+async function sendCardReply(client, messageId, senderOpenId, replyText, originalQuestion) {
+  const parsed = parseDifyAnswer(replyText);
+  const table = parseMarkdownTable(parsed.tableText);
+
+  // 构建卡片元素
+  const elements = [];
+
+  // 1. 原始问题（灰色背景块）
+  elements.push({
+    tag: 'column_set',
+    flex_mode: 'stretch',
+    horizontal_spacing: '12px',
+    horizontal_align: 'left',
+    columns: [{
+      tag: 'column',
+      width: 'weighted',
+      weight: 1,
+      background_style: 'grey-50',
+      padding: '12px 12px 12px 12px',
+      vertical_spacing: '8px',
+      horizontal_align: 'center',
+      vertical_align: 'center',
+      element_id: 'original_question',
+      elements: [{
+        tag: 'markdown',
+        content: `**原始问题**\n${originalQuestion || '未知问题'}`,
+        text_align: 'left',
+        text_size: 'normal',
+        icon: { tag: 'standard_icon', token: 'myai_colorful', color: 'grey' },
+        element_id: 'original_question_md'
+      }]
+    }],
+    margin: '0px 0px 0px 0px',
+    element_id: 'original_question_block_1'
+  });
+
+  elements.push({ tag: 'hr', margin: '0px 0px 0px 0px' });
+
+  // 2. 模块 + 可信度（两列，带背景色）
+  elements.push({
+    tag: 'column_set',
+    flex_mode: 'stretch',
+    horizontal_spacing: '12px',
+    horizontal_align: 'left',
+    columns: [
+      {
+        tag: 'column', width: 'weighted', weight: 1,
+        background_style: 'blue-50',
+        padding: '12px 12px 12px 12px',
+        vertical_spacing: '8px', horizontal_align: 'center', vertical_align: 'center',
+        element_id: 'module_col',
+        elements: [{ tag: 'markdown', content: `**模块**\n${parsed.module}`, text_align: 'center', text_size: 'normal', element_id: 'module_md' }]
+      },
+      {
+        tag: 'column', width: 'weighted', weight: 1,
+        background_style: 'orange-50',
+        padding: '12px 12px 12px 12px',
+        vertical_spacing: '8px', horizontal_align: 'center', vertical_align: 'center',
+        element_id: 'reliability_col',
+        elements: [{ tag: 'markdown', content: `**可信度**\n${parsed.confidence === '高' ? '' : parsed.confidence === '中' ? '🟡' : '🔴'} ${parsed.confidence}`, text_align: 'center', text_size: 'normal', element_id: 'reliability_md' }]
+      }
+    ],
+    margin: '0px 0px 0px 0px',
+    element_id: 'FjgXIIitC5DlL_tHfMIv'
+  });
+
+  elements.push({ tag: 'hr', margin: '0px 0px 0px 0px' });
+
+  // 3. 答案标题
+  if (parsed.title) {
+    elements.push({
+      tag: 'markdown',
+      content: `**${parsed.title}**`,
+      text_align: 'left',
+      text_size: 'normal',
+      icon: { tag: 'standard_icon', token: 'meego_colorful', color: 'grey' },
+      margin: '0px 0px 0px 0px',
+      element_id: 'ZGPhnr2bYYifE4CzQB_I'
+    });
+  }
+
+  // 4. 表格
+  if (table) {
+    elements.push({
+      tag: 'table',
+      columns: table.columns,
+      rows: table.rows,
+      header_style: { background_style: 'grey', bold: true },
+      page_size: 5,
+      margin: '0px 0px 0px 0px',
+      element_id: 'JAh5G2P9aHBa5Kl6aUSN'
+    });
+  }
+
+  // 5. 关键规则（黄色背景块）
+  if (parsed.rulesText) {
+    const rules = parsed.rulesText.split('\n').filter(l => l.trim().startsWith('-')).map(l => l.trim().slice(2)).join(' | ');
+    if (rules) {
+      elements.push({
+        tag: 'column_set',
+        flex_mode: 'stretch',
+        horizontal_spacing: '12px',
+        horizontal_align: 'left',
+        columns: [{
+          tag: 'column',
+          width: 'weighted', weight: 1,
+          background_style: 'yellow-50',
+          padding: '12px 12px 12px 12px',
+          direction: 'vertical',
+          horizontal_spacing: '8px',
+          vertical_spacing: '8px',
+          horizontal_align: 'center',
+          vertical_align: 'center',
+          element_id: 'keyRule_col',
+          elements: [{
+            tag: 'markdown',
+            content: `**⚡ 关键规则**\n${rules}`,
+            text_align: 'left', text_size: 'normal',
+            element_id: 'keyRule_md'
+          }]
+        }],
+        margin: '0px 0px 0px 0px',
+        element_id: 'keyRuleBlock'
+      });
+    }
+  }
+
+  // 6. 知识来源（灰色背景块，带链接）
+  if (parsed.source && parsed.source !== '无') {
+    elements.push({ tag: 'hr', margin: '0px 0px 0px 0px' });
+    const sourceLines = parsed.source.split('、').map(s => s.trim()).filter(Boolean);
+    const sourceMd = sourceLines.map(s => `- ${s}`).join('\n');
+    elements.push({
+      tag: 'column_set',
+      flex_mode: 'stretch',
+      horizontal_spacing: '12px',
+      horizontal_align: 'left',
+      columns: [{
+        tag: 'column',
+        width: 'weighted', weight: 1,
+        background_style: 'grey-50',
+        padding: '12px 12px 12px 12px',
+        vertical_spacing: '8px',
+        horizontal_align: 'center',
+        vertical_align: 'center',
+        element_id: 'knowledgeSource_col',
+        elements: [{
+          tag: 'markdown',
+          content: `** 知识来源**\n${sourceMd}`,
+          text_align: 'left', text_size: 'normal',
+          element_id: 'knowledgeSource_md'
+        }]
+      }],
+      margin: '0px 0px 0px 0px',
+      element_id: 'knowledgeSourceBlock'
+    });
+  }
+
+  const cardContent = {
+    schema: '2.0',
+    config: {
+      update_multi: true,
+      style: {
+        text_size: {
+          normal: { default: 'normal', mobile: 'heading', pc: 'normal' }
+        }
+      }
+    },
+    header: {
+      title: { tag: 'plain_text', content: 'EU SPP 业务顾问助手' },
+      subtitle: { tag: 'plain_text', content: '' },
+      template: 'blue',
+      icon: { tag: 'standard_icon', token: 'ai-common_colorful' }
+    },
+    body: {
+      direction: 'vertical',
+      elements
+    }
+  };
+
+  try {
+    await client.im.v1.message.reply({
+      path: { message_id: messageId },
+      data: {
+        content: JSON.stringify(cardContent),
+        msg_type: 'interactive',
+      },
+    });
+    console.log(`  ✅ 卡片回复已发送`);
+  } catch (e) {
+    console.error(`  ❌ 卡片回复发送失败：${e.message}`);
   }
 }
 
@@ -766,14 +1131,18 @@ async function main() {
 
         const { openId: senderOpenId, senderType } = getSenderInfo(data);
 
-        // ① 只处理启用的群聊（全量模式下跳过此检查）
-        if (monitoredChatIds !== null && !monitoredChatIds.has(chatId)) return;
+        // 判断是否为私聊
+        const chatType = data.message?.chat_type;
+        const isPrivateChat = chatType === 'p2p';
+
+        // ① 群聊需要检查监听列表，私聊始终处理
+        if (!isPrivateChat && monitoredChatIds !== null && !monitoredChatIds.has(chatId)) return;
 
         // ② 排除机器人自己发的消息
         if (senderType === 'app') return;
 
-        // ③ 只处理 @机器人 的消息
-        if (!isAtBot(data, APP_ID)) return;
+        // ③ 群聊需要 @机器人，私聊不需要
+        if (!isPrivateChat && !isAtBot(data, APP_ID)) return;
 
         const questionText = extractText(data);
         if (!questionText) return;
@@ -822,8 +1191,11 @@ async function main() {
         // ⑦ 调用 Dify 生成回复（支持多轮对话）
         const replyText = await generateReply(questionText, senderOpenId);
 
-        // ⑧ 发送回复（基于原消息回复，@提问人）
+        // ⑧ 发送 post 消息回复（基于原消息回复，@提问人）
         await sendReply(client, messageId, senderOpenId, replyText);
+
+        // ⑨ 发送卡片消息回复（结构化展示）
+        await sendCardReply(client, messageId, senderOpenId, replyText, questionText);
       },
     }),
   });
