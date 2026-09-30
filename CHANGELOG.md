@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-30 12:00 (UTC+8)
+- **修改文件**：`Tools/stickman-adventure.html`
+- **变更类型**：新增
+- **变更描述**：新增火柴人闯关游戏（Stickman Adventure），纯前端 HTML5 Canvas 实现。
+  - 5个关卡，难度递进（入门→弹簧→移动平台→传送门→综合挑战）
+  - 火柴人横竖自由移动和跳跃（方向键+空格键）
+  - 收集金币+到达终点旗帜的双重过关目标
+  - 特殊道具：弹簧（高弹跳）、移动平台、传送门
+  - Web Audio API 音效（跳跃、收集、通关、死亡、弹簧）
+  - 粒子特效系统
+  - 分数、生命、计时状态系统
+  - 开始/胜利/失败界面
+- **影响范围**：新增独立 HTML 工具页面，不影响现有项目
+- **在线访问**：`https://kevinli-0406.github.io/kevinli.github.io/Tools/stickman-adventure.html`
 ### 2026-09-29 15:30 (UTC+8)
 - **修改文件**：`Integration/feishu-bot/feishu-bot.js`、`Integration/feishu-bot/.env`、`Integration/monitored-chats.json`
 - **变更类型**：功能新增 + Bug 修复
