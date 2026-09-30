@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火柴人闯关 - Stickman Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            display: block;
+            background: #87CEEB;
+        }
+
+        #ui {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        #ui div {
+            margin: 5px 0;
+        }
+
+        #startScreen, #winScreen, #loseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            z-index: 20;
+        }
+
+        #startScreen h1, #winScreen h1, #loseScreen h1 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        #startScreen p, #winScreen p, #loseScreen p {
+            color: #ddd;
+            font-size: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .level-indicator {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <div>分数: <span id="score">0</span></div>
+            <div>生命: <span id="lives">3</span></div>
+            <div>时间: <span id="timer">0</span>s</div>
+        </div>
+        <div class="level-indicator">关卡: <span id="level">1</span></div>
+        <div id="controls">
+            方向键移动 | 空格键跳跃 | 收集所有金币并到达终点旗帜
+        </div>
+
+        <div id="startScreen">
+            <h1>🎮 火柴人闯关</h1>
+            <p>使用方向键移动，空格键跳跃</p>
+            <p>收集所有金币，到达终点旗帜过关</p>
+            <p>小心陷阱和障碍物！</p>
+            <button class="btn" onclick="game.start()">开始游戏</button>
+        </div>
+
+        <div id="winScreen" class="hidden">
+            <h1>🎉 恭喜通关！</h1>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <p>总用时: <span id="finalTime">0</span>秒</p>
+            <button class="btn" onclick="game.restart()">再玩一次</button>
+        </div>
+
+        <div id="loseScreen" class="hidden">
+            <h1>💀 游戏结束</h1>
+            <p>最终分数: <span id="loseScore">0</span></p>
+            <button class="btn" onclick="game.restart()">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        // 音效系统
+        class SoundSystem {
+            constructor() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            playJump() {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.frequency.value = 400;
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            }
+
+            playCoin() {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, this.audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            }
+
+            playWin() {
+                const notes = [523, 659, 784, 1047];
+                notes.forEach((freq, i) => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    oscillator.frequency.value = freq;
+                    gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime + i * 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.2);
+                    oscillator.start(this.audioContext.currentTime + i * 0.1);
+                    oscillator.stop(this.audioContext.currentTime + i * 0.1 + 0.2);
+                });
+            }
+
+            playDie() {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.3);
+            }
+
+            playSpring() {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.2);
+            }
+        }
+
+        // 粒子系统
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.life = 1;
+                this.color = color;
+                this.size = Math.random() * 3 + 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1;
+                this.life -= 0.02;
+            }
+
+            draw(ctx) {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // 火柴人类
+        class Stickman {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 20;
+                this.height = 40;
+                this.vx = 0;
+                this.vy = 0;
+                this.speed = 4;
+                this.jumpPower = 12;
+                this.onGround = false;
+                this.direction = 1;
+                this.walkCycle = 0;
+            }
+
+            update(platforms) {
+                // 重力
+                this.vy += 0.5;
+
+                // 移动
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // 平台碰撞
+                this.onGround = false;
+                platforms.forEach(platform => {
+                    if (this.checkCollision(platform)) {
+                        // 从上方落下
+                        if (this.vy > 0 && this.y + this.height - this.vy <= platform.y) {
+                            this.y = platform.y - this.height;
+                            this.vy = 0;
+                            this.onGround = true;
+                        }
+                        // 撞到下方
+                        else if (this.vy < 0 && this.y - this.vy >= platform.y + platform.height) {
+                            this.y = platform.y + platform.height;
+                            this.vy = 0;
+                        }
+                        // 撞到左侧
+                        else if (this.vx > 0 && this.x + this.width - this.vx <= platform.x) {
+                            this.x = platform.x - this.width;
+                            this.vx = 0;
+                        }
+                        // 撞到右侧
+                        else if (this.vx < 0 && this.x - this.vx >= platform.x + platform.width) {
+                            this.x = platform.x + platform.width;
+                            this.vx = 0;
+                        }
+                    }
+                });
+
+                // 边界检查
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > 800) this.x = 800 - this.width;
+
+                // 行走动画
+                if (Math.abs(this.vx) > 0 && this.onGround) {
+                    this.walkCycle += 0.2;
+                } else {
+                    this.walkCycle = 0;
+                }
+
+                // 更新朝向
+                if (this.vx > 0) this.direction = 1;
+                if (this.vx < 0) this.direction = -1;
+            }
+
+            checkCollision(obj) {
+                return this.x < obj.x + obj.width &&
+                       this.x + this.width > obj.x &&
+                       this.y < obj.y + obj.height &&
+                       this.y + this.height > obj.y;
+            }
+
+            draw(ctx) {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+
+                // 头部
+                ctx.beginPath();
+                ctx.arc(this.x + this.width / 2, this.y + 8, 8, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // 身体
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y + 16);
+                ctx.lineTo(this.x + this.width / 2, this.y + 28);
+                ctx.stroke();
+
+                // 腿部动画
+                const legOffset = Math.sin(this.walkCycle) * 8;
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y + 28);
+                ctx.lineTo(this.x + this.width / 2 - legOffset, this.y + this.height);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y + 28);
+                ctx.lineTo(this.x + this.width / 2 + legOffset, this.y + this.height);
+                ctx.stroke();
+
+                // 手臂动画
+                const armOffset = Math.sin(this.walkCycle + Math.PI) * 6;
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y + 20);
+                ctx.lineTo(this.x + this.width / 2 - armOffset * this.direction, this.y + 26);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y + 20);
+                ctx.lineTo(this.x + this.width / 2 + armOffset * this.direction, this.y + 26);
+                ctx.stroke();
+            }
+
+            jump() {
+                if (this.onGround) {
+                    this.vy = -this.jumpPower;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        // 游戏主类
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.sound = new SoundSystem();
+                this.particles = [];
+
+                this.levels = this.createLevels();
+                this.currentLevel = 0;
+                this.score = 0;
+                this.lives = 3;
+                this.timer = 0;
+                this.gameRunning = false;
+                this.startTime = 0;
+
+                this.stickman = null;
+                this.platforms = [];
+                this.coins = [];
+                this.springs = [];
+                this.movingPlatforms = [];
+                this.portals = [];
+                this.goal = null;
+
+                this.keys = {};
+                this.setupControls();
+                this.animate();
+            }
+
+            createLevels() {
+                return [
+                    // 关卡1 - 入门
+                    {
+                        platforms: [
+                            {x: 0, y: 550, width: 800, height: 50},
+                            {x: 200, y: 450, width: 150, height: 20},
+                            {x: 450, y: 350, width: 150, height: 20},
+                            {x: 650, y: 250, width: 150, height: 20}
+                        ],
+                        coins: [
+                            {x: 250, y: 410, collected: false},
+                            {x: 500, y: 310, collected: false},
+                            {x: 700, y: 210, collected: false}
+                        ],
+                        springs: [],
+                        movingPlatforms: [],
+                        portals: [],
+                        goal: {x: 720, y: 200, width: 40, height: 50},
+                        start: {x: 50, y: 500}
+                    },
+                    // 关卡2 - 弹簧
+                    {
+                        platforms: [
+                            {x: 0, y: 550, width: 300, height: 50},
+                            {x: 500, y: 550, width: 300, height: 50},
+                            {x: 300, y: 400, width: 200, height: 20},
+                            {x: 600, y: 300, width: 150, height: 20}
+                        ],
+                        coins: [
+                            {x: 150, y: 510, collected: false},
+                            {x: 380, y: 360, collected: false},
+                            {x: 650, y: 260, collected: false},
+                            {x: 680, y: 260, collected: false}
+                        ],
+                        springs: [
+                            {x: 100, y: 530, width: 40, height: 20, power: 18}
+                        ],
+                        movingPlatforms: [],
+                        portals: [],
+                        goal: {x: 720, y: 250, width: 40, height: 50},
+                        start: {x: 50, y: 500}
+                    },
+                    // 关卡3 - 移动平台
+                    {
+                        platforms: [
+                            {x: 0, y: 550, width: 200, height: 50},
+                            {x: 700, y: 550, width: 100, height: 50},
+                            {x: 700, y: 200, width: 100, height: 20}
+                        ],
+                        coins: [
+                            {x: 350, y: 450, collected: false},
+                            {x: 500, y: 350, collected: false},
+                            {x: 740, y: 160, collected: false}
+                        ],
+                        springs: [],
+                        movingPlatforms: [
+                            {x: 300, y: 500, width: 100, height: 20, startX: 300, endX: 500, speed: 2, direction: 1},
+                            {x: 550, y: 400, width: 100, height: 20, startX: 550, endX: 650, speed: 2, direction: 1}
+                        ],
+                        portals: [],
+                        goal: {x: 730, y: 150, width: 40, height: 50},
+                        start: {x: 50, y: 500}
+                    },
+                    // 关卡4 - 传送门
+                    {
+                        platforms: [
+                            {x: 0, y: 550, width: 400, height: 50},
+                            {x: 400, y: 550, width: 400, height: 50},
+                            {x: 200, y: 400, width: 100, height: 20},
+                            {x: 500, y: 300, width: 100, height: 20}
+                        ],
+                        coins: [
+                            {x: 230, y: 360, collected: false},
+                            {x: 530, y: 260, collected: false},
+                            {x: 560, y: 260, collected: false},
+                            {x: 590, y: 260, collected: false}
+                        ],
+                        springs: [],
+                        movingPlatforms: [],
+                        portals: [
+                            {x: 100, y: 500, width: 40, height: 50, targetX: 550, targetY: 250},
+                            {x: 600, y: 500, width: 40, height: 50, targetX: 250, targetY: 350}
+                        ],
+                        goal: {x: 750, y: 500, width: 40, height: 50},
+                        start: {x: 50, y: 500}
+                    },
+                    // 关卡5 - 综合挑战
+                    {
+                        platforms: [
+                            {x: 0, y: 550, width: 150, height: 50},
+                            {x: 300, y: 500, width: 100, height: 20},
+                            {x: 500, y: 450, width: 100, height: 20},
+                            {x: 700, y: 400, width: 100, height: 20}
+                        ],
+                        coins: [
+                            {x: 330, y: 460, collected: false},
+                            {x: 530, y: 410, collected: false},
+                            {x: 730, y: 360, collected: false},
+                            {x: 200, y: 300, collected: false},
+                            {x: 600, y: 200, collected: false}
+                        ],
+                        springs: [
+                            {x: 50, y: 530, width: 40, height: 20, power: 20}
+                        ],
+                        movingPlatforms: [
+                            {x: 400, y: 350, width: 80, height: 20, startX: 400, endX: 550, speed: 3, direction: 1}
+                        ],
+                        portals: [
+                            {x: 720, y: 350, width: 40, height: 50, targetX: 200, targetY: 250}
+                        ],
+                        goal: {x: 750, y: 350, width: 40, height: 50},
+                        start: {x: 50, y: 500}
+                    }
+                ];
+            }
+
+            setupControls() {
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.key] = true;
+                    if (e.key === ' ' && this.gameRunning) {
+                        e.preventDefault();
+                        if (this.stickman.jump()) {
+                            this.sound.playJump();
+                        }
+                    }
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.key] = false;
+                });
+            }
+
+            loadLevel(levelIndex) {
+                const level = this.levels[levelIndex];
+                this.platforms = [...level.platforms];
+                this.coins = level.coins.map(c => ({...c}));
+                this.springs = level.springs.map(s => ({...s}));
+                this.movingPlatforms = level.movingPlatforms.map(p => ({...p}));
+                this.portals = level.portals.map(p => ({...p}));
+                this.goal = {...level.goal};
+                this.stickman = new Stickman(level.start.x, level.start.y);
+            }
+
+            start() {
+                document.getElementById('startScreen').classList.add('hidden');
+                this.gameRunning = true;
+                this.startTime = Date.now();
+                this.loadLevel(0);
+                this.updateUI();
+            }
+
+            restart() {
+                document.getElementById('winScreen').classList.add('hidden');
+                document.getElementById('loseScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                this.currentLevel = 0;
+                this.score = 0;
+                this.lives = 3;
+                this.timer = 0;
+                this.gameRunning = false;
+            }
+
+            updateUI() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('lives').textContent = this.lives;
+                document.getElementById('timer').textContent = Math.floor((Date.now() - this.startTime) / 1000);
+                document.getElementById('level').textContent = this.currentLevel + 1;
+            }
+
+            update() {
+                if (!this.gameRunning) return;
+
+                // 火柴人移动
+                if (this.keys['ArrowLeft']) {
+                    this.stickman.vx = -this.stickman.speed;
+                } else if (this.keys['ArrowRight']) {
+                    this.stickman.vx = this.stickman.speed;
+                } else {
+                    this.stickman.vx = 0;
+                }
+
+                // 上下移动（用于传送门等）
+                if (this.keys['ArrowUp'] && this.stickman.onGround) {
+                    this.stickman.jump();
+                }
+
+                this.stickman.update([...this.platforms, ...this.movingPlatforms]);
+
+                // 移动平台
+                this.movingPlatforms.forEach(platform => {
+                    platform.x += platform.speed * platform.direction;
+                    if (platform.x <= platform.startX || platform.x + platform.width >= platform.endX + platform.width) {
+                        platform.direction *= -1;
+                    }
+                });
+
+                // 收集金币
+                this.coins.forEach((coin, index) => {
+                    if (!coin.collected && this.stickman.checkCollision(coin)) {
+                        coin.collected = true;
+                        this.score += 100;
+                        this.sound.playCoin();
+                        this.createParticles(coin.x + 10, coin.y + 10, '#FFD700');
+                    }
+                });
+
+                // 弹簧
+                this.springs.forEach(spring => {
+                    if (this.stickman.checkCollision(spring) && this.stickman.vy > 0) {
+                        this.stickman.vy = -spring.power;
+                        this.sound.playSpring();
+                        this.createParticles(spring.x + 20, spring.y, '#FF6B6B');
+                    }
+                });
+
+                // 传送门
+                this.portals.forEach(portal => {
+                    if (this.stickman.checkCollision(portal)) {
+                        this.stickman.x = portal.targetX;
+                        this.stickman.y = portal.targetY;
+                        this.createParticles(portal.x + 20, portal.y + 25, '#9B59B6');
+                        this.sound.playCoin();
+                    }
+                });
+
+                // 检查终点
+                if (this.stickman.checkCollision(this.goal)) {
+                    const allCoinsCollected = this.coins.every(c => c.collected);
+                    if (allCoinsCollected) {
+                        this.nextLevel();
+                    }
+                }
+
+                // 掉落检查
+                if (this.stickman.y > 600) {
+                    this.die();
+                }
+
+                // 粒子更新
+                this.particles = this.particles.filter(p => {
+                    p.update();
+                    return p.life > 0;
+                });
+
+                this.updateUI();
+            }
+
+            nextLevel() {
+                this.currentLevel++;
+                if (this.currentLevel >= this.levels.length) {
+                    this.win();
+                } else {
+                    this.loadLevel(this.currentLevel);
+                    this.sound.playWin();
+                }
+            }
+
+            die() {
+                this.lives--;
+                this.sound.playDie();
+                this.createParticles(this.stickman.x + 10, this.stickman.y + 20, '#FF0000');
+
+                if (this.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    const level = this.levels[this.currentLevel];
+                    this.stickman = new Stickman(level.start.x, level.start.y);
+                }
+            }
+
+            win() {
+                this.gameRunning = false;
+                this.sound.playWin();
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalTime').textContent = Math.floor((Date.now() - this.startTime) / 1000);
+                document.getElementById('winScreen').classList.remove('hidden');
+            }
+
+            gameOver() {
+                this.gameRunning = false;
+                document.getElementById('loseScore').textContent = this.score;
+                document.getElementById('loseScreen').classList.remove('hidden');
+            }
+
+            createParticles(x, y, color) {
+                for (let i = 0; i < 15; i++) {
+                    this.particles.push(new Particle(x, y, color));
+                }
+            }
+
+            draw() {
+                // 清空画布
+                this.ctx.fillStyle = '#87CEEB';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                if (!this.gameRunning) return;
+
+                // 绘制平台
+                this.ctx.fillStyle = '#8B4513';
+                this.platforms.forEach(platform => {
+                    this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    this.ctx.strokeStyle = '#654321';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                });
+
+                // 绘制移动平台
+                this.ctx.fillStyle = '#FF6347';
+                this.movingPlatforms.forEach(platform => {
+                    this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    this.ctx.strokeStyle = '#FF4500';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                });
+
+                // 绘制金币
+                this.ctx.fillStyle = '#FFD700';
+                this.coins.forEach(coin => {
+                    if (!coin.collected) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(coin.x + 10, coin.y + 10, 10, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.strokeStyle = '#FFA500';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.stroke();
+                    }
+                });
+
+                // 绘制弹簧
+                this.ctx.fillStyle = '#FF6B6B';
+                this.springs.forEach(spring => {
+                    this.ctx.fillRect(spring.x, spring.y, spring.width, spring.height);
+                    this.ctx.strokeStyle = '#FF4444';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(spring.x, spring.y, spring.width, spring.height);
+                });
+
+                // 绘制传送门
+                this.portals.forEach(portal => {
+                    this.ctx.fillStyle = '#9B59B6';
+                    this.ctx.beginPath();
+                    this.ctx.arc(portal.x + 20, portal.y + 25, 20, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = '#8E44AD';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.stroke();
+                });
+
+                // 绘制终点旗帜
+                this.ctx.fillStyle = '#2ECC71';
+                this.ctx.fillRect(this.goal.x + 10, this.goal.y, 5, 50);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.goal.x + 15, this.goal.y);
+                this.ctx.lineTo(this.goal.x + 40, this.goal.y + 10);
+                this.ctx.lineTo(this.goal.x + 15, this.goal.y + 20);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // 绘制火柴人
+                this.stickman.draw(this.ctx);
+
+                // 绘制粒子
+                this.particles.forEach(particle => {
+                    particle.draw(this.ctx);
+                });
+            }
+
+            animate() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // 启动游戏
+        const game = new Game();
+    </script>
+</body>
+</html>
