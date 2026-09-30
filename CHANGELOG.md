@@ -4,6 +4,124 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-29 15:30 (UTC+8)
+- **修改文件**：`Integration/feishu-bot/feishu-bot.js`、`Integration/feishu-bot/.env`、`Integration/monitored-chats.json`
+- **变更类型**：功能新增 + Bug 修复
+- **变更描述**：
+  1. **飞书卡片消息回复（v2 schema）**：
+     - 新增 `sendCardReply()` 函数，发送结构化飞书卡片
+     - 卡片包含：原始问题、模块/可信度标签、流程表格、关键规则、知识来源链接
+     - 新增 `parseDifyAnswer()` 解析 Dify 返回的结构化内容
+     - 新增 `parseMarkdownTable()` 将 Markdown 表格转为卡片 table 格式
+     - 新增 `markdownToFeishuPost()` 将 Markdown 转为飞书富文本
+     - 保留原有 post 消息不变，卡片作为额外回复
+  2. **单实例 PID 锁**：
+     - 新增 `.feishu-bot.pid` 文件锁机制
+     - 防止多进程同时运行导致重复回复
+     - 进程退出时自动清理 PID 文件
+  3. **私聊支持**：
+     - 添加 `isPrivateChat` 判断，私聊消息不需要 @机器人
+     - 群聊仍需 @机器人 才回复
+  4. **移除多轮对话**：
+     - 去掉 `conversation_id`，每次请求作为新对话
+     - 避免上下文干扰知识检索结果
+  5. **过滤 Dify 输出**：
+     - 过滤 `<think>` 思考过程标签
+     - 过滤 `| end_of_sentence | >` 等内部标记
+  6. **Dify API Key 更新**：
+     - 从 `app-LXRpQNmfcpLmhmBGBysTaoim` 更新为 `app-zCdJm8wgZThtrzLt05fy216D`
+     - 指向正确的 Kevin's Dify Bot 应用
+  7. **表情修改**：
+     - 从 `LOVE` 改为 `HEART`（飞书 API 正确值）
+  8. **新建 `monitored-chats.json`**：
+     - 飞书机器人监听配置文件
+- **影响范围**：飞书机器人回复格式、进程管理、私聊功能
+- **Commit**：`b920209` - feat: 飞书机器人重大更新
+
+### 2026-09-28 22:30 (UTC+8)
+- **修改文件**：`Tools/project-weekly-report/index.html`、`Tools/project-config.json`
+- **变更类型**：新增
+- **变更描述**：
+  1. **项目周报管理工具**：
+     - 从 `Tools/project-weekly-report.html` 移至 `Tools/project-weekly-report/index.html`
+     - 支持按周填写项目进度、风险和拉通事项
+     - 实时从 GitHub 加载/保存周报数据
+     - 支持查看历史周报列表
+     - 项目增加优先级(P0/P1/P2)和状态(未开始/进行中/已完成)
+     - 同步状态指示器（已同步/有修改未保存/同步出错）
+     - 支持 Ctrl+S 快捷键保存
+     - Token 存储在浏览器 localStorage，不上传 GitHub
+  2. **模块化显示支持**：
+     - 新增 `renderModules()` 函数，支持按模块渲染项目
+     - 新增 `addModuleItem()`/`deleteModuleItem()`/`updateModuleItem()` 函数
+     - SPP 项目按 6 个模块展示：Online/Offline/Spare Parts/Settlement/Reports/Master Data
+  3. **project-config.json 更新**：
+     - 新增 `cat.pm`（项目管理）分类
+     - 添加 `project-weekly-report` 项目配置
+- **影响范围**：门户项目列表自动发现、周报管理
+- **Commit**：`c405edc` - feat: 重构周报管理工具支持模块化显示
+
+### 2026-09-28 18:50 (UTC+8)
+- **修改文件**：`weekly-reports/2026-W38.json`
+- **变更类型**：数据更新
+- **变更描述**：
+  1. **SPP 项目模块重构**：
+     - 将原 SDS系统运维、MySAV上线切换、海外服务交付系统变革三个项目合并为统一的 SPP 项目
+     - 按 6 个模块区分：Online/Offline/Spare Parts/Settlement/Reports/Master Data
+     - MySAV（RC）从 Online 移至 Offline
+     - MSD（KA）保留在 Offline
+     - Online 仅保留 SDS 和海外服务交付
+     - 事项前加【MySAV】【MSD】标签区分来源
+  2. **模块说明**：
+     - **Online**：SDS/海外服务交付（7事项/1风险）
+     - **Offline**：MySAV/MSD/LDS等线下工单（9事项/3风险/3拉通）
+     - **Spare Parts**：配件（2事项）
+     - **Settlement**：结算（3事项）
+     - **Reports**：报表（1风险-延期）
+     - **Master Data**：主数据（本周无进展）
+- **影响范围**：周报数据结构
+- **Commit**：`d1eb208` - refactor: 按模块重构SPP项目周报
+
+### 2026-09-28 18:27 (UTC+8)
+- **修改文件**：`weekly-reports/2026-W38.json`、`weekly-reports/2026-W38-raw.md`
+- **变更类型**：新增
+- **变更描述**：
+  1. **第38周周报数据**：
+     - 整合企微总结和飞书总结
+     - 结构化 JSON 格式，包含 8 个项目维度
+     - 原始记录 Markdown 格式
+  2. **项目维度**：
+     - MySAV上线切换（P0）
+     - SDS系统运维（P0）
+     - 海外服务交付系统变革（P0）
+     - 到店结算PRD（P1）
+     - SPP配件录单方案（P1）
+     - MSD需求沟通（P1）
+     - 企微/飞书迁移支持（P2）
+     - AI工具探索与效率提升（P2）
+- **影响范围**：周报存储体系建立
+- **Commits**：`ecd2dee`、`5bfa0fd` - docs: 添加2026年第38周周报
+
+### 2026-09-28 10:30 (UTC+8)
+- **修改文件**：`Tools/project-weekly-report.html`、`weekly-reports/README.md`、`weekly-reports/2026-W38.json`
+- **变更类型**：新增
+- **变更描述**：
+  1. **项目周报管理 HTML 工具**：
+     - 支持按周填写项目进度
+     - 项目层级：项目 -> 事项/风险/拉通事项
+     - 每项包含：事项内容、进度、负责人、预计完成时间
+     - 支持本地存储和 JSON 导出
+  2. **GitHub 周报存储目录**：
+     - 新建 `weekly-reports/` 目录
+     - 添加 README.md 说明文档
+     - 创建 2026-W38.json 示例模板
+- **影响范围**：周报管理工具、存储体系
+- **Commits**：`fbbb6f4`、`9e74df0`、`6e27c88` - feat: 创建项目周报管理工具和存储目录
+
+---
+
+## 2026-09-20
+
 ### 2026-09-20 16:30 (UTC+8)
 - **修改文件**：`Integration/` 目录结构重组
 - **变更类型**：重构
