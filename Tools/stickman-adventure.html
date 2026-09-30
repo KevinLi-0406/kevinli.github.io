@@ -2,6 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>火柴人闯关 - Stickman Adventure</title>
     <style>
@@ -557,7 +560,7 @@
             loadLevel(levelIndex) {
                 const level = this.levels[levelIndex];
                 this.platforms = [...level.platforms];
-                this.coins = level.coins.map(c => ({...c}));
+                this.coins = level.coins.map(c => ({...c, width: 20, height: 20}));
                 this.springs = level.springs.map(s => ({...s}));
                 this.movingPlatforms = level.movingPlatforms.map(p => ({...p}));
                 this.portals = level.portals.map(p => ({...p}));
