@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北京周末自驾 · 四湖两日行程</title>
+<style>
+  :root {
+    --color-sat: #6366f1;
+    --color-sat-grad: linear-gradient(135deg, #4f46e5, #6366f1, #818cf8);
+    --color-sun: #0ea5e9;
+    --color-sun-grad: linear-gradient(135deg, #0284c7, #0ea5e9, #38bdf8);
+    --color-a: #3b82f6; --color-a-grad: linear-gradient(135deg, #2563eb, #60a5fa);
+    --color-b: #10b981; --color-b-grad: linear-gradient(135deg, #059669, #34d399);
+    --color-c: #f59e0b; --color-c-grad: linear-gradient(135deg, #d97706, #fbbf24);
+    --color-d: #ec4899; --color-d-grad: linear-gradient(135deg, #db2777, #f472b6);
+    --color-start: #ef4444;
+    --color-common: #8b5cf6;
+    --bg: #f1f5f9; --card: #ffffff;
+    --text: #1e293b; --text-secondary: #64748b; --text-muted: #94a3b8;
+    --border: #e2e8f0; --border-light: #f1f5f9;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d9488 100%); color: #fff; padding: 52px 24px 44px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(59,130,246,0.15) 0%, transparent 60%), radial-gradient(circle at 70% 30%, rgba(16,185,129,0.12) 0%, transparent 50%); }
+  .hero::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 48px; background: var(--bg); clip-path: ellipse(75% 100% at 50% 100%); }
+  .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; position: relative; }
+  .hero p { font-size: 0.95rem; opacity: 0.8; max-width: 620px; margin: 0 auto; position: relative; }
+  .badge-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; position: relative; }
+  .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; backdrop-filter: blur(6px); }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .section { margin-top: 36px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .section-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .section-title { font-size: 1.1rem; font-weight: 700; }
+  .section-subtitle { font-size: 0.82rem; color: var(--text-secondary); margin-left: auto; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .summary-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+  .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .summary-card.sat::before { background: var(--color-sat-grad); }
+  .summary-card.sun::before { background: var(--color-sun-grad); }
+  .summary-card .day-label { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; color: #fff; display: inline-block; margin-bottom: 10px; }
+  .summary-card.sat .day-label { background: var(--color-sat-grad); }
+  .summary-card.sun .day-label { background: var(--color-sun-grad); }
+  .summary-card .title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .summary-card .sub { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px; }
+  .summary-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .summary-stat { text-align: center; }
+  .summary-stat .val { font-size: 1.2rem; font-weight: 800; }
+  .summary-stat .val.sat-c { color: var(--color-sat); }
+  .summary-stat .val.sun-c { color: var(--color-sun); }
+  .summary-stat .label { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .spots-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-light); }
+  .spot-tag { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; background: var(--border-light); color: var(--text-secondary); }
+  .total-banner { margin-top: 16px; background: linear-gradient(135deg, #0f172a, #1e3a5f); color: #fff; border-radius: var(--radius); padding: 20px 28px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+  .total-item { text-align: center; }
+  .total-item .num { font-size: 1.6rem; font-weight: 800; }
+  .total-item .lbl { font-size: 0.72rem; opacity: 0.65; margin-top: 2px; }
+  .map-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .map-container { position: relative; width: 100%; height: 380px; background: linear-gradient(180deg, #e8f0f8 0%, #dbeafe 100%); overflow: hidden; }
+  .map-svg { width: 100%; height: 100%; display: block; }
+  .map-legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 14px 24px; background: #fafbfd; border-top: 1px solid var(--border-light); font-size: 0.82rem; color: var(--text-secondary); }
+  .map-legend .item { display: flex; align-items: center; gap: 7px; }
+  .legend-line { width: 24px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  .legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  @keyframes routeDraw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  .route-path { stroke-dasharray: 1000; animation: routeDraw 2s ease-out forwards; stroke-dashoffset: 1000; }
+  .day-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+  .day-card-header { padding: 18px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-light); }
+  .day-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 8px; color: #fff; }
+  .day-badge.sat { background: var(--color-sat-grad); }
+  .day-badge.sun { background: var(--color-sun-grad); }
+  .day-card-header .title { font-weight: 700; font-size: 0.95rem; }
+  .day-card-header .meta { margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); }
+  .timeline-body { padding: 24px; }
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 9px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--border), var(--border-light)); }
+  .tl-item { position: relative; margin-bottom: 16px; padding: 14px 18px; background: var(--border-light); border-radius: var(--radius-sm); transition: all 0.2s; }
+  .tl-item:hover { background: #f8fafc; transform: translateX(4px); }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-item::before { content: ''; position: absolute; left: -23px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2.5px solid var(--text-secondary); z-index: 1; transition: all 0.2s; }
+  .tl-item:hover::before { transform: scale(1.2); }
+  .tl-item.hl-sat::before { background: var(--color-sat); border-color: var(--color-sat); }
+  .tl-item.hl-sun::before { background: var(--color-sun); border-color: var(--color-sun); }
+  .tl-item.hl-drive::before { background: #f59e0b; border-color: #f59e0b; }
+  .tl-time { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .tl-time.sat { color: var(--color-sat); }
+  .tl-time.sun { color: var(--color-sun); }
+  .tl-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 3px; }
+  .tl-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; }
+  .drive-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: #fef3c7; color: #92400e; margin-left: 6px; }
+  .stats-box { margin-top: 20px; padding: 16px 20px; border-radius: var(--radius-sm); display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .stats-box.sat-bg { background: #eef2ff; }
+  .stats-box.sun-bg { background: #e0f2fe; }
+  .stats-box .stat { font-size: 0.82rem; color: var(--text-secondary); }
+  .stats-box .stat strong { font-size: 0.95rem; }
+  .stats-box .stat strong.sat-c { color: var(--color-sat); }
+  .stats-box .stat strong.sun-c { color: var(--color-sun); }
+  .rain-box { margin-top: 14px; padding: 14px 20px; background: #fef3c7; border-radius: var(--radius-sm); border-left: 3px solid #f59e0b; }
+  .rain-box .rain-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+  .rain-box .rain-content { font-size: 0.82rem; color: #92400e; line-height: 1.7; }
+  .gallery-section { margin-top: 22px; }
+  .gallery-section-title { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .gallery-item { border-radius: var(--radius-sm); overflow: hidden; position: relative; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.25s; }
+  .gallery-item:hover { transform: scale(1.03); }
+  .gallery-item .emoji { font-size: 2.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+  .gallery-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.55)); color: #fff; padding: 20px 10px 8px; font-size: 0.75rem; font-weight: 500; }
+  .feature-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .ftag { font-size: 0.78rem; padding: 5px 14px; border-radius: 16px; background: var(--border-light); color: var(--text-secondary); }
+  .tips { margin: 36px 0 52px; background: var(--card); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); border-left: 4px solid #f59e0b; }
+  .tips h3 { font-size: 1rem; margin-bottom: 16px; }
+  .tips ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .tips li { font-size: 0.85rem; color: var(--text-secondary); padding-left: 22px; position: relative; line-height: 1.55; }
+  .tips li::before { content: '✦'; position: absolute; left: 2px; color: #f59e0b; font-size: 0.7rem; top: 3px; }
+  .tips li strong { color: var(--text); }
+  .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted); }
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 1.4rem; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+    .map-container { height: 260px; }
+    .timeline-body { padding: 18px 16px; }
+    .tl-item { padding: 12px 14px; }
+    .section { margin-top: 28px; }
+    .total-banner { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>🚗 北京周末自驾 · 四湖两日</h1>
+  <p>龙庆峡坐船 + 世园 + 野鸭湖 + 官厅 + 雁栖湖 + 密云水库 + 金海湖 + 大峡谷 + 顺平路 · 以开车为主 · 两天均住西小口</p>
+  <div class="badge-row">
+    <span class="badge">🌧️ 周六有雨</span>
+    <span class="badge">🏠 两天均住西小口</span>
+    <span class="badge">🛣️ 高速为主 + 景观县道</span>
+    <span class="badge">⛽ 周日晚 8 点前还车</span>
+  </div>
+</div>
+<div class="container">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: #6366f1;"></div>
+      <span class="section-title">两天行程总览</span>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-card sat">
+        <span class="day-label">周六 🌧️</span>
+        <div class="title">延庆环线 · 龙庆峡坐船+世园+野鸭湖+官厅</div>
+        <div class="sub">京礼高速去 → 龙庆峡坐船 → 延庆环线 → 京藏回 → 晚上到家</div>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="val sat-c">~340</div><div class="label">里程 km</div></div>
+          <div class="summary-stat"><div class="val sat-c">5h40m</div><div class="label">纯驾驶</div></div>
+          <div class="summary-stat"><div class="val sat-c">60/40</div><div class="label">高速/国道</div></div>
+        </div>
+        <div class="spots-row"><span class="spot-tag">⛰️ 龙庆峡</span><span class="spot-tag">🌿 世园公园</span><span class="spot-tag">🦆 野鸭湖</span><span class="spot-tag">💧 官厅水库</span></div>
+      </div>
+      <div class="summary-card sun">
+        <span class="day-label">周日 ☀️</span>
+        <div class="title">三湖+两谷 · 顺平路穿城回程</div>
+        <div class="sub">雁栖湖 → 密云水库南线 → 金海湖 → 黄松峪 → 大峡谷 → 顺平路 80km 省道回</div>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="val sun-c">~340</div><div class="label">里程 km</div></div>
+          <div class="summary-stat"><div class="val sun-c">7h30m</div><div class="label">纯驾驶</div></div>
+          <div class="summary-stat"><div class="val sun-c">40/60</div><div class="label">高速/省道</div></div>
+        </div>
+        <div class="spots-row"><span class="spot-tag">🏞️ 雁栖湖</span><span class="spot-tag">💧 密云水库</span><span class="spot-tag">🌊 金海湖</span><span class="spot-tag">🏔️ 黄松峪</span><span class="spot-tag">⛰️ 京东大峡谷</span><span class="spot-tag">🛣️ 顺平路 S323</span></div>
+      </div>
+    </div>
+    <div class="total-banner">
+      <div class="total-item"><div class="num">~680</div><div class="lbl">两天总里程 km</div></div>
+      <div class="total-item"><div class="num">13h</div><div class="lbl">两天纯驾驶</div></div>
+      <div class="total-item"><div class="num">9</div><div class="lbl">覆盖景点</div></div>
+      <div class="total-item"><div class="num">0</div><div class="lbl">雨天山路段</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--color-common);"></div>
+      <span class="section-title">路线总览地图</span>
+      <span class="section-subtitle">紫色周六环线 · 蓝色周日三湖</span>
+    </div>
+    <div class="map-card">
+      <div class="map-container">
+        <svg class="map-svg" viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gSat" x1="50%" y1="100%" x2="50%" y2="0%"><stop offset="0%" stop-color="#4f46e5"/><stop offset="100%" stop-color="#818cf8"/></linearGradient>
+            <linearGradient id="gSun1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+            <linearGradient id="gSun2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <ellipse cx="680" cy="130" rx="155" ry="95" fill="#bfdbfe" opacity="0.2"/>
+          <text x="755" y="78" text-anchor="middle" font-size="11" fill="#93c5fd" font-weight="500" opacity="0.5">密云方向</text>
+          <ellipse cx="215" cy="115" rx="145" ry="85" fill="#c7d2fe" opacity="0.2"/>
+          <text x="170" y="68" text-anchor="middle" font-size="11" fill="#a5b4fc" font-weight="500" opacity="0.5">延庆方向</text>
+          <ellipse cx="710" cy="260" rx="125" ry="70" fill="#fde68a" opacity="0.15"/>
+          <text x="770" y="305" text-anchor="middle" font-size="11" fill="#fbbf24" font-weight="500" opacity="0.5">平谷方向</text>
+          <rect x="335" y="288" width="210" height="58" rx="12" fill="#94a3b8" opacity="0.12"/>
+          <text x="440" y="324" text-anchor="middle" font-size="13" fill="#64748b" font-weight="600" opacity="0.6">北 京 城 区</text>
+          <path class="route-path" style="animation-delay:0.2s" d="M 440,288 C 408,248 360,195 315,155 Q 265,115 218,100 Q 190,92 168,98" stroke="url(#gSat)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+          <path class="route-path" style="animation-delay:0.5s" d="M 168,98 Q 200,110 240,135 C 290,175 350,230 400,265 Q 420,278 440,288" stroke="url(#gSat)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.45" stroke-dasharray="6,4"/>
+          <path class="route-path" style="animation-delay:0.4s" d="M 168,98 Q 200,110 238,115" stroke="var(--color-sat)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6" stroke-dasharray="4,3"/>
+          <path class="route-path" style="animation-delay:0.5s" d="M 238,115 Q 250,128 255,140" stroke="var(--color-sat)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6" stroke-dasharray="4,3"/>
+          <path class="route-path" style="animation-delay:0.6s" d="M 255,140 Q 240,130 225,118" stroke="var(--color-sat)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6" stroke-dasharray="4,3"/>
+          <path class="route-path" style="animation-delay:0.7s" d="M 225,118 Q 205,145 190,170" stroke="var(--color-sat)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6" stroke-dasharray="4,3"/>
+          <path class="route-path" style="animation-delay:0.8s" d="M 190,170 Q 250,210 320,250 C 370,270 410,282 440,288" stroke="var(--color-sat)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.35" stroke-dasharray="6,4"/>
+          <circle cx="168" cy="98" r="7" fill="var(--color-sat)" stroke="#fff" stroke-width="2"/>
+          <text x="140" y="88" text-anchor="middle" font-size="10" fill="var(--color-sat)" font-weight="600">龙庆峡</text>
+          <circle cx="255" cy="140" r="5.5" fill="var(--color-sat)" stroke="#fff" stroke-width="1.5"/>
+          <text x="275" y="148" text-anchor="start" font-size="9" fill="var(--color-sat)" font-weight="500">世园公园</text>
+          <circle cx="225" cy="118" r="5.5" fill="var(--color-sat)" stroke="#fff" stroke-width="1.5"/>
+          <text x="205" y="110" text-anchor="middle" font-size="9" fill="var(--color-sat)" font-weight="500">野鸭湖</text>
+          <circle cx="190" cy="170" r="6" fill="var(--color-sat)" stroke="#fff" stroke-width="2"/>
+          <text x="162" y="182" text-anchor="middle" font-size="9" fill="var(--color-sat)" font-weight="600">官厅水库</text>
+          <path class="route-path" style="animation-delay:0.8s" d="M 440,288 C 470,250 500,218 530,198" stroke="url(#gSun1)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+          <path class="route-path" style="animation-delay:1.0s" d="M 530,198 Q 580,170 640,148" stroke="url(#gSun1)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+          <path class="route-path" style="animation-delay:1.2s" d="M 640,148 Q 660,165 668,185 Q 672,200 660,210 Q 650,218 640,220" stroke="url(#gSun2)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path class="route-path" style="animation-delay:1.4s" d="M 645,218 Q 652,225 654,232" stroke="url(#gSun1)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+          <circle cx="440" cy="288" r="9" fill="var(--color-start)" stroke="#fff" stroke-width="3" filter="url(#glow)"/>
+          <text x="440" y="276" text-anchor="middle" font-size="11" fill="var(--color-start)" font-weight="700">🏠 西小口</text>
+          <circle cx="530" cy="198" r="7" fill="var(--color-sun)" stroke="#fff" stroke-width="2"/>
+          <text x="530" y="186" text-anchor="middle" font-size="10" fill="var(--color-sun)" font-weight="600">雁栖湖</text>
+          <circle cx="640" cy="148" r="7" fill="var(--color-sun)" stroke="#fff" stroke-width="2"/>
+          <text x="640" y="136" text-anchor="middle" font-size="10" fill="var(--color-sun)" font-weight="600">密云水库</text>
+          <circle cx="654" cy="232" r="7" fill="var(--color-sun)" stroke="#fff" stroke-width="2"/>
+          <text x="675" y="244" text-anchor="start" font-size="10" fill="var(--color-sun)" font-weight="600">金海湖</text>
+          <circle cx="672" cy="215" r="4.5" fill="var(--color-sun)" stroke="#fff" stroke-width="1.5" opacity="0.75"/>
+          <text x="690" y="213" text-anchor="start" font-size="8.5" fill="var(--color-sun)" opacity="0.7">黄松峪</text>
+          <circle cx="695" cy="208" r="4.5" fill="var(--color-sun)" stroke="#fff" stroke-width="1.5" opacity="0.75"/>
+          <text x="710" y="206" text-anchor="start" font-size="8.5" fill="var(--color-sun)" opacity="0.7">大峡谷</text>
+          <path class="route-path" style="animation-delay:1.5s" d="M 654,232 Q 680,220 695,208 Q 680,225 640,240 C 560,260 480,278 440,288" stroke="var(--color-sun)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5" stroke-dasharray="5,3"/>
+          <text x="555" y="258" font-size="8" fill="var(--color-sun)" font-weight="500" opacity="0.6">顺平路 S323</text>
+          <g transform="translate(852, 38)"><circle r="16" fill="rgba(255,255,255,0.85)" stroke="#cbd5e1" stroke-width="1"/><text text-anchor="middle" y="5" font-size="11" fill="#475569" font-weight="700">N↑</text></g>
+          <g transform="translate(58, 355)"><line x1="0" y1="0" x2="80" y2="0" stroke="#94a3b8" stroke-width="1.5"/><line x1="0" y1="-4" x2="0" y2="4" stroke="#94a3b8" stroke-width="1.5"/><line x1="80" y1="-4" x2="80" y2="4" stroke="#94a3b8" stroke-width="1.5"/><text x="40" y="14" text-anchor="middle" font-size="9" fill="#94a3b8">≈ 30 km</text></g>
+        </svg>
+      </div>
+      <div class="map-legend">
+        <div class="item"><span class="legend-line" style="background: var(--color-sat-grad);"></span> 周六：延庆环线（龙庆峡+世园+野鸭湖+官厅）</div>
+        <div class="item"><span class="legend-line" style="background: var(--color-sun-grad);"></span> 周日：三湖+两谷+顺平路</div>
+        <div class="item"><span class="legend-dot" style="background: var(--color-start);"></span> 出发地：西小口</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--color-sat);"></div>
+      <span class="section-title">周六详细行程 · 🌧️ 延庆环线</span>
+      <span class="section-subtitle">龙庆峡 + 世园 + 野鸭湖 + 官厅水库</span>
+    </div>
+    <div class="day-card">
+      <div class="day-card-header">
+        <span class="day-badge sat">周六 🌧️</span>
+        <span class="title">西小口 → 龙庆峡（坐船）→ 世园 → 野鸭湖 → 官厅 → 京藏 → 回家</span>
+        <span class="meta">🛣️ ~340 km · 🚗 5h 40min</span>
+      </div>
+      <div class="timeline-body">
+        <div class="timeline">
+          <div class="tl-item hl-sat"><div class="tl-time sat">7:30 出发</div><div class="tl-title">🚗 西小口 → 京礼高速 → 龙庆峡 <span class="drive-tag">85km · 1h30min</span></div><div class="tl-desc">京礼高速北上，经昌平、延庆到龙庆峡。雨天高速车少，练习雨中控速和跟车距离。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">9:00 — 11:00</div><div class="tl-title">⛰️🚢 龙庆峡 · 进景区 + 坐船游湖（2h）</div><div class="tl-desc">买票进景区，坐游船穿越峡谷段（约 5 km 水路），两岸悬崖从水面仰望更震撼。船程 40–60 min。雨天峡谷烟雾缭绕，比晴天更有意境。</div></div>
+          <div class="tl-item hl-drive"><div class="tl-time sat">11:00 — 11:30</div><div class="tl-title">🍽️ 车上快速午餐 + 龙庆峡 → 世园公园</div><div class="tl-desc">车上吃提前买好的面包/饭团。沿延庆城区公路到世园公园 15 min。<span class="drive-tag">15km · 20min</span></div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">11:30 — 12:00</div><div class="tl-title">🌿 世园公园 · 开车绕园一圈 <span class="drive-tag">8km · 30min</span></div><div class="tl-desc">园区内道路宽敞，雨天几乎没游客。妫水河穿园而过，开车慢行看两侧展馆和湿地。不下车，纯开车绕一圈。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">12:00 — 12:20</div><div class="tl-title">🚗 世园公园 → 野鸭湖 <span class="drive-tag">12km · 20min</span></div><div class="tl-desc">从世园出来沿康张路往北，20 分钟到野鸭湖。路上经过延庆湿地片区。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">12:20 — 12:40</div><div class="tl-title">🦆 野鸭湖 · 湿地公路穿越 <span class="drive-tag">6km · 20min</span></div><div class="tl-desc">沿野鸭湖外围公路开，透过车窗看大片芦苇荡和湖面。不进景区，开车路过。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">12:40 — 13:00</div><div class="tl-title">🚗 野鸭湖 → 官厅水库东岸 <span class="drive-tag">15km · 20min</span></div><div class="tl-desc">从野鸭湖沿康张路南行到官厅水库东岸。水面比密云水库还大。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">13:00 — 14:00</div><div class="tl-title">💧 官厅水库 · G110 国道沿湖驾驶 <span class="drive-tag">40km · 1h</span></div><div class="tl-desc"><strong>周六最爽的一段。</strong>G110 国道贴着官厅水库南岸走，双向两车道，路面好、车少，左手边就是广阔湖面。雨天湖面雾气蒸腾，像开在海边。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">14:00 — 15:30</div><div class="tl-title">🚗 官厅 → 京藏高速 → 昌平 <span class="drive-tag">80km · 1h30min</span></div><div class="tl-desc">官厅附近上京藏高速（G6），和去程的京礼高速<strong>不重复</strong>。经八达岭、居庸关，隧道群密集——雨天穿隧道是很好的灯光切换练习。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">15:30 — 15:50</div><div class="tl-title">☕ 昌平休息 · 加油</div><div class="tl-desc">下车活动一下，加满油，买杯咖啡。</div></div>
+          <div class="tl-item hl-sat"><div class="tl-time sat">15:50 — 17:20</div><div class="tl-title">🚗 昌平 → 京藏/京新高速 → 西小口 <span class="drive-tag">65km · 1h30min</span></div><div class="tl-desc">京藏高速或京新高速南下回五环。雨天最后一程高速，开稳到家。</div></div>
+          <div class="tl-item"><div class="tl-time sat">17:30</div><div class="tl-title">🏠 到家 · 周六结束</div><div class="tl-desc">今天开了 <strong>~340 km / 5h 40min</strong>，龙庆峡坐船 + 延庆环线四景。晚上好好休息，明天继续。</div></div>
+        </div>
+        <div class="stats-box sat-bg">
+          <div class="stat"><strong class="sat-c">~340 km</strong> 总里程</div>
+          <div class="stat"><strong class="sat-c">5h 40min</strong> 纯驾驶</div>
+          <div class="stat">去程 <strong>京礼</strong> / 回程 <strong>京藏</strong>（不重复）</div>
+          <div class="stat">高速 <strong>60%</strong> / 国道 <strong>40%</strong></div>
+          <div class="stat">龙庆峡坐船 <strong>2h</strong></div>
+        </div>
+        <div class="rain-box">
+          <div class="rain-title">🌧️ 周六雨天驾驶 checklist</div>
+          <div class="rain-content">① 出发前确认雨刮正常，胎压正常<br>② 全程开近光灯 + 雾灯（不开双闪，除非临时停车）<br>③ 高速跟车距离拉大到平时的 <strong>2 倍</strong>（100km/h → 保持 100m 以上）<br>④ 京藏高速隧道群：入隧道前减速、开灯，出隧道注意光线变化<br>⑤ G110 国道沿湖段：路肩可能有积水，尽量走车道中间<br>⑥ 车内除雾：开 AC + 外循环，出风口吹前挡</div>
+        </div>
+        <div class="gallery-section">
+          <div class="gallery-section-title">📸 周六沿途预览</div>
+          <div class="gallery">
+            <div class="gallery-item" style="background:linear-gradient(135deg,#365314,#65a30d,#d9f99d);"><span class="emoji">⛰️</span><div class="gallery-label">龙庆峡 · 烟雨峡谷</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#166534,#22c55e,#bbf7d0);"><span class="emoji">🌿</span><div class="gallery-label">世园公园 · 雨中绕园</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9,#a5f3fc);"><span class="emoji">🦆</span><div class="gallery-label">野鸭湖 · 湿地旷野</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#1e40af,#3b82f6,#93c5fd);"><span class="emoji">💧</span><div class="gallery-label">官厅水库 · G110沿湖</div></div>
+          </div>
+        </div>
+        <div class="feature-tags"><span class="ftag">⛰️ 龙庆峡坐船</span><span class="ftag">🌿 世园公园绕园</span><span class="ftag">🦆 野鸭湖湿地</span><span class="ftag">💧 官厅水库 G110</span><span class="ftag">🚇 京藏隧道群</span><span class="ftag">🔄 去/回不重复</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--color-sun);"></div>
+      <span class="section-title">周日详细行程 · ☀️ 三湖+两谷+顺平路</span>
+      <span class="section-subtitle">雁栖湖 → 密云水库 → 金海湖 → 大峡谷 → 顺平路 80km 回</span>
+    </div>
+    <div class="day-card">
+      <div class="day-card-header">
+        <span class="day-badge sun">周日 ☀️</span>
+        <span class="title">西小口 → 雁栖湖 → 密云水库南线 → 金海湖 → 大峡谷 → 顺平路 → 回家还车</span>
+        <span class="meta">🛣️ ~340 km · 🚗 7h 30min</span>
+      </div>
+      <div class="timeline-body">
+        <div class="timeline">
+          <div class="tl-item hl-sun"><div class="tl-time sun">6:30 出发</div><div class="tl-title">🚗 西小口 → 京承高速 → 雁栖湖 <span class="drive-tag">50km · 1h10min</span></div><div class="tl-desc">早起出发，京承高速北上。早晨空气好，能见度佳。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">7:40 — 8:10</div><div class="tl-title">🚗🏞️ 雁栖湖环湖公路 <span class="drive-tag">15km · 30min</span></div><div class="tl-desc">P5 → 环湖东路 → "日出东方"酒店 → 环湖西路 → P5。纯开车看景，不下车。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">8:10 — 8:55</div><div class="tl-title">🚗 雁栖湖 → 京承高速北上 → 密云水库 <span class="drive-tag">40km · 45min</span></div><div class="tl-desc">再次经过密云城区，继续北上到水库大坝。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">8:55 — 9:15</div><div class="tl-title">💧 密云水库大坝 · 快速打卡</div><div class="tl-desc">大坝上看水库全景，20 min。不久留，后面重头戏多。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">9:15 — 10:45</div><div class="tl-title">🚗💧 密云水库南线环线（核心驾驶段）<span class="drive-tag">60km · 1h30min</span></div><div class="tl-desc"><strong>密关路 → 太师屯 → 新城子方向</strong>，沿水库南岸绕行 60 km。柏油双向两车道，弯道多、上下坡交替，新手练车绝佳路段。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">10:45 — 11:00</div><div class="tl-title">☕ 太师屯 · 路边休息</div><div class="tl-desc">连续驾驶 1.5h 该歇了。买瓶水、活动一下。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">11:00 — 11:40</div><div class="tl-title">🚗 密云 → 密三路 → 金海湖 <span class="drive-tag">35km · 40min</span></div><div class="tl-desc">密三路南下到平谷金海湖。县道车少，白天晴天没问题。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">11:40 — 12:20</div><div class="tl-title">🚗🌊 金海湖环湖 <span class="drive-tag">10km · 20min</span></div><div class="tl-desc">"京郊小瑞士"，开车绕湖一圈。湖面宽广，多个观景平台。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">12:20 — 13:10</div><div class="tl-title">🍽️ 金海湖午餐</div><div class="tl-desc">湖边农家院，水库鱼招牌。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">13:10 — 13:30</div><div class="tl-title">🚗🏔️ 金海湖 → 黄松峪水库 <span class="drive-tag">8km · 15min</span></div><div class="tl-desc">路边就能看到水库和残长城遗址。<strong>停车 5 min 拍照就走。</strong></div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">13:30 — 13:55</div><div class="tl-title">🚗⛰️ 黄松峪 → 京东大峡谷入口 <span class="drive-tag">12km · 20min</span></div><div class="tl-desc">峡谷公路，两侧山崖压迫感很强。开到停车场看龙门湖和一线天，<strong>不进景区</strong>，门口感受山势就走。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">13:55 — 14:20</div><div class="tl-title">🚗 大峡谷 → 平谷城区 <span class="drive-tag">15km · 25min</span></div><div class="tl-desc">从峡谷出来沿路到平谷城区。接下来是今天的压轴驾驶段。</div></div>
+          <div class="tl-item hl-sun"><div class="tl-time sun">14:20 — 16:20</div><div class="tl-title">🚗🛣️ 平谷 → 顺平路 S323 → 顺义 → 西小口 <span class="drive-tag">80km · 2h</span></div><div class="tl-desc"><strong>周日压轴！不走高速，走顺平路（S323 省道）。</strong>80 km 双向两车道省道，穿十几个村镇、无数红绿灯和路口——<strong>这才是新手最需要练的综合路况。</strong>比高速值钱 10 倍。</div></div>
+          <div class="tl-item"><div class="tl-time sun">16:30</div><div class="tl-title">🏠 到家 · 加油 · 还车</div><div class="tl-desc">到家后加满油、拍油表和里程表、检查车况。<strong>17:00 前到还车点，20:00 前还车绰绰有余。</strong>今天 <strong>340 km / 7h 30min</strong>，两天总计 <strong>680 km / 13h</strong>。</div></div>
+        </div>
+        <div class="stats-box sun-bg">
+          <div class="stat"><strong class="sun-c">~340 km</strong> 总里程</div>
+          <div class="stat"><strong class="sun-c">7h 30min</strong> 纯驾驶</div>
+          <div class="stat">高速 <strong>40%</strong> / 省道县道 <strong>60%</strong></div>
+          <div class="stat">覆盖 <strong>3 湖 + 2 谷</strong></div>
+          <div class="stat">顺平路 <strong>80km</strong> 综合路况练习</div>
+        </div>
+        <div class="gallery-section">
+          <div class="gallery-section-title">📸 周日沿途预览</div>
+          <div class="gallery">
+            <div class="gallery-item" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8,#7dd3fc);"><span class="emoji">🏞️</span><div class="gallery-label">雁栖湖 · 晨雾环湖</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#1e40af,#3b82f6,#93c5fd);"><span class="emoji">💧</span><div class="gallery-label">密云水库 · 南线环线</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#0369a1,#0ea5e9,#7dd3fc);"><span class="emoji">🌊</span><div class="gallery-label">金海湖 · 京郊小瑞士</div></div>
+            <div class="gallery-item" style="background:linear-gradient(135deg,#365314,#65a30d,#d9f99d);"><span class="emoji">⛰️</span><div class="gallery-label">京东大峡谷 · 峡谷入口</div></div>
+          </div>
+        </div>
+        <div class="feature-tags"><span class="ftag">🏞️ 雁栖湖环湖</span><span class="ftag">💧 密云水库 60km 南线</span><span class="ftag">🌊 金海湖环湖</span><span class="ftag">🏔️ 黄松峪水库</span><span class="ftag">⛰️ 京东大峡谷</span><span class="ftag">🛣️ 顺平路 S323 · 80km 省道</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tips">
+    <h3>⚠️ 关键提醒</h3>
+    <ul>
+      <li>确认租车合同：<strong>不限里程</strong>、允许过夜开回家。两天 ~680 km，确认不超限。</li>
+      <li>停车停小区或正规停车场，别停路边。</li>
+      <li>周日晚上 8 点还车。建议周日 17:00 前到家，留出加油+检查时间。</li>
+      <li>还车前加满油，保留加油小票，拍油表和总里程。</li>
+      <li><strong>新手别走</strong>：范崎路、延琉路老路、百里画廊滦赤路、红井路。</li>
+      <li>山路只在白天开，绝不夜间进山。</li>
+      <li><strong>周六有雨</strong>：全程走高速避开山路，开近光灯+雾灯，跟车距离翻倍。</li>
+      <li>密三路（密云→金海湖 35km）：晴天没问题，弯道慢一点即可。</li>
+    </ul>
+  </div>
+</div>
+<div class="footer">北京周末自驾 · 四湖两日行程 · 2026-10-14 · 数据来源：高德地图 + 实地经验</div>
+</body>
+</html>
