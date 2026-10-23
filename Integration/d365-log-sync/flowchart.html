@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>D365 Flow Chart</title>
+<style>
+body { font-family: sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 40px 20px; margin: 0; }
+.container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; }
+h1 { text-align: center; margin-bottom: 40px; }
+.node { margin-bottom: 40px; cursor: pointer; }
+.node-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px; }
+.node-header:hover { opacity: 0.9; }
+.node-num { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.node-title { flex: 1; font-size: 20px; }
+.node.active .node-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.node-details { max-height: 0; overflow: hidden; transition: max-height 0.5s; }
+.node.active .node-details { max-height: 500px; padding: 20px; background: #f8f9fa; border-radius: 12px; margin-top: 10px; }
+.arrow { text-align: center; font-size: 32px; color: #667eea; margin: -10px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>D365 日志同步告警系统流程图</h1>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">1</div><div class="node-title">定时触发 (每小时)</div></div><div class="node-details"><b>工具:</b> Cherry Studio Cron Job<br><b>频率:</b> 每小时整点</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">2</div><div class="node-title">查询 D365</div></div><div class="node-details"><b>工具:</b> Dataverse MCP<br><b>数据源:</b> new_integrationlog 表</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">3</div><div class="node-title">数据同步与异常判定</div></div><div class="node-details"><b>脚本:</b> sync.py<br><b>功能:</b> 去重 + 异常判定 + 责任人赋值</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">4</div><div class="node-title">写入飞书多维表格</div></div><div class="node-details"><b>工具:</b> lark-cli<br><b>目标:</b> D365接口日志表</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">5</div><div class="node-title">读取配置表</div></div><div class="node-details"><b>脚本:</b> config_loader.py<br><b>过滤:</b> 只处理 enabled=True</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">6</div><div class="node-title">生成告警卡片</div></div><div class="node-details"><b>脚本:</b> card.py<br><b>格式:</b> Card 2.0</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">7</div><div class="node-title">发送告警卡片</div></div><div class="node-details"><b>工具:</b> 飞书 MCP<br><b>目标:</b> scm-spp 沟通群</div></div>
+<div class="arrow">↓</div>
+<div class="node" onclick="this.classList.toggle('active')"><div class="node-header"><div class="node-num">8</div><div class="node-title">标记已发送</div></div><div class="node-details"><b>工具:</b> lark-cli<br><b>字段:</b> 已发送告警 = true</div></div>
+</div>
+</body>
+</html>
