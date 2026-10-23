@@ -1,154 +1,157 @@
-# Changelog
+# 更新日志
 
-All notable changes to the D365 Log Sync Alert system will be documented in this file.
+本项目的所有重要变更都将记录在此文件中。
 
-## [Unreleased]
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
-### Planned
-- Enhanced error handling for D365 API timeouts
-- Add support for custom alert routing rules
-- Implement alert deduplication across time windows
+## [未发布]
+
+### 计划添加
+- 增强 D365 API 超时的错误处理
+- 支持自定义告警路由规则
+- 实现跨时间窗口的告警去重
 
 ---
 
 ## [1.3.0] - 2026-10-23
 
-### Added
-- **Interactive Flowchart**: Created `flowchart.html` with clickable nodes showing the complete data flow from D365 to Feishu alerts
-- **Comprehensive README**: Expanded documentation with detailed 8-step data flow, table schemas, and deployment guide
+### 新增
+- **交互式流程图**：创建 `flowchart.html`，通过可点击节点展示从 D365 到飞书告警的完整数据流程
+- **完善 README**：扩展文档，包含详细的 8 步数据流程、表结构说明和部署指南
 
-### Fixed
-- **config_loader.py Field Index Bug**: Fixed incorrect field indexing when reading card configuration tables. Now uses explicit `--field` parameters to ensure correct field mapping
-- **"是否启用" (enabled) Field**: Correctly reads the checkbox field to filter which alert scenarios should be processed. Only enabled scenarios generate cards
+### 修复
+- **config_loader.py 字段索引 Bug**：修复读取卡片配置表时的字段索引错误。现在使用明确的 `--field` 参数确保字段映射正确
+- **"是否启用"字段**：正确读取 checkbox 字段以过滤需要处理的告警场景。只有启用的场景才会生成卡片
 
-### Changed
-- **Documentation Structure**: Reorganized README with clear sections for architecture, data flow, table schemas, and troubleshooting
+### 变更
+- **文档结构**：重新组织 README，清晰划分为架构、数据流程、表结构和故障排除等章节
 
-### Technical Details
-- Modified `load_card_configs()` in `config_loader.py` to use field-name-based indexing instead of positional indexing
-- Added validation to ensure only `enabled=True` scenarios are processed in `card.py`
+### 技术细节
+- 修改 `config_loader.py` 中的 `load_card_configs()` 函数，使用基于字段名的索引替代位置索引
+- 在 `card.py` 中添加验证，确保只处理 `enabled=True` 的场景
 
 ---
 
 ## [1.2.0] - 2026-10-22
 
-### Added
-- **Service Store Name Field**: Added new field to D365 integration log table to track which service store (repair center) each work order belongs to
-- **Auto Owner Assignment**: Implemented automatic responsible person assignment based on Service Store Name mapping from 迈创站点运营 table
-- **Non-Maitrox Owner Field**: Added "责任人" (owner) field to non-Maitrox config table for per-scenario owner assignment
-- **40 New Abnormal Scenarios**: Expanded exception scenario options from 18 to 58, covering all B2X, MySav, and SDS integration scenarios
+### 新增
+- **Service Store Name 字段**：在 D365 集成日志表中新增字段，用于追踪每个工单所属的维修中心
+- **自动责任人赋值**：实现基于 Service Store Name 的自动责任人分配，从迈创站点运营表映射
+- **非迈创责任人字段**：在非迈创配置表中添加"责任人"字段，支持按场景分配责任人
+- **40 个新异常场景**：将异常场景选项从 18 个扩展到 58 个，覆盖所有 B2X、MySav 和 SDS 集成场景
 
-### Changed
-- **Config Table Split**: Split single config table into two separate tables:
-  - `tblePVTwOyMzPNG8` for Maitrox scenarios (Push WO to SCM)
-  - `tblbscUEUlXSUQE4` for non-Maitrox scenarios (B2X, MySav, SDS)
-- **Naming Convention**: Unified all scenario names to English prefix format (Maitrox-, B2X-, MySav-, SDS-)
-- **Card Aggregation**: Implemented scenario grouping by aggregation codes (GROUP_DATA, GROUP_INTERFACE, GROUP_B2X, GROUP_MYSAV)
+### 变更
+- **配置表拆分**：将单个配置表拆分为两个独立表：
+  - `tblePVTwOyMzPNG8` 用于迈创场景（Push WO to SCM）
+  - `tblbscUEUlXSUQE4` 用于非迈创场景（B2X、MySav、SDS）
+- **命名规范**：统一所有场景名称为英文前缀格式（Maitrox-、B2X-、MySav-、SDS-）
+- **卡片聚合**：实现按聚合组代码（GROUP_DATA、GROUP_INTERFACE、GROUP_B2X、GROUP_MYSAV）分组
 
-### Fixed
-- **Historical Data Update**: Batch updated 666 historical records with correct Service Store Name and responsible person assignments
-- **Pending Records**: Re-judged 359 "待补充" (pending) records using updated config rules
+### 修复
+- **历史数据更新**：批量更新 666 条历史记录，填充正确的 Service Store Name 和责任人
+- **待补充记录**：使用更新的配置规则重新判定 359 条"待补充"记录
 
-### Data Migration
-- Updated 615 records with Service Store Name from D365 workorder entity
-- Assigned responsible persons to all 666 records (100% coverage)
-- Owner distribution: 廖利丽 (260), 李奕兴 (98), 庞舒尹 (87), 贡梦夏 (76), others
+### 数据迁移
+- 从 D365 workorder 实体更新 615 条记录的 Service Store Name
+- 为所有 666 条记录分配责任人（100% 覆盖）
+- 责任人分布：廖利丽 (260)、李奕兴 (98)、庞舒尹 (87)、贡梦夏 (76)、其他
 
-### Technical Details
-- Modified `sync.py` to add `fetch_site_ops_mapping()` function
-- Updated `parse_record()` to implement owner assignment logic:
-  - Maitrox scenarios: match owner from Service Store Name
-  - Non-Maitrox scenarios: read owner from config table
-- Added `rejudge_pending_records.py` script for batch re-judgment
+### 技术细节
+- 修改 `sync.py`，添加 `fetch_site_ops_mapping()` 函数
+- 更新 `parse_record()` 实现责任人赋值逻辑：
+  - 迈创场景：根据 Service Store Name 匹配责任人
+  - 非迈创场景：从配置表读取责任人
+- 添加 `rejudge_pending_records.py` 脚本用于批量重新判定
 
 ---
 
 ## [1.1.0] - 2026-10-14
 
-### Added
-- **Card Configuration Tables**: Created two new tables for alert card configuration:
-  - `tblWugqhkySxdnlA` for Maitrox card configs
-  - `tblcNZKfDloFgDPc` for non-Maitrox card configs
-- **Configurable Card Properties**: Each scenario can now configure:
-  - Card title and subtitle template
-  - Card color (red, orange, yellow, blue, grey)
-  - Whether to @mention users
-  - Target chat group
-  - Aggregation group code
-  - Max records per card
-- **Site Operations Table**: Created `tbl0Xiuz6KJ3SSC4` to map Service Store Names to responsible persons (16 records)
+### 新增
+- **卡片配置表**：创建两个新的告警卡片配置表：
+  - `tblWugqhkySxdnlA` 用于迈创卡片配置
+  - `tblcNZKfDloFgDPc` 用于非迈创卡片配置
+- **可配置卡片属性**：每个场景现在可以配置：
+  - 卡片标题和副标题模板
+  - 卡片颜色（red、orange、yellow、blue、grey）
+  - 是否 @用户
+  - 目标群聊
+  - 聚合组代码
+  - 单卡最大记录数
+- **站点运营表**：创建 `tbl0Xiuz6KJ3SSC4` 用于映射 Service Store Name 到责任人（16 条记录）
 
-### Changed
-- **Card Generation Logic**: Refactored `card.py` to read configurations from Bitable tables instead of hardcoded values
-- **Aggregation Support**: Cards now group records by aggregation code and use first record's config for styling
+### 变更
+- **卡片生成逻辑**：重构 `card.py`，从 Bitable 表读取配置替代硬编码值
+- **聚合支持**：卡片现在按聚合组代码分组记录，并使用第一条记录的配置作为样式
 
-### Technical Details
-- Created `config_loader.py` module to centralize configuration loading
-- Implemented fallback to default configs if table read fails
-- Added support for `{scenario}` placeholder in subtitle templates
+### 技术细节
+- 创建 `config_loader.py` 模块集中管理配置加载
+- 实现表读取失败时回退到默认配置的机制
+- 在副标题模板中添加对 `{scenario}` 占位符的支持
 
 ---
 
 ## [1.0.0] - 2026-10-13
 
-### Added
-- **Initial Implementation**: Complete D365 integration log sync and alert system
-- **FetchXML Query**: Defined query to fetch integration logs from D365 production environment
-- **Abnormal Scenario Detection**: Implemented rule-based detection using config table `tblIqZ9T8Ekj9h8y`
-- **Alert Card Generation**: Created Card 2.0 format alerts with collapsible panels for work order details
-- **Automated Workflow**: Hourly cron job (ID: a09e0a38-f275-4903-bd2d-839827902978) to sync and alert
+### 新增
+- **初始实现**：完整的 D365 集成日志同步和告警系统
+- **FetchXML 查询**：定义从 D365 生产环境获取集成日志的查询
+- **异常场景检测**：使用配置表 `tblIqZ9T8Ekj9h8y` 实现基于规则的检测
+- **告警卡片生成**：创建 Card 2.0 格式告警，包含工单详情的可折叠面板
+- **自动化工作流**：每小时定时任务（ID: a09e0a38-f275-4903-bd2d-839827902978）执行同步和告警
 
-### Core Features
-- Query D365 production environment for failed integration logs (last 7 days)
-- Detect abnormal scenarios based on configurable rules
-- Write new records to Feishu Bitable with deduplication
-- Generate alert cards for critical scenarios (BOM, master data, interface issues)
-- Send cards to scm-spp communication group
-- Mark records as alerted to prevent duplicate notifications
+### 核心功能
+- 查询 D365 生产环境中失败的集成日志（最近 7 天）
+- 基于可配置规则检测异常场景
+- 将新记录写入飞书多维表格，支持去重
+- 为关键场景（BOM、主数据、接口问题）生成告警卡片
+- 发送卡片到 scm-spp 沟通群
+- 标记记录为已告警，防止重复通知
 
-### Configuration
-- **Log Table**: `tblTWNXVEKv0IScf` (D365 integration logs)
-- **Config Table**: `tblIqZ9T8Ekj9h8y` (abnormal scenario rules)
-- **Alert Group**: `oc_f1890b5bed23c01839dfb517c63bec48` (scm-spp group)
+### 配置
+- **日志表**：`tblTWNXVEKv0IScf`（D365 集成日志）
+- **配置表**：`tblIqZ9T8Ekj9h8y`（异常场景规则）
+- **告警群**：`oc_f1890b5bed23c01839dfb517c63bec48`（scm-spp 群组）
 
-### Scripts
-- `sync.py`: Core sync logic with deduplication and scenario detection
-- `rules.py`: Abnormal scenario judgment engine
-- `card.py`: Alert card generation with auto-splitting
-- `common.py`: Constants and field mappings
-- `fetch_existing_ids.py`: Deduplication helper
-
----
-
-## Version History Summary
-
-| Version | Date | Key Changes |
-|---------|------|-------------|
-| 1.3.0 | 2026-10-23 | Flowchart, README, config_loader fix, enabled field |
-| 1.2.0 | 2026-10-22 | Service Store Name, auto owner, config split, 40 new scenarios |
-| 1.1.0 | 2026-10-14 | Card config tables, site operations mapping, aggregation |
-| 1.0.0 | 2026-10-13 | Initial release with core sync and alert functionality |
+### 脚本
+- `sync.py`：核心同步逻辑，包含去重和场景检测
+- `rules.py`：异常场景判定引擎
+- `card.py`：告警卡片生成，支持自动拆分
+- `common.py`：常量和字段映射
+- `fetch_existing_ids.py`：去重辅助工具
 
 ---
 
-## Migration Notes
+## 版本历史摘要
 
-### Upgrading to 1.2.0
-- Run `step1_query_service_store.py` and `step2_update_base.py` to populate Service Store Name for historical records
-- Run `rejudge_pending_records.py` to re-judge records with "待补充" status
-- Update SKILL.md to reflect new table IDs
-
-### Upgrading to 1.1.0
-- Create card configuration tables with appropriate fields
-- Populate site operations table with Service Store Name to owner mappings
-- Update card.py to use config_loader instead of hardcoded values
+| 版本 | 日期 | 主要变更 |
+|------|------|----------|
+| 1.3.0 | 2026-10-23 | 流程图、README、config_loader 修复、是否启用字段 |
+| 1.2.0 | 2026-10-22 | Service Store Name、自动责任人、配置表拆分、40 个新场景 |
+| 1.1.0 | 2026-10-14 | 卡片配置表、站点运营映射、聚合功能 |
+| 1.0.0 | 2026-10-13 | 初始版本，核心同步和告警功能 |
 
 ---
 
-## Contributing
+## 迁移说明
 
-For internal use by SPP team. Contact Kevin Li (yixing.li@ninebot.com) for questions.
+### 升级到 1.2.0
+- 运行 `step1_query_service_store.py` 和 `step2_update_base.py` 为历史记录填充 Service Store Name
+- 运行 `rejudge_pending_records.py` 重新判定"待补充"状态的记录
+- 更新 SKILL.md 以反映新的表 ID
 
-## License
+### 升级到 1.1.0
+- 创建卡片配置表，包含相应字段
+- 填充站点运营表，建立 Service Store Name 到责任人的映射
+- 更新 card.py 使用 config_loader 替代硬编码值
 
-Internal use only - Ninebot Segway
+---
+
+## 贡献
+
+仅供 SPP 团队内部使用。如有疑问请联系 Kevin Li (yixing.li@ninebot.com)。
+
+## 许可证
+
+仅限内部使用 - 纳恩博（Ninebot Segway）
