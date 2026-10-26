@@ -27,35 +27,39 @@ kevinli.github.io/
 ├── README.md               # 本文件
 ├── CHANGELOG.md            # 变更日志
 │
-├── Tools/                  # HTML 工具项目
-│   ├── project-config.json # 项目配置（门户读取此文件）
+├── Tools/                  # HTML 工具项目（门户自动扫描子目录发现项目）
+│   ├── project-config.json # 项目配置（图标/分类元数据）
+│   ├── ai-test-tool/       # AI API 测试工具
 │   ├── b2x-query/          # B2X 工单查询
+│   ├── chicks/             # 奇怪的小鸡毛
 │   ├── css-editor/         # CherryStudio CSS 编辑器
 │   ├── f1-data/            # F1 数据大全
-│   ├── travel-planner/     # 城市漫游行程助手
 │   ├── photo-album/        # 共享相册
 │   ├── pokemon-pokedex/    # 宝可梦全国图鉴
+│   ├── portal-editor/      # 门户可视化编辑器
+│   ├── project-weekly-report/ # 项目周报管理系统
 │   ├── squirts/            # 奇怪的杰尼龟
-│   ── chicks/             # 奇怪的小鸡毛
+│   ├── stickman-adventure/ # 火柴人冒险小游戏
+│   └── travel-planner/     # 城市漫游行程助手（含行程示例）
 │
-├── Integration/            # 统一信息平台文档
-│   ├── unified-platform.md # 架构设计 + 需求 + 路线图
-│   ├── requirements.md     # 需求文档
-│   └── integration-details.md # 集成详情（配置/功能/任务/进度/错误）
+├── Integration/            # 统一信息平台 / 集成项目
+│   ├── assets/             # 共享资源
+│   ├── b2x-mysav-auto-repush/ # B2X-MySAV 工单自动重推
+│   ├── d365-log-sync/      # D365 接口日志同步与告警
+│   ├── docs/               # 集成设计文档
+│   ├── feishu-bot/         # 飞书 Bot
+│   ├── monitored-chats.json # 监控群聊配置
+│   ├── presentations/      # 演示文稿
+│   └── wecom-bot/          # 企业微信 Bot
 │
-├── Knowledge/              # 知识库
-│   ├── 00-INDEX.md         # 知识库导航
-│   ├── 01-SPP-SDS/         # 业务规则
-│   ├── 02-FAQ/             # 常见问题
-│   ├── 03-Lessons/         # 踩坑记录
-│   ├── 04-Meeting-Notes/   # 会议纪要
-│   └── 05-Personal/        # 个人笔记
+├── docs/                   # 技术文档
+│   └── mysav-issue-analysis.md # MySAV 问题分析
 │
 └── Resources/              # 公共资源
     ├── F1-images/          # F1 赛车图片
     ├── Media/              # 共享相册文件
     ├── index2077.html      # 赛博朋克风格门户
-    └── portal-editor.html  # 门户编辑器
+    └── project-thumbnail-icons.js # 项目缩略图图标
 ```
 
 ---

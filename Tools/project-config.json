@@ -26,6 +26,7 @@
     { "file": "travel-planner/index.html",     "icon": "🗺️",  "category": "cat.travel","description": "城市漫游行程助手，基于高德地图的智能行程规划" },
     { "file": "ai-test-tool/index.html",       "icon": "🤖",  "category": "cat.tool",  "description": "AI API 测试工具，多模型对比与性能基准测试" },
     { "file": "portal-editor/index.html",      "icon": "🛠️",  "category": "cat.tool",  "description": "门户可视化编辑器，通过点击元素修改 index.html 并发布到 GitHub" },
-    { "file": "project-weekly-report/index.html", "icon": "📊", "category": "cat.pm", "description": "项目周报管理系统，实时同步GitHub，按周管理项目进度、风险和拉通事项" }
+    { "file": "project-weekly-report/index.html", "icon": "📊", "category": "cat.pm", "description": "项目周报管理系统，实时同步GitHub，按周管理项目进度、风险和拉通事项" },
+    { "file": "stickman-adventure/index.html",  "icon": "🎮",  "category": "cat.fun",   "description": "火柴人冒险，趣味横版闯关小游戏" }
   ]
 }
