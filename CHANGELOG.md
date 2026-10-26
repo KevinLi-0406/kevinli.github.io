@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2026-10-26
+
+### 仓库结构整理
+- **修改文件**：`README.md`、`Tools/README.md`、`Tools/project-config.json`、`Tools/stickman-adventure/`（新）、`Tools/travel-planner/beijing-weekend-drive.html`（移入）、`Knowledge/`（删除）
+- **变更类型**：重构 + 清理
+- **变更描述**：
+  1. 归位散落文件：`Tools/stickman-adventure.html` 移入 `Tools/stickman-adventure/index.html`（门户可自动扫描发现）；`docs/beijing-weekend-drive.html` 移入 `Tools/travel-planner/`
+  2. 清理废弃文件：删除 `Knowledge/` 空壳目录（知识库已迁移至 Dify）
+  3. 更新 `README.md` 仓库结构树（Knowledge 移除、Integration 修正为实际结构、Tools 补全 4 个缺失项目、Resources 修正 portal-editor 引用）
+  4. 更新 `Tools/README.md` 项目索引（补充 ai-test-tool、portal-editor、project-weekly-report、stickman-adventure）
+  5. `project-config.json` 新增 stickman-adventure 配置（🎮 趣味互动）
+- **影响范围**：门户展示（火柴人游戏新增可见）；原 `Tools/stickman-adventure.html` 与 `docs/beijing-weekend-drive.html` 直链失效
+- **关联请求**：用户要求"整理下github"
+- **Commit**：`6d6de4f` - chore: 仓库结构整理
+
 ## 2026-10-22
 
 ### 19:45 (UTC+8)
