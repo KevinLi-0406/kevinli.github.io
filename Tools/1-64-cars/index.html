@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1/64 比例小车模型收藏展</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-item label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-reset {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-reset:hover {
+            background: #764ba2;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stats-text {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .load-more-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn-load-more {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-load-more:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .loading-indicator::after {
+            content: '...';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80% { content: '....'; }
+            100% { content: '.....'; }
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .car-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .car-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .car-card:hover .car-image img {
+            transform: scale(1.05);
+        }
+
+        .car-image-placeholder {
+            font-size: 3em;
+            color: #667eea;
+        }
+
+        .car-info {
+            padding: 20px;
+        }
+
+        .car-brand {
+            font-size: 0.85em;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .car-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .car-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .detail-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: #555;
+        }
+
+        .detail-tag.year {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .detail-tag.color {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .detail-tag.scale {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .no-results-text {
+            font-size: 1.3em;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .cars-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .filter-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏎️ 1/64 比例小车模型收藏展</h1>
+            <p class="subtitle">MINIGT · Kilo Works · TH 等品牌精品展示 | 共 <span id="total-models">1050+</span> 款车型</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="filter-brand">品牌</label>
+                    <select id="filter-brand">
+                        <option value="">全部品牌</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-model">车型</label>
+                    <select id="filter-model">
+                        <option value="">全部车型</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-year">年份</label>
+                    <select id="filter-year">
+                        <option value="">全部年份</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="filter-color">颜色</label>
+                    <select id="filter-color">
+                        <option value="">全部颜色</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="search-text">搜索</label>
+                    <input type="text" id="search-text" placeholder="输入关键词搜索...">
+                </div>
+            </div>
+            <button class="btn-reset" onclick="resetFilters()">重置筛选</button>
+        </div>
+
+        <div class="stats">
+            <span class="stats-text">显示 <span id="display-count">0</span> / <span id="total-count">0</span> 款车型</span>
+        </div>
+
+        <div class="cars-grid" id="cars-grid"></div>
+
+        <footer>
+            <p>数据来源：MINIGT 官方网站（minigt.tsm-models.com）· 共收录 <span id="footer-count">1050+</span> 款车型</p>
+            <p style="margin-top: 5px; font-size: 0.9em; opacity: 0.8;">网站仅供展示使用 · 图片版权归 MINI GT 所有</p>
+        </footer>
+    </div>
+
+    <script src="minigt_data.js"></script>
+    <script>
+        // MINIGT 前3页数据（36款）
+        const minigtPages1to3 = [
+            {
+                brand: "Land Rover",
+                model: "Defender 110",
+                variant: "Royal HK Police Tai Po District",
+                year: "2026",
+                color: "白色",
+                scale: "1/64",
+                itemNumber: "MGT01313",
+                image: "https://minigt.tsm-models.com/upload/picfile/2026/10/20261019165351331.JPG"
+            },
+            {
+                brand: "MINIGT",
+                model: "Mercedes-AMG EQS 53",
+                variant: "",
+                year: "2026",
+                color: "蓝色",
+                scale: "1/64",
+                itemNumber: "MGT01418",
+                image: "https://minigt.tsm-models.com/upload/picfile/2026/10/20261013174929373.JPG"
+            }
+        ];
+
+        // 其他品牌数据
+        const otherBrands = [];
+
+        // 合并所有数据
+        const colorMap = {
+            "Red": "红色", "Blue": "蓝色", "White": "白色", "Black": "黑色",
+            "Yellow": "黄色", "Green": "绿色", "Orange": "橙色", "Purple": "紫色"
+        };
+
+        function translateColor(colorStr) {
+            if (!colorStr) return "未知";
+            if (colorMap[colorStr]) return colorMap[colorStr];
+            const lower = colorStr.toLowerCase();
+            if (lower.includes("red")) return "红色";
+            if (lower.includes("blue")) return "蓝色";
+            if (lower.includes("white")) return "白色";
+            if (lower.includes("black")) return "黑色";
+            return colorStr;
+        }
+
+        const minigtFromExternal = (typeof minigtProducts !== 'undefined') ? minigtProducts.map(car => ({
+            ...car,
+            color: translateColor(car.color)
+        })) : [];
+
+        const carsData = [...minigtPages1to3, ...minigtFromExternal, ...otherBrands];
+
+        // 分页相关变量
+        const ITEMS_PER_PAGE = 50;
+        let currentPage = 1;
+        let filteredCarsData = [];
+
+        function renderCars(cars, append = false) {
+            const grid = document.getElementById('cars-grid');
+            if (!append) {
+                grid.innerHTML = '';
+                currentPage = 1;
+            }
+
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, cars.length);
+            const carsToShow = cars.slice(startIndex, endIndex);
+
+            carsToShow.forEach(car => {
+                const card = document.createElement('div');
+                card.className = 'car-card';
+                const imageContent = car.image
+                    ? `<img src="${car.image}" alt="${car.model}" loading="lazy">`
+                    : `<div class="car-image-placeholder">🏎️</div>`;
+                card.innerHTML = `
+                    <div class="car-image">${imageContent}</div>
+                    <div class="car-info">
+                        <div class="car-brand">${car.brand}</div>
+                        <div class="car-name">${car.model}</div>
+                        <div class="car-details">
+                            <span class="detail-tag year">${car.year}</span>
+                            <span class="detail-tag color">${car.color}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            updateLoadMoreButton(cars.length, endIndex);
+        }
+
+        function updateLoadMoreButton(totalCount, currentEndIndex) {
+            let loadMoreContainer = document.getElementById('load-more-container');
+            if (!loadMoreContainer) {
+                loadMoreContainer = document.createElement('div');
+                loadMoreContainer.id = 'load-more-container';
+                loadMoreContainer.className = 'load-more-container';
+                document.getElementById('cars-grid').after(loadMoreContainer);
+            }
+
+            if (currentEndIndex < totalCount) {
+                const remaining = totalCount - currentEndIndex;
+                loadMoreContainer.innerHTML = `
+                    <button class="btn-load-more" onclick="loadMore()">
+                        加载更多（还剩 ${remaining} 款）
+                    </button>
+                `;
+            } else {
+                loadMoreContainer.innerHTML = `<p style="color: white;">已显示全部 ${totalCount} 款车型 🎉</p>`;
+            }
+        }
+
+        function loadMore() {
+            currentPage++;
+            renderCars(filteredCarsData, true);
+        }
+
+        function applyFilters() {
+            const brandFilter = document.getElementById('filter-brand').value;
+            let filtered = carsData;
+            if (brandFilter) {
+                filtered = filtered.filter(car => car.brand === brandFilter);
+            }
+            filteredCarsData = filtered;
+            renderCars(filtered);
+            document.getElementById('display-count').textContent = filtered.length;
+            document.getElementById('total-count').textContent = carsData.length;
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-brand').value = '';
+            applyFilters();
+        }
+
+        document.getElementById('filter-brand').addEventListener('change', applyFilters);
+
+        // 初始化
+        applyFilters();
+        document.getElementById('total-models').textContent = carsData.length;
+        document.getElementById('footer-count').textContent = carsData.length;
+    </script>
+</body>
+</html>
