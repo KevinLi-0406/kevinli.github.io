@@ -115,11 +115,174 @@
             font-weight: 600;
         }
 
+        /* 视图切换按钮组 */
+        .view-switcher {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .view-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .view-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: 600;
+        }
+
+        /* 默认视图：中卡片（每行6个） */
         .cars-grid {
             display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* 大卡片视图：每行4个 */
+        .cars-grid.view-large {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
-            margin-bottom: 30px;
+        }
+
+        /* 小卡片视图：每行8个 */
+        .cars-grid.view-small {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .cars-grid.view-small .car-image {
+            height: 120px;
+        }
+
+        .cars-grid.view-small .car-info {
+            padding: 10px;
+        }
+
+        .cars-grid.view-small .car-name {
+            font-size: 0.95em;
+        }
+
+        .cars-grid.view-small .car-brand {
+            font-size: 0.75em;
+        }
+
+        .cars-grid.view-small .car-details {
+            gap: 4px;
+        }
+
+        .cars-grid.view-small .detail-tag {
+            font-size: 0.7em;
+            padding: 3px 8px;
+        }
+
+        .cars-grid.view-small .car-info > div:last-child {
+            font-size: 0.75em !important;
+        }
+
+        /* 迷你视图：每行10个，极简 */
+        .cars-grid.view-mini {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .cars-grid.view-mini .car-image {
+            height: 90px;
+        }
+
+        .cars-grid.view-mini .car-info {
+            padding: 6px;
+        }
+
+        .cars-grid.view-mini .car-name {
+            font-size: 0.8em;
+            margin-bottom: 4px;
+        }
+
+        .cars-grid.view-mini .car-brand {
+            font-size: 0.65em;
+            margin-bottom: 2px;
+        }
+
+        .cars-grid.view-mini .car-details {
+            display: none;
+        }
+
+        .cars-grid.view-mini .car-info > div:last-child {
+            font-size: 0.65em !important;
+            margin-top: 2px !important;
+        }
+
+        .cars-grid.view-mini .car-info > div:nth-child(3) {
+            display: none;
+        }
+
+        /* 列表视图 */
+        .cars-grid.view-list {
+            display: block;
+        }
+
+        .cars-grid.view-list .car-card {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            height: 80px;
+        }
+
+        .cars-grid.view-list .car-card:hover {
+            transform: translateX(5px);
+        }
+
+        .cars-grid.view-list .car-image {
+            width: 120px;
+            min-width: 120px;
+            height: 100%;
+        }
+
+        .cars-grid.view-list .car-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 20px;
+        }
+
+        .cars-grid.view-list .car-brand {
+            min-width: 120px;
+            margin-bottom: 0;
+        }
+
+        .cars-grid.view-list .car-name {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .cars-grid.view-list .car-details {
+            margin-top: 0;
+            gap: 8px;
+        }
+
+        .cars-grid.view-list .car-info > div:last-child {
+            margin-top: 0 !important;
+            min-width: 100px;
+            text-align: right;
         }
 
         .load-more-container {
@@ -343,6 +506,13 @@
 
         <div class="stats">
             <span class="stats-text">显示 <span id="display-count">0</span> / <span id="total-count">0</span> 款车型</span>
+            <div class="view-switcher">
+                <button class="view-btn" onclick="switchView('large')" title="大卡片视图">🖼️ 大</button>
+                <button class="view-btn active" onclick="switchView('medium')" title="中卡片视图">📷 中</button>
+                <button class="view-btn" onclick="switchView('small')" title="小卡片视图">🔍 小</button>
+                <button class="view-btn" onclick="switchView('mini')" title="迷你视图">⚡ 迷你</button>
+                <button class="view-btn" onclick="switchView('list')" title="列表视图">📋 列表</button>
+            </div>
         </div>
 
         <div class="cars-grid" id="cars-grid"></div>
@@ -490,8 +660,45 @@
 
         document.getElementById('filter-brand').addEventListener('change', applyFilters);
 
+        // 视图切换
+        function switchView(viewType) {
+            const grid = document.getElementById('cars-grid');
+            // 移除所有视图类
+            grid.classList.remove('view-large', 'view-small', 'view-mini', 'view-list');
+            // 添加对应视图类
+            if (viewType !== 'medium') {
+                grid.classList.add('view-' + viewType);
+            }
+            // 更新按钮状态
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // 保存到localStorage
+            localStorage.setItem('carShowcaseView', viewType);
+        }
+
+        // 恢复上次视图
+        function restoreView() {
+            const savedView = localStorage.getItem('carShowcaseView');
+            if (savedView && savedView !== 'medium') {
+                const grid = document.getElementById('cars-grid');
+                grid.classList.add('view-' + savedView);
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    if (btn.textContent.includes(
+                        savedView === 'large' ? '大' :
+                        savedView === 'small' ? '小' :
+                        savedView === 'mini' ? '迷你' : '列表'
+                    )) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        }
+
         // 初始化
         applyFilters();
+        restoreView();
         document.getElementById('total-models').textContent = carsData.length;
         document.getElementById('footer-count').textContent = carsData.length;
     </script>
